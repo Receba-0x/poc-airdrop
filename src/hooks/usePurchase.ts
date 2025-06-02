@@ -162,7 +162,22 @@ export function usePurchase() {
         }
       });
 
-      console.log("events", events);
+      try {
+        await axios.post('/api/save-purchase', {
+          wallet: provider.wallet.publicKey.toString(),
+          nftMint: nftMintAddress.toString(),
+          nftMetadata: nftMetadataAddress.toString(),
+          amount,
+          tokenAmount,
+          transactionSignature: tx,
+          timestamp: new Date().toISOString(),
+          burnEventData: events
+        });
+        console.log("Purchase saved to database successfully");
+      } catch (saveError) {
+        console.error("Error saving purchase to database:", saveError);
+        toast.error("Transaction successful but failed to save to database");
+      }
 
       const result = {
         tx,

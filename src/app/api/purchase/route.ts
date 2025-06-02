@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const SECRET = process.env.SIGN_SECRET || 'supersecretkey';
 const TOKEN_ID = 'solana';
-const USD_PRICE = 20; // Valor fixo em USD do item
+const USD_PRICE = 20;
 
 export async function POST(req: NextRequest) {
   try {
