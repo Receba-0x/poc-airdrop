@@ -18,12 +18,10 @@ export function useBurnTransactions() {
 
   const fetchInitialTransactions = useCallback(async () => {
     try {
-      const { data } = await axios.get('/api/transactions?limit=20');
+      const { data } = await axios.get('/api/transactions?limit=15');
       if (data.success) {
         setTransactions(data.data);
-        if (data.data.length > 0) {
-          setLastTimestamp(data.data[0].timestamp);
-        }
+        if (data.data.length > 0) setLastTimestamp(data.data[0].timestamp);
       }
     } catch (error) {
       console.error('❌ Error fetching initial transactions:', error);
@@ -34,28 +32,21 @@ export function useBurnTransactions() {
 
   const checkForNewTransactions = useCallback(async () => {
     if (lastTimestamp === 0) return;
-
     try {
       const { data } = await axios.get(`/api/transactions?limit=3&lastTimestamp=${lastTimestamp}`);
       if (data.success && data.data.length > 0) {
         const newTxs: BurnTransaction[] = data.data;
-
         for (let i = 0; i < newTxs.length; i++) {
           const newTx = newTxs[i];
-
           setTimeout(() => {
             setTransactions(prev => {
               const alreadyExists = prev.some(tx => tx.id === newTx.id);
               if (alreadyExists) return prev;
-
               const updated = [newTx, ...prev];
               const sorted = updated.sort((a, b) => b.timestamp - a.timestamp);
-              return sorted.slice(0, 20);
+              return sorted.slice(0, 15);
             });
-
-
             setLastTimestamp(newTx.timestamp);
-
           }, i * 1000);
         }
       }

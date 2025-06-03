@@ -118,11 +118,11 @@ export function Header() {
     open: { opacity: 1, y: 0, x: 0, transition: { duration: 0.4 } },
   };
 
-  const BalanceDisplay = () => {
+  const BalanceDisplay = ({ className }: { className?: string }) => {
     if (!connected) return null;
 
     return (
-      <div className="flex items-center gap-2 text-sm mr-2">
+      <div className={`flex items-center gap-2 text-sm mr-2 ${className}`}>
         {isLoading ? (
           <span className="w-8 h-4 bg-gray-600 animate-pulse rounded-sm"></span>
         ) : (
@@ -143,9 +143,8 @@ export function Header() {
   return (
     <>
       <motion.header
-        className={`w-full fixed top-0 left-0 z-50 h-[56px] md:h-[64px] transition-all duration-300 flex items-center justify-center ${
-          scrolled ? "shadow-md" : ""
-        }`}
+        className={`w-full fixed top-0 left-0 z-50 h-[56px] md:h-[64px] transition-all duration-300 flex items-center justify-center ${scrolled ? "shadow-md" : ""
+          }`}
         style={{
           backgroundColor: scrolled ? "rgba(15, 15, 15, 0.7)" : "transparent",
           backdropFilter: scrolled ? "blur(8px)" : "blur(0px)",
@@ -244,8 +243,25 @@ export function Header() {
               className="flex items-center gap-2"
             >
               {connected && <BalanceDisplay />}
-              <div className="wallet-adapter-dropdown">
-                <WalletMultiButton className=" !bg-gradient-to-r !from-[#28D939] !to-[#12A91E] !text-black font-medium text-sm sm:text-base py-2 px-3 sm:px-4 md:py-2 md:px-6 rounded-lg border-none" />
+              <div className="mobile-wallet-button w-full">
+                <WalletMultiButton
+                  style={{
+                    width: "100%",
+                    height: "40px",
+                    background: "linear-gradient(135deg, #0B3B10 0%, #24682B 100%)",
+                    color: "#ADF0B4",
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                    border: "1.5px solid #28D939",
+                    borderRadius: "6px",
+                    padding: "8px 24px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px"
+                  }}
+                />
               </div>
             </motion.div>
             <motion.div
@@ -265,9 +281,8 @@ export function Header() {
             variants={buttonVariants}
           >
             <motion.button
-              className={`flex flex-col items-center justify-center w-10 h-10 rounded-full relative transition-colors ${
-                mobileMenuOpen ? "bg-[#28D939]/20" : "hover:bg-[#222222]/50"
-              }`}
+              className={`flex flex-col items-center justify-center w-10 h-10 rounded-full relative transition-colors ${mobileMenuOpen ? "bg-[#28D939]/20" : "hover:bg-[#222222]/50"
+                }`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               animate={mobileMenuOpen ? "open" : "closed"}
               variants={burgerVariants}
@@ -277,28 +292,25 @@ export function Header() {
             >
               <div className="w-8 h-8 flex items-center justify-center relative">
                 <motion.span
-                  className={`absolute h-[2px] rounded-full ${
-                    mobileMenuOpen
-                      ? "bg-[#28D939]"
-                      : "bg-gradient-to-r from-[#FFF7A8] to-[#FFEB28]"
-                  }`}
+                  className={`absolute h-[2px] rounded-full ${mobileMenuOpen
+                    ? "bg-[#28D939]"
+                    : "bg-gradient-to-r from-[#FFF7A8] to-[#FFEB28]"
+                    }`}
                   variants={topLineVariants}
                   transition={{ duration: 0.4, ease: [0.6, 0.05, -0.01, 0.9] }}
                   style={{ originX: 0.5 }}
                 />
                 <motion.span
-                  className={`absolute h-[2px] rounded-full ${
-                    mobileMenuOpen ? "bg-[#28D939]" : "bg-white"
-                  }`}
+                  className={`absolute h-[2px] rounded-full ${mobileMenuOpen ? "bg-[#28D939]" : "bg-white"
+                    }`}
                   variants={middleLineVariants}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                 />
                 <motion.span
-                  className={`absolute h-[2px] rounded-full ${
-                    mobileMenuOpen
-                      ? "bg-[#28D939]"
-                      : "bg-gradient-to-r from-[#FFEB28] to-[#FFF7A8]"
-                  }`}
+                  className={`absolute h-[2px] rounded-full ${mobileMenuOpen
+                    ? "bg-[#28D939]"
+                    : "bg-gradient-to-r from-[#FFEB28] to-[#FFF7A8]"
+                    }`}
                   variants={bottomLineVariants}
                   transition={{ duration: 0.4, ease: [0.6, 0.05, -0.01, 0.9] }}
                   style={{ originX: 0.5 }}
@@ -332,7 +344,7 @@ export function Header() {
               }}
             >
               <motion.div
-                className="flex flex-col gap-8 py-6 h-full"
+                className="flex flex-col gap-8 py-6 h-full w-full"
                 initial="closed"
                 animate="open"
                 exit="closed"
@@ -383,38 +395,39 @@ export function Header() {
                   </motion.div>
                 </motion.div>
 
-                <motion.div className="flex flex-col gap-4 mt-4">
-                  <motion.div variants={menuItemVariants}>
+                <motion.div className="flex flex-col gap-4 mt-4 w-full">
+                  <motion.div className="w-full" variants={menuItemVariants}>
                     <div className="flex items-center justify-between border-b border-[#222222] pb-3 mb-3">
                       <span className="text-white text-sm">
                         {t("common.language")}
                       </span>
                       <LanguageToggle />
                     </div>
-                    {connected && <BalanceDisplay />}
+                    {connected && <BalanceDisplay className="mb-4" />}
                     <WalletMultiButton
-                      style={{ width: "100%" }}
-                      className="mt-4 wallet-adapter-button-trigger !bg-gradient-to-r !from-[#28D939] !to-[#12A91E] !text-black font-medium w-full py-3 rounded-lg border-none hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                      style={{
+                        width: "100%",
+                        height: "40px",
+                        background: "linear-gradient(135deg, #0B3B10 0%, #24682B 100%)",
+                        color: "#ADF0B4",
+                        fontWeight: "bold",
+                        fontSize: "14px",
+                        border: "1.5px solid #28D939",
+                        borderRadius: "6px",
+                        padding: "8px 24px",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px"
+                      }}
                     />
                   </motion.div>
                   <motion.div variants={menuItemVariants}>
                     <Button
-                      className="w-full py-3 flex items-center justify-center gap-2"
+                      className="w-full py-3 flex items-center justify-center gap-2 h-[40px]"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <polyline points="19 12 12 19 5 12"></polyline>
-                      </svg>
                       {t("header.buyToken")}
                     </Button>
                   </motion.div>

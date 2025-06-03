@@ -89,6 +89,25 @@ export const translations = {
     'features.card3.title': 'Strong roots, big dreams',
     'features.card3.description': 'Unlike disconnected initiatives, the Adriano Token is built around a true and living relationship with Vila Cruzeiro. It\'s not just about honoring history.',
 
+    // Terms
+    'terms.title': 'Jurisdiction Notice',
+    'terms.dataCollection.title': 'Data Collection and Usage',
+    'terms.dataCollection.description': 'Like other websites, we collect and use information contained in advertisements. The information contained in advertisements includes:',
+    'terms.dataCollection.ip': 'Your IP address (Internet Protocol);',
+    'terms.dataCollection.isp': 'Your ISP (Internet Service Provider, such as Sapo, Clix or others);',
+    'terms.dataCollection.browser': 'The browser used to visit our website (such as Internet Explorer or Firefox);',
+    'terms.dataCollection.time': 'The time of your visit and the pages visited within our website',
+    'terms.cookies.title': 'DoubleClick DART Cookie',
+    'terms.cookies.google': 'Google, as a third-party provider, uses cookies to display ads on our website;',
+    'terms.cookies.dart': 'With the DART cookie, Google can display ads based on visits the reader has made to other websites on the Internet',
+    'terms.externalLinks.title': 'Privacy Policy for External Links',
+    'terms.externalLinks.description': 'The SK Sports website has links to other sites that, in our view, may contain information or tools useful to our visitors. Our privacy policy does not apply to third-party sites. Therefore, if you visit another site from ours, we recommend that you read its privacy policy',
+    'terms.confidentiality.title': 'Confidentiality and Use of Personal Information',
+    'terms.confidentiality.description1': 'We are not responsible for the privacy policy or content present on those same sites. All your personal information collected will be used to help you make your visit to our site as productive and enjoyable as possible.',
+    'terms.confidentiality.description2': 'Guaranteeing the confidentiality of data from users of our site is important to the store. All personal information relating to members, subscribers, customers or visitors who use the store site will be treated in accordance with the Personal Data Protection Law of October 26, 1998 (Law No. 67/98).',
+    'terms.confidentiality.description3': 'The personal information collected may include your name, email, phone and/or mobile number, address, date of birth and/or others.',
+    'terms.confidentiality.description4': 'Use of the SK Sports site assumes acceptance of this Privacy Agreement. The store team reserves the right to change this agreement without prior notice. Therefore, we recommend that you consult our privacy policy regularly to stay updated',
+
     // FAQ
     'faq.title': 'FAQ',
     'faq.description': 'Clear answers to the questions we hear most — because trust starts with transparency',
@@ -111,7 +130,8 @@ export const translations = {
     'footer.twitter': 'Follow us on X',
     'footer.telegram': 'Join our Telegram',
     'footer.whitepaper': 'Whitepaper',
-
+    'footer.terms': 'Terms of use',
+    
     // Wallet
     'wallet.connect': 'Connect Wallet',
     'wallet.connected': 'Connected',
@@ -211,7 +231,7 @@ export const translations = {
     'staking.lockupPeriod': 'Período de Bloqueio',
     'staking.estimatedRewards': 'Recompensas Estimadas',
     'staking.none': 'Nenhum',
-    'staking.days7': '7 Dias', 'staking.days14': '14 Dias', 'staking.days30': '30 Dias', 'staking.days90': '90 Dias', 'staking.days180': '180 Dias', 'staking.rewardsClaimedStatus': 'Recompensas Resgatadas', 'staking.awaitingUnlockStatus': 'Aguardando Desbloqueio', 'staking.readyForWithdrawalStatus': 'Pronto para Resgate', 'staking.availableForUnstake': 'Disponível para unstake',
+    'staking.days7': '7 Dias', 'staking.days14': '14 Dias', 'staking.days30': '30 Dias', 'staking.days90': '90 Dias', 'staking.days180': '180 Dias', 'staking.rewardsClaimedStatus': 'Recompensas Resgatadas', 'staking.awaitingUnlockStatus': 'Aguardando Desbloqueio', 'staking.readyForWithdrawalStatus': 'Pronto para Resgate',
     'staking.loadingStakeInfo': 'Carregando informações do stake...',
     'staking.stakedAmountLabel': 'Quantidade em Stake',
     'staking.startTime': 'Hora de Início',
@@ -262,6 +282,25 @@ export const translations = {
     'features.card3.title': 'Raízes fortes, sonhos grandes',
     'features.card3.description': 'Diferente de iniciativas desconectadas, o Adriano Token é construído em torno de uma relação verdadeira e viva com a Vila Cruzeiro. Não se trata apenas de homenagear a história.',
 
+    // Terms
+    'terms.title': 'Aviso de Jurisdição',
+    'terms.dataCollection.title': 'Coleta e Uso de Informações',
+    'terms.dataCollection.description': 'Tal como outros websites, coletamos e utilizamos informações contidas nos anúncios. A informação contida nos anúncios inclui:',
+    'terms.dataCollection.ip': 'O seu endereço IP (Internet Protocol);',
+    'terms.dataCollection.isp': 'O seu ISP (Internet Service Provider, como o Sapo, Clix ou outro);',
+    'terms.dataCollection.browser': 'O navegador utilizado ao visitar o nosso website (como Internet Explorer ou Firefox);',
+    'terms.dataCollection.time': 'O tempo da sua visita e as páginas visitadas dentro do nosso website',
+    'terms.cookies.title': 'Cookie DoubleClick DART',
+    'terms.cookies.google': 'O Google, como fornecedor de terceiros, utiliza cookies para exibir anúncios no nosso website;',
+    'terms.cookies.dart': 'Com o cookie DART, o Google pode exibir anúncios com base nas visitas que o leitor fez a outros websites na Internet',
+    'terms.externalLinks.title': 'Política de Privacidade para Links Externos',
+    'terms.externalLinks.description': 'O site da SK Sports possui ligações para outros sites que, a nosso ver, podem conter informações ou ferramentas úteis para os nossos visitantes. A nossa política de privacidade não é aplicada a sites de terceiros. Assim, caso visite outro site a partir do nosso, recomendamos que leia a política de privacidade do mesmo',
+    'terms.confidentiality.title': 'Confidencialidade e Uso de Informações Pessoais',
+    'terms.confidentiality.description1': 'Não nos responsabilizamos pela política de privacidade ou conteúdo presente nesses mesmos sites. Todas as suas informações pessoais recolhidas serão usadas para ajudá-lo a tornar a sua visita ao nosso site o mais produtiva e agradável possível.',
+    'terms.confidentiality.description2': 'A garantia da confidencialidade dos dados dos utilizadores do nosso site é importante para a loja. Todas as informações pessoais relativas a membros, assinantes, clientes ou visitantes que usem o site da loja serão tratadas em concordância com a Lei da Proteção de Dados Pessoais de 26 de outubro de 1998 (Lei n.° 67/98).',
+    'terms.confidentiality.description3': 'A informação pessoal recolhida pode incluir o seu nome, e-mail, número de telefone e/ou telemóvel, morada, data de nascimento e/ou outros.',
+    'terms.confidentiality.description4': 'O uso do site da SK Sports pressupõe a aceitação deste Acordo de Privacidade. A equipe da loja reserva-se ao direito de alterar este acordo sem aviso prévio. Deste modo, recomendamos que consulte a nossa política de privacidade regularmente para estar sempre atualizado',
+
     // FAQ
     'faq.title': 'FAQ',
     'faq.description': 'Respostas claras para as perguntas que mais ouvimos — porque a confiança começa com transparência',
@@ -284,6 +323,7 @@ export const translations = {
     'footer.twitter': 'Siga-nos no X',
     'footer.telegram': 'Junte-se ao nosso Telegram',
     'footer.whitepaper': 'Whitepaper',
+    'footer.terms': 'Termos de uso',
 
     // Wallet
     'wallet.connect': 'Conectar Carteira',

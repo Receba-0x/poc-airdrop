@@ -19,35 +19,35 @@ const MAX_ITEMS = 15;
 
 export function BurnTicker() {
   const pathname = usePathname();
-  const isHome = pathname === "/";
-  const isTransactions = pathname === "/transactions";
-  const isStaking = pathname === "/staking";
+  const isBoxes = pathname.includes("/boxes");
 
-  if (isHome || isTransactions || isStaking) return null;
+  if (!isBoxes) return null;
 
   const { transactions, isLoading } = useBurnTransactions();
   const [displayTransactions, setDisplayTransactions] = useState<BurnTransaction[]>([]);
   const [newItemIds, setNewItemIds] = useState<Set<string>>(new Set());
+  const [animationKey, setAnimationKey] = useState(0);
   const previousIdsRef = useRef<Set<string>>(new Set());
 
-  // Update display transactions and detect new items
   useEffect(() => {
     if (transactions.length > 0) {
       const newList = transactions.slice(0, MAX_ITEMS);
-
-      // Detect new items by comparing with previous IDs
       const currentIds = new Set(newList.map(tx => tx.id));
       const newIds = new Set([...currentIds].filter(id => !previousIdsRef.current.has(id)));
+
+      if (newIds.size > 0) {
+        // Increment animation key to trigger re-render with new animations
+        setAnimationKey(prev => prev + 1);
+      }
 
       setDisplayTransactions(newList);
       setNewItemIds(newIds);
       previousIdsRef.current = currentIds;
 
-      // Clear new item flags after animation
       if (newIds.size > 0) {
         setTimeout(() => {
           setNewItemIds(new Set());
-        }, 700);
+        }, 800);
       }
     }
   }, [transactions]);
@@ -72,47 +72,88 @@ export function BurnTicker() {
     );
   }
 
-  // Calculate item width based on screen size and number of items
   const itemCount = displayTransactions.length;
   const itemWidth = `${100 / itemCount}%`;
 
   return (
     <div className="w-full bg-[#0F0F0F] overflow-hidden fixed top-[60px] left-0 right-0 z-50 drop-shadow-2xl shadow-2xl shadow-black">
       <div className="relative h-[36px] w-full">
-        <div className="flex h-full w-full">
+        <motion.div
+          className="flex h-full w-full"
+          key={animationKey}
+          initial={false}
+          animate={{ x: 0 }}
+          transition={{
+            duration: 0.7,
+            ease: [0.25, 0.46, 0.45, 0.94],
+            when: "beforeChildren",
+            staggerChildren: 0.05
+          }}
+        >
           <AnimatePresence mode="popLayout">
-            {displayTransactions.slice(0, 20).map((tx) => {
+            {displayTransactions.slice(0, 20).map((tx, index) => {
               const isNewItem = newItemIds.has(tx.id);
 
               return (
                 <motion.div
                   key={`${tx.id}-${tx.timestamp}`}
-                  className="flex items-center justify-center relative bg-[url('/images/burn_bg.png')] bg-cover bg-center bg-no-repeat border-r border-gray-700 last:border-r-0"
-                  style={{ 
-                    width: itemWidth,
-                    minWidth: '80px', // Largura mínima para legibilidade
-                    height: '36px' 
+                  className="flex items-center justify-center relative bg-[url('/images/burn_bg.png')] bg-cover bg-right bg-no-repeat"
+                  style={{ width: itemWidth, minWidth: '80px', height: '36px' }}
+                  initial={isNewItem ? {
+                    x: '-100%',
+                    opacity: 0,
+                    scale: 0.9
+                  } : {
+                    x: 0,
+                    opacity: 1,
+                    scale: 1
                   }}
-                  initial={isNewItem ? { x: '100%', opacity: 0 } : false}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: '-100%', opacity: 0 }}
+                  animate={{
+                    x: 0,
+                    opacity: 1,
+                    scale: 1
+                  }}
+                  exit={{
+                    x: '100%',
+                    opacity: 0,
+                    scale: 0.9,
+                    transition: { duration: 0.4 }
+                  }}
                   transition={{
-                    duration: 0.6,
-                    ease: "easeOut"
+                    duration: isNewItem ? 0.7 : 0.5,
+                    ease: [0.25, 0.46, 0.45, 0.94],
+                    delay: isNewItem ? 0 : index * 0.02,
+                    layout: {
+                      duration: 0.6,
+                      ease: [0.25, 0.46, 0.45, 0.94]
+                    }
                   }}
                   layout
+                  layoutId={tx.id}
                 >
-                  <div className="flex items-center justify-center gap-1 px-1 w-full">
+                  <motion.div
+                    className="flex items-center justify-start gap-1 px-1 pl-4 w-full"
+                    initial={isNewItem ? { scale: 0.8, opacity: 0 } : false}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{
+                      duration: 0.4,
+                      delay: isNewItem ? 0.3 : 0,
+                      ease: "easeOut"
+                    }}
+                  >
                     <LogoIcon className="w-3 h-3 sm:w-4 sm:h-4 text-white flex-shrink-0" />
                     <span className="text-white font-medium text-xs sm:text-sm truncate">
-                      {tx.amount.toFixed(0)}
+                      {tx.amount.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
                     </span>
-                  </div>
+                  </motion.div>
                 </motion.div>
               );
             })}
           </AnimatePresence>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

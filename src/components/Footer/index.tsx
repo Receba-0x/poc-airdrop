@@ -119,7 +119,7 @@ export function Footer() {
 
         <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-[#BDBDBD] text-xs sm:text-sm text-center sm:text-left">
-            © 2025 ADR Token. {t("footer.rights")}
+            © 2025 ADR Token. {t("footer.rights")} <Link href="/terms" className="text-[#28D939] hover:text-[#28D939] transition-colors duration-200">{t("footer.terms")}</Link>
           </div>
 
           <Button className="w-full sm:w-auto py-3 px-4 sm:px-6 text-sm sm:text-base">
