@@ -15,17 +15,23 @@ export async function POST(request: NextRequest) {
       amount,
       tokenAmount,
       transactionSignature,
+      prizeId,
+      prizeName,
+      randomNumber,
+      userSeed,
+      serverSeed,
+      nonce,
       timestamp,
-      burnEventData
     } = await request.json();
 
-    if (!wallet || !nftMint || !transactionSignature || !amount) {
+    if (!wallet || !nftMint || !transactionSignature || !amount || !prizeId) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
+    // Inserir dados da compra/abertura de caixa
     const { data, error } = await supabase
       .from('purchases')
       .insert([
@@ -36,8 +42,13 @@ export async function POST(request: NextRequest) {
           amount_purchased: amount,
           token_amount_burned: tokenAmount,
           transaction_signature: transactionSignature,
+          prize_id: prizeId,
+          prize_name: prizeName,
+          random_number: randomNumber,
+          user_seed: userSeed,
+          server_seed: serverSeed,
+          nonce: nonce,
           purchase_timestamp: timestamp,
-          burn_event_data: burnEventData,
           status: 'completed'
         }
       ])
@@ -49,6 +60,22 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to save purchase data' },
         { status: 500 }
       );
+    }
+
+    // Se for prêmio físico, atualizar estoque
+    const physicalPrizes = [8, 9, 10, 11, 12, 13];
+    if (physicalPrizes.includes(prizeId)) {
+      const { error: stockError } = await supabase
+        .from('prize_stock')
+        .update({
+          current_stock: supabase.rpc('decrement_stock', { prize_id: prizeId })
+        })
+        .eq('prize_id', prizeId);
+
+      if (stockError) {
+        console.error('Error updating stock:', stockError);
+        // Não falha a transação se não conseguir atualizar estoque
+      }
     }
 
     return NextResponse.json({

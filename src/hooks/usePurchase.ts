@@ -49,7 +49,6 @@ const PRIZE_TABLE = [
   { id: 13, name: "Ticket Dourado", type: "special", metadata: "ticket-dourado", probability: 0.003636, stockRequired: true, stock: 10 },
 ];
 
-// Estoque global (em produção, isso deveria vir de um banco de dados)
 let globalStock: { [key: number]: number } = {
   8: 90,   // Camisas
   9: 40,   // Bolas
@@ -84,35 +83,25 @@ export function usePurchase() {
     return (globalStock[prizeId] || 0) > 0;
   }
 
-  // Determinar prêmio usando o algoritmo da especificação
   function determinePrize(randomNumber: number): number | null {
-    // Calcular probabilidades cumulativas
     let cumulativeProbability = 0;
-    
     for (const prize of PRIZE_TABLE) {
       cumulativeProbability += prize.probability;
-      
       if (randomNumber < cumulativeProbability) {
-        // Verificar estoque se necessário
         if (prize.stockRequired && !checkStock(prize.id)) {
-          // Se não há estoque, tentar novamente com outro número
-          // Em produção, isso deveria usar uma lógica mais sofisticada
           continue;
         }
         
-        // Reduzir estoque se necessário
         if (prize.stockRequired && globalStock[prize.id]) {
           globalStock[prize.id]--;
         }
-        
         return prize.id;
       }
     }
     
-    return null; // Fallback (não deveria acontecer)
+    return null;
   }
 
-  // Processar jackpots especiais
   function handleJackpot(userAddress: string, prizeId: number) {
     if (prizeId === 11 || prizeId === 13) { // MacBook ou Ticket Dourado
       console.log(`🎉 JACKPOT! User ${userAddress} won prize ${prizeId}`);
