@@ -34,11 +34,12 @@ export function useUnstaking() {
       const idl = await anchor.Program.fetchIdl(PROGRAM_ID, provider);
       const program = new Program(idl, provider);
 
+      const tokenMint = new PublicKey(PAYMENT_TOKEN_MINT);
       const [stakeAccount] = await PublicKey.findProgramAddress(
         [
           Buffer.from('stake_account'),
           publicKey.toBuffer(),
-          new PublicKey(PAYMENT_TOKEN_MINT).toBuffer(),
+          tokenMint.toBuffer(),
         ],
         program.programId
       );
@@ -49,15 +50,15 @@ export function useUnstaking() {
       );
 
       const stakerTokenAccount = await getAssociatedTokenAddress(
-        new PublicKey(PAYMENT_TOKEN_MINT),
+        tokenMint,
         publicKey
       );
 
-      const stakeTokenAccount = await getAssociatedTokenAddress(
-        new PublicKey(PAYMENT_TOKEN_MINT),
-        stakeAuthority,
-        true
+      const [rewardReserveAccount] = PublicKey.findProgramAddressSync(
+        [Buffer.from("reward_reserve"), tokenMint.toBuffer()],
+        program.programId
       );
+
 
       const stakeAccountData = await (program.account as any).stakeAccount.fetch(stakeAccount);
       console.log("Stake account data:", stakeAccountData);
@@ -73,12 +74,11 @@ export function useUnstaking() {
         .unstakeTokens()
         .accounts({
           staker: publicKey,
-          tokenMint: new PublicKey(PAYMENT_TOKEN_MINT),
-          rewardTokenMint: new PublicKey(PAYMENT_TOKEN_MINT),
+          tokenMint,
           stakerTokenAccount,
-          stakeTokenAccount,
-          stakeAuthority,
           stakeAccount,
+          rewardReserveAccount,
+          stakeAuthority,
           config: new PublicKey(CONFIG_ACCOUNT),
           tokenProgram: TOKEN_PROGRAM_ID,
           systemProgram: SystemProgram.programId,

@@ -2,7 +2,6 @@
 import type { PropsWithChildren } from "react";
 import SolanaProvider from "./SolanaProvider";
 import { FloatingTransactionButton } from "../FloatingTransactionButton";
-import { TestControls } from "../TestControls";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
 const Providers = ({ children }: PropsWithChildren) => {
@@ -11,7 +10,6 @@ const Providers = ({ children }: PropsWithChildren) => {
       <SolanaProvider>
         {children} 
         <FloatingTransactionButton />
-        <TestControls />
       </SolanaProvider>
     </LanguageProvider>
   );

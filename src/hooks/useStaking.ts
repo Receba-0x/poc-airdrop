@@ -107,11 +107,13 @@ export function useStaking() {
       });
       const idl = await anchor.Program.fetchIdl(PROGRAM_ID, provider);
       const program = new Program(idl, provider);
+      const tokenMint = new PublicKey(PAYMENT_TOKEN_MINT);
+
       const [stakeAccount] = await PublicKey.findProgramAddress(
         [
           Buffer.from('stake_account'),
           publicKey.toBuffer(),
-          new PublicKey(PAYMENT_TOKEN_MINT).toBuffer(),
+          tokenMint.toBuffer(),
         ],
         program.programId
       );
@@ -122,26 +124,30 @@ export function useStaking() {
       );
 
       const stakerTokenAccount = await getAssociatedTokenAddress(
-        new PublicKey(PAYMENT_TOKEN_MINT),
+        tokenMint,
         publicKey
       );
 
       const stakeTokenAccount = await getAssociatedTokenAddress(
-        new PublicKey(PAYMENT_TOKEN_MINT),
+        tokenMint,
         stakeAuthority,
         true
+      );
+
+      const [rewardReserveAccount] = PublicKey.findProgramAddressSync(
+        [Buffer.from("reward_reserve"), tokenMint.toBuffer()],
+        program.programId
       );
 
       const config = new PublicKey(CONFIG_ACCOUNT);
 
       const stakeTokenAccountInfo = await connection.getAccountInfo(stakeTokenAccount);
       if (!stakeTokenAccountInfo) {
-        console.log("Creating stake token account...");
         const createAtaIx = createAssociatedTokenAccountInstruction(
           publicKey,
           stakeTokenAccount,
           stakeAuthority,
-          new PublicKey(PAYMENT_TOKEN_MINT)
+          tokenMint
         );
         const tx = new Transaction().add(createAtaIx);
         tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
@@ -149,25 +155,18 @@ export function useStaking() {
         const signedTx = await signTransaction(tx);
         const sig = await connection.sendRawTransaction(signedTx.serialize());
         await connection.confirmTransaction(sig);
-        console.log("Stake token account created successfully!");
       }
 
       const stakingPeriodArg = { [selectedPeriod]: {} };
-
-      console.log("Staking period arg:", stakingPeriodArg);
-
-      console.log("Public Key:", publicKey?.toString());
-      console.log("Payment Token Mint:", PAYMENT_TOKEN_MINT);
-      console.log("Amount:", amount);
 
       const tx = await program.methods
         .stakeTokens(new BN(Number(amount) * 1e9), stakingPeriodArg)
         .accounts({
           staker: wallet.publicKey,
-          tokenMint: new PublicKey(PAYMENT_TOKEN_MINT),
+          tokenMint,
           stakerTokenAccount,
           stakeAccount,
-          stakeTokenAccount,
+          rewardReserveAccount,
           stakeAuthority,
           config,
           tokenProgram: anchor.utils.token.TOKEN_PROGRAM_ID,

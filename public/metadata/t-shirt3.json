@@ -1,0 +1,50 @@
+{
+  "name": "Adriano Imperador Soccer Jersey #3",
+  "symbol": "ADR-JERSEY3",
+  "description": "Exclusive autographed soccer jersey from Adriano Imperador. A rare collectible item celebrating the legend of Brazilian football. Part of the official $ADR collection.",
+  "image": "/images/itens/camisa3.png",
+  "external_url": "https://adr-token.com",
+  "attributes": [
+    {
+      "trait_type": "Category",
+      "value": "Soccer Jersey"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Legendary"
+    },
+    {
+      "trait_type": "Autographed",
+      "value": "Yes"
+    },
+    {
+      "trait_type": "Player",
+      "value": "Adriano Imperador"
+    },
+    {
+      "trait_type": "Color",
+      "value": "Classic Green"
+    },
+    {
+      "trait_type": "Size",
+      "value": "M"
+    },
+    {
+      "trait_type": "Edition",
+      "value": "Limited"
+    }
+  ],
+  "collection": {
+    "name": "ADR Collection",
+    "family": "Adriano Imperador"
+  },
+  "properties": {
+    "files": [
+      {
+        "uri": "/images/itens/camisa3.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image"
+  }
+} 

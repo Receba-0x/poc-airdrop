@@ -1,0 +1,58 @@
+{
+  "name": "Adriano Imperador Mikasa Soccer Ball",
+  "symbol": "ADR-BALL",
+  "description": "Official Mikasa soccer ball signed by the legendary Adriano Imperador. A premium collectible that represents the spirit of Brazilian football and the power of Vila Cruzeiro. Part of the official $ADR collection.",
+  "image": "/images/itens/ball.png",
+  "external_url": "https://adr-token.com",
+  "attributes": [
+    {
+      "trait_type": "Category",
+      "value": "Soccer Equipment"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Rare"
+    },
+    {
+      "trait_type": "Signed",
+      "value": "Yes"
+    },
+    {
+      "trait_type": "Player",
+      "value": "Adriano Imperador"
+    },
+    {
+      "trait_type": "Brand",
+      "value": "Mikasa"
+    },
+    {
+      "trait_type": "Size",
+      "value": "Official"
+    },
+    {
+      "trait_type": "Condition",
+      "value": "New"
+    },
+    {
+      "trait_type": "Material",
+      "value": "Synthetic Leather"
+    },
+    {
+      "trait_type": "Type",
+      "value": "Match Ball"
+    }
+  ],
+  "collection": {
+    "name": "ADR Collection",
+    "family": "Adriano Imperador"
+  },
+  "properties": {
+    "files": [
+      {
+        "uri": "/images/itens/ball.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image"
+  }
+} 

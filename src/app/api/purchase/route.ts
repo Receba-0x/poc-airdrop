@@ -6,9 +6,6 @@ import bs58 from 'bs58';
 const TOKEN_ID = 'solana';
 const USD_PRICE = 20;
 
-const PRIVATE_KEY_BASE58 = process.env.BACKEND_PRIVATE_KEY!;
-const privateKeyUint8 = bs58.decode(PRIVATE_KEY_BASE58);
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -23,20 +20,28 @@ export async function POST(req: NextRequest) {
     if (!tokenPrice) {
       return NextResponse.json({ error: 'Token price not found' }, { status: 500 });
     }
-    const tokenAmount = (USD_PRICE / tokenPrice).toFixed(6);
-    const timestamp = Date.now();
-    const message = `${wallet}:${tokenAmount}:${timestamp}`;
-    const messageBytes = new TextEncoder().encode(message);
+    const tokenAmount = Math.floor((USD_PRICE / tokenPrice) * 1e9);
 
-    const signature = nacl.sign.detached(messageBytes, privateKeyUint8);
-    const signatureBase58 = bs58.encode(signature);
+    const privateKey = bs58.decode(process.env.PRIVATE_KEY!);
+    const keypair = nacl.sign.keyPair.fromSecretKey(privateKey);
+    const timestamp = Math.floor(Date.now() / 1000);
+    const backendPubkey = bs58.encode(keypair.publicKey);
+
+    const messagePayload = {
+      wallet,
+      amount: tokenAmount,
+      timestamp,
+    };
+    const message = JSON.stringify(messagePayload);
+    const signature = nacl.sign.detached(Buffer.from(message), keypair.secretKey);
 
     return NextResponse.json({
       itemId,
       wallet,
       tokenAmount,
       timestamp,
-      signature: signatureBase58,
+      signature: Array.from(signature),
+      backendPubkey,
     });
   } catch (err) {
     console.error(err);
