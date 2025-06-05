@@ -12,7 +12,6 @@ export default function TermsPage() {
       <Header />
       <div className="min-h-screen text-white pt-20 bg-[#0F0F0F]">
         <div className="container mx-auto px-4 py-12 max-w-4xl">
-          {/* Header */}
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-6xl font-bold mb-4">
               {t("terms.title")}
