@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_KEY!;
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_KEY;
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const isSupabaseConfigured = supabaseUrl && supabaseServiceKey;
+const supabase = isSupabaseConfigured ? createClient(supabaseUrl, supabaseServiceKey) : null;
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +13,6 @@ export async function POST(request: NextRequest) {
       wallet,
       nftMint,
       nftMetadata,
-      amount,
       tokenAmount,
       transactionSignature,
       prizeId,
@@ -24,11 +24,36 @@ export async function POST(request: NextRequest) {
       timestamp,
     } = await request.json();
 
-    if (!wallet || !nftMint || !transactionSignature || !amount || !prizeId) {
+    if (!wallet || !nftMint || !transactionSignature || !prizeId) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
+    }
+
+    // Se o Supabase não estiver configurado, apenas fazer log dos dados
+    if (!isSupabaseConfigured || !supabase) {
+      console.log('🎁 Purchase data (Supabase not configured):');
+      console.log({
+        wallet,
+        nftMint,
+        nftMetadata,
+        tokenAmount,
+        transactionSignature,
+        prizeId,
+        prizeName,
+        randomNumber,
+        userSeed,
+        serverSeed,
+        nonce,
+        timestamp
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Data logged successfully (database not configured)',
+        data: { id: Date.now() }
+      });
     }
 
     // Inserir dados da compra/abertura de caixa
@@ -39,7 +64,7 @@ export async function POST(request: NextRequest) {
           wallet_address: wallet,
           nft_mint: nftMint,
           nft_metadata: nftMetadata,
-          amount_purchased: amount,
+          amount_purchased: tokenAmount,
           token_amount_burned: tokenAmount,
           transaction_signature: transactionSignature,
           prize_id: prizeId,
@@ -49,6 +74,7 @@ export async function POST(request: NextRequest) {
           server_seed: serverSeed,
           nonce: nonce,
           purchase_timestamp: timestamp,
+          is_crypto: prizeId >= 100 && prizeId <= 111, // Verificar se é prêmio crypto
           status: 'completed'
         }
       ])
@@ -62,19 +88,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Se for prêmio físico, atualizar estoque
+    // Se for prêmio físico, atualizar estoque usando a função RPC
     const physicalPrizes = [8, 9, 10, 11, 12, 13];
     if (physicalPrizes.includes(prizeId)) {
-      const { error: stockError } = await supabase
-        .from('prize_stock')
-        .update({
-          current_stock: supabase.rpc('decrement_stock', { prize_id: prizeId })
-        })
-        .eq('prize_id', prizeId);
+      const { data: stockData, error: stockError } = await supabase
+        .rpc('decrement_stock', { prize_id: prizeId });
 
       if (stockError) {
         console.error('Error updating stock:', stockError);
         // Não falha a transação se não conseguir atualizar estoque
+      } else {
+        console.log(`Stock updated for prize ${prizeId}, new stock: ${stockData}`);
       }
     }
 

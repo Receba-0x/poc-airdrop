@@ -4,13 +4,12 @@ import nacl from 'tweetnacl';
 import bs58 from 'bs58';
 
 const TOKEN_ID = 'solana';
-const USD_PRICE = 20;
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { itemId, wallet } = body;
-    if (!itemId || !wallet) {
+    const { boxType, wallet } = body;
+    if (!boxType || !wallet) {
       return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
     }
     const { data } = await axios.get(
@@ -20,7 +19,8 @@ export async function POST(req: NextRequest) {
     if (!tokenPrice) {
       return NextResponse.json({ error: 'Token price not found' }, { status: 500 });
     }
-    const tokenAmount = Math.floor((USD_PRICE / tokenPrice) * 1e9);
+    const boxPrice = boxType === 1 ? 45 : 45;
+    const tokenAmount = Math.floor((boxPrice / tokenPrice) * 1e9);
 
     const privateKey = bs58.decode(process.env.PRIVATE_KEY!);
     const keypair = nacl.sign.keyPair.fromSecretKey(privateKey);
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     const signature = nacl.sign.detached(Buffer.from(message), keypair.secretKey);
 
     return NextResponse.json({
-      itemId,
+      boxType,
       wallet,
       tokenAmount,
       timestamp,
