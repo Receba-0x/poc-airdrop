@@ -12,12 +12,12 @@ const checkAdminAuth = (request: NextRequest) => {
   // For demo purposes - this is just basic protection
   // In production, use Next Auth or similar for proper authentication
   const referer = request.headers.get('referer') || '';
-  
+
   // Only allow requests from the admin page
   if (!referer.includes('/admin')) {
     return false;
   }
-  
+
   return true;
 };
 
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0');
 
     // Get all purchases
-    let query = supabase
+    const query = supabase
       .from('purchases')
       .select('*')
       .order('created_at', { ascending: false })
