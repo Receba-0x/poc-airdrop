@@ -2,8 +2,8 @@
   "name": "Adriano Imperador Soccer Cleats",
   "symbol": "ADR-CLEATS",
   "description": "Professional soccer cleats worn by the legendary Adriano Imperador. A unique collectible item that carries the power and passion of Brazilian football. Part of the official $ADR collection.",
-  "image": "/images/itens/chuteira.png",
-  "external_url": "https://adr-token.com",
+  "image": "https://adr-token.vercel.app/images/itens/chuteira.png",
+  "external_url": "https://adr-token.vercel.app",
   "attributes": [
     {
       "trait_type": "Category",

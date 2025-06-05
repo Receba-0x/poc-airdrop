@@ -2,8 +2,8 @@
   "name": "ADR MacBook Gift Card",
   "symbol": "ADR-MACBOOK",
   "description": "Premium Amazon gift card for MacBook purchase, sponsored by the $ADR community. The ultimate digital prize bringing cutting-edge technology to Vila Cruzeiro. Part of the official $ADR collection.",
-  "image": "/images/itens/macbook.png",
-  "external_url": "https://adr-token.com",
+  "image": "https://adr-token.vercel.app/images/itens/macbook.png",
+  "external_url": "https://adr-token.vercel.app",
   "attributes": [
     {
       "trait_type": "Category",
