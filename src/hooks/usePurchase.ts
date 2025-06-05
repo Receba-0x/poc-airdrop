@@ -30,6 +30,7 @@ import { toast } from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import axios from "axios";
+import crypto from "crypto";
 
 const METAPLEX_PROGRAM_ID = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
 const BOX_PRICE_USD = 45.00;
@@ -72,7 +73,6 @@ export function usePurchase() {
   }
 
   function generateProvablyFairNumber(userSeed: string, serverSeed: string, nonce: number): number {
-    const crypto = require('crypto');
     const combined = `${userSeed}:${serverSeed}:${nonce}`;
     const hash = crypto.createHash('sha256').update(combined).digest('hex');
     const hexNumber = parseInt(hash.substring(0, 8), 16);
