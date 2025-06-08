@@ -31,19 +31,33 @@ import { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import axios from "axios";
 import crypto from "crypto";
+import { useUser } from "@/contexts/UserContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const METAPLEX_PROGRAM_ID = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
-const BOX_PRICE_USD = 45.00;
-const SOL_FEE = 0.046364;
 
 export function usePurchase() {
   const { publicKey, signTransaction, signAllTransactions, connected } = useWallet();
   const { connection } = useConnection();
-  const [balance, setBalance] = useState(0);
+  const { balance, refreshBalance, solanaPrice } = useUser();
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [currentStock, setCurrentStock] = useState<{ [key: number]: number }>({});
-  const [solanaPrice, setSolanaPrice] = useState(0);
-  const [lastSimulationResult, setLastSimulationResult] = useState<any>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalStatus, setModalStatus] = useState<"initializing" | "processing" | "determining" | "delivering" | "saving" | "success" | "error">("initializing");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [transactionHash, setTransactionHash] = useState("");
+  const [currentPrize, setCurrentPrize] = useState<any>(null);
+  const [currentBoxType, setCurrentBoxType] = useState<string>("");
+  const [currentAmount, setCurrentAmount] = useState<string>("");
+
+  const closeModal = () => {
+    setModalOpen(false);
+    if (modalStatus === "success") {
+      setCurrentPrize(null);
+      setTransactionHash("");
+    }
+  };
 
   async function fetchCurrentStock(): Promise<{ [key: number]: number }> {
     try {
@@ -56,12 +70,12 @@ export function usePurchase() {
     } catch (error) {
       console.error("Erro ao buscar estoque:", error);
       return {
-        8: 90,
-        9: 40,
-        10: 30,
-        11: 1,
-        12: 2,
-        13: 10
+        5: 90,
+        6: 40,
+        7: 30,
+        8: 1,
+        9: 2,
+        10: 10
       };
     }
   }
@@ -81,20 +95,20 @@ export function usePurchase() {
 
   async function determinePrize(randomNumber: number, isCrypto: boolean = false): Promise<number | null> {
     if (isCrypto) return determineCryptoPrize(randomNumber);
-
     const stock = await fetchCurrentStock();
     let cumulativeProbability = 0;
-
     for (const prize of PRIZE_TABLE) {
       cumulativeProbability += prize.probability;
       if (randomNumber < cumulativeProbability) {
-        if (prize.stockRequired && !checkStock(prize.id, stock)) {
-          continue;
-        }
+        if (prize.stockRequired && !checkStock(prize.id, stock)) continue;
         return prize.id;
       }
     }
-    return null;
+
+    const fallbackPrize = PRIZE_TABLE.find(p => p.type === "sol" && !p.stockRequired);
+    if (fallbackPrize) return fallbackPrize.id;
+
+    return 1;
   }
 
   function determineCryptoPrize(randomNumber: number): number {
@@ -106,97 +120,56 @@ export function usePurchase() {
     return CRYPTO_PRIZE_TABLE[0].id;
   }
 
-  function handleJackpot(userAddress: string, prizeId: number) {
-    if (prizeId === 11 || prizeId === 13) {
-      console.log(`🎉 JACKPOT! User ${userAddress} won prize ${prizeId}`);
-      // Em produção, implementar:
-      // - Registro em log especial
-      // - Notificação para administradores
-      // - Processo de verificação KYC
-      // - Sistema de voucher para prêmios físicos
-    }
-  }
-
   async function deliverPrize(userAddress: PublicKey, prizeId: number) {
-    if (prizeId >= 100 && prizeId <= 111) {
-      const cryptoPrize = CRYPTO_PRIZE_TABLE.find(p => p.id === prizeId);
-      if (!cryptoPrize) throw new Error("Prêmio crypto não encontrado");
-
-      const solAmount = cryptoPrize.amount * LAMPORTS_PER_SOL;
-      SystemProgram.transfer({
-        fromPubkey: new PublicKey(process.env.NEXT_PUBLIC_TREASURY_WALLET!),
-        toPubkey: userAddress,
-        lamports: solAmount,
-      });
-      return;
-    }
-
-    const prize = PRIZE_TABLE.find(p => p.id === prizeId);
-    if (!prize) throw new Error("Prêmio não encontrado");
-
-    switch (prize.type) {
-      case "sol":
+    try {
+      if (prizeId >= 100 && prizeId <= 111) {
+        const cryptoPrize = CRYPTO_PRIZE_TABLE.find(p => p.id === prizeId);
+        if (!cryptoPrize) {
+          console.error(`❌ Prêmio crypto não encontrado: ${prizeId}`);
+          return;
+        }
+        const solAmount = cryptoPrize.amount * LAMPORTS_PER_SOL;
+        SystemProgram.transfer({
+          fromPubkey: new PublicKey(process.env.NEXT_PUBLIC_TREASURY_WALLET!),
+          toPubkey: userAddress,
+          lamports: solAmount,
+        });
+        return;
+      }
+      const prize = PRIZE_TABLE.find(p => p.id === prizeId);
+      if (!prize) {
+        console.error(`❌ Prêmio não encontrado: ${prizeId}`);
+        return;
+      }
+      if (prize.type === "sol") {
         const solAmount = (prize.amount || 0) * LAMPORTS_PER_SOL;
         SystemProgram.transfer({
           fromPubkey: new PublicKey(process.env.NEXT_PUBLIC_TREASURY_WALLET!),
           toPubkey: userAddress,
           lamports: solAmount,
         });
-        console.log(`Enviando ${prize.amount || 0} SOL para ${userAddress.toString()}`);
-        break;
-
-      case "nft":
-        console.log(`Mintando NFT ${prize.metadata} para ${userAddress.toString()}`);
-        break;
-
-      case "physical":
-      case "special":
-        console.log(`Gerando voucher para ${prize.name} - ${userAddress.toString()}`);
-        handleJackpot(userAddress.toString(), prizeId);
-        break;
+      }
+    } catch (error) {
+      console.error("❌ Erro ao entregar prêmio:", error);
     }
   }
-
-  const getBalance = async () => {
-    if (!connected || !publicKey) return;
-    setIsLoading(true);
-
-    try {
-      const tokenMint = new PublicKey(PAYMENT_TOKEN_MINT);
-      getAssociatedTokenAddress(tokenMint, publicKey)
-        .then((tokenAccount) => {
-          return connection
-            .getTokenAccountBalance(tokenAccount)
-            .then((tokenAccountInfo) => {
-              setBalance(parseFloat(tokenAccountInfo.value.uiAmount?.toString() || "0"));
-            })
-            .catch((err) => {
-              console.log("Token account may not exist yet:", err);
-              setBalance(0);
-            });
-        })
-        .catch((error) => {
-          console.error("Error fetching token balance:", error);
-          setBalance(0);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    } catch (error) {
-      console.error("Invalid token mint address:", error);
-      setIsLoading(false);
-      setBalance(0);
-    }
-  };
 
   async function onMint(isCrypto: boolean) {
     try {
       if (!publicKey) throw new Error("Wallet not connected");
       setIsLoading(true);
+      setModalOpen(true);
+      setModalStatus("initializing");
+      setErrorMessage("");
+      setTransactionHash("");
+      setCurrentPrize(null);
+      setCurrentBoxType(isCrypto ? t("box.cryptos") : t("box.superPrizes"));
+      setCurrentAmount("45");
 
       const provider = await initializeProvider();
       await checkSufficientBalance(provider);
 
+      setModalStatus("processing");
       const {
         program,
         nftMintAddress,
@@ -207,28 +180,29 @@ export function usePurchase() {
         nftCounter,
         collectionMetadata
       } = await prepareNftAccounts(provider);
-
-      /*   const solFeeTxSig = simulation
-          ? `sim_fee_${Date.now().toString(36)}`
-          : await sendSolFeeTransaction(provider, isCrypto); */
-
+      await sendSolFeeTransaction(provider, isCrypto);
       const { tokenAmount, timestamp, arraySignature, backendPubkey } =
         await fetchBackendData(provider, isCrypto, payerPaymentTokenAccount);
-
+      setModalStatus("determining");
       const { prizeId, wonPrize, randomData } =
         await determineUserPrize(provider, isCrypto, nonce, timestamp);
-
+      setCurrentPrize(wonPrize);
+      setModalStatus("delivering");
       let txSig;
+      let onlyBurn = isCrypto;
+      if (prizeId >= 100 && prizeId <= 111) onlyBurn = true;
+      const prize = PRIZE_TABLE.find(p => p.id === prizeId);
+      if (prize?.type === "sol") onlyBurn = true;
 
-      if (isCrypto) {
+      if (onlyBurn) {
         txSig = await sendCryptoTransaction(provider, program, tokenAmount, timestamp, arraySignature, backendPubkey);
       } else {
         txSig = await sendMainTransaction(provider, program, tokenAmount, timestamp, arraySignature, backendPubkey, nftCounter, nftMintAddress, nftMetadataAddress, nftTokenAccount, payerPaymentTokenAccount, collectionMetadata);
       }
-
-      console.log("txSig", txSig);
-
+      
+      setTransactionHash(txSig);
       await deliverPrize(provider.wallet.publicKey, prizeId);
+      setModalStatus("saving");
       await savePurchaseData(
         provider,
         nftMintAddress,
@@ -240,11 +214,11 @@ export function usePurchase() {
         randomData
       );
 
-      await getBalance();
+      await refreshBalance();
+      setModalStatus("success");
 
       const result = {
         tx: txSig,
-        /* solFeeTx: solFeeTxSig, */
         nftMint: nftMintAddress.toString(),
         nftMetadata: nftMetadataAddress.toString(),
         prize: wonPrize,
@@ -255,6 +229,8 @@ export function usePurchase() {
       return result;
     } catch (error: any) {
       handleMintError(error);
+      setModalStatus("error");
+      setErrorMessage(error instanceof Error ? error.message : String(error));
       throw error;
     } finally {
       setIsLoading(false);
@@ -271,12 +247,21 @@ export function usePurchase() {
   }
 
   async function checkSufficientBalance(provider: AnchorProvider) {
-    const balance = await connection.getBalance(provider.wallet.publicKey);
-    const requiredSol = (SOL_FEE + 0.01) * LAMPORTS_PER_SOL;
+    try {
+      const balance = await connection.getBalance(provider.wallet.publicKey);
+      const txFeeInSol = 0.000005;
+      const requiredSol = txFeeInSol + (txFeeInSol / solanaPrice);
+      const requiredLamports = Math.ceil(requiredSol * LAMPORTS_PER_SOL);
 
-    if (balance < requiredSol) {
-      toast.error(`Saldo insuficiente. Você precisa de pelo menos ${SOL_FEE + 0.01} SOL`);
-      throw new Error("Saldo em SOL insuficiente");
+      console.log(`Saldo: ${balance / LAMPORTS_PER_SOL} SOL, Necessário: ${requiredSol.toFixed(6)} SOL`);
+
+      if (balance < requiredLamports) {
+        toast.error(`Saldo insuficiente. Você precisa de pelo menos ${requiredSol.toFixed(4)} SOL`);
+        throw new Error("Saldo em SOL insuficiente");
+      }
+    } catch (error) {
+      console.error("Erro ao verificar saldo:", error);
+      throw error;
     }
   }
 
@@ -352,26 +337,26 @@ export function usePurchase() {
   }
 
   async function sendSolFeeTransaction(provider: AnchorProvider, isCrypto: boolean) {
-    /* const FEE_USD = isCrypto ? 1.65 : 7.65; */
-    const FEE_USD = isCrypto ? 0.01 : 0.01;
-    const FEE_SOL = FEE_USD * LAMPORTS_PER_SOL;
-
-    const solFeeTransaction = new Transaction();
-    const solFeeTransfer = SystemProgram.transfer({
-      fromPubkey: provider.wallet.publicKey,
-      toPubkey: new PublicKey(process.env.NEXT_PUBLIC_TREASURY_WALLET!),
-      lamports: FEE_SOL,
-    });
-
-    solFeeTransaction.add(solFeeTransfer);
-    solFeeTransaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-    solFeeTransaction.feePayer = provider.wallet.publicKey;
-
-    const signedSolFeeTransaction = await provider.wallet.signTransaction(solFeeTransaction);
-    const solFeeTxSig = await connection.sendRawTransaction(signedSolFeeTransaction.serialize());
-    console.log("SOL fee transaction:", solFeeTxSig);
-
-    return solFeeTxSig;
+    try {
+      const FEE_USD = isCrypto ? 1.65 : 7.65;
+      const FEE_SOL = FEE_USD / solanaPrice;
+      const lamports = Math.ceil(FEE_SOL * LAMPORTS_PER_SOL);
+      const solFeeTransaction = new Transaction();
+      const solFeeTransfer = SystemProgram.transfer({
+        fromPubkey: provider.wallet.publicKey,
+        toPubkey: new PublicKey(process.env.NEXT_PUBLIC_TREASURY_WALLET!),
+        lamports,
+      });
+      solFeeTransaction.add(solFeeTransfer);
+      solFeeTransaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+      solFeeTransaction.feePayer = provider.wallet.publicKey;
+      const signedSolFeeTransaction = await provider.wallet.signTransaction(solFeeTransaction);
+      const solFeeTxSig = await connection.sendRawTransaction(signedSolFeeTransaction.serialize());
+      return solFeeTxSig;
+    } catch (error) {
+      console.error("Erro ao enviar taxa em SOL:", error);
+      throw new Error("Falha ao processar pagamento da taxa em SOL");
+    }
   }
 
   async function fetchBackendData(
@@ -383,16 +368,13 @@ export function usePurchase() {
       boxType: isCrypto ? 1 : 2,
       wallet: provider.wallet.publicKey.toString()
     });
-
     const { tokenAmount, timestamp, signature, backendPubkey } = data;
     const arraySignature = new Uint8Array(signature);
-
     const tokenAccount = await connection.getTokenAccountBalance(payerPaymentTokenAccount);
     if (tokenAccount.value.uiAmount && tokenAccount.value.amount < tokenAmount) {
       toast.error("Saldo insuficiente de tokens ADR");
       throw new Error("Saldo insuficiente de tokens ADR");
     }
-
     return { tokenAmount, timestamp, arraySignature, backendPubkey };
   }
 
@@ -406,19 +388,13 @@ export function usePurchase() {
     const serverSeed = `${timestamp}_${Math.random()}`;
     const randomNumber = generateProvablyFairNumber(userSeed, serverSeed, nonce);
     const prizeId = await determinePrize(randomNumber, isCrypto);
-
     if (!prizeId) throw new Error("Erro ao determinar prêmio");
-
     let wonPrize;
     if (prizeId >= 100 && prizeId <= 111) {
       wonPrize = CRYPTO_PRIZE_TABLE.find(p => p.id === prizeId);
     } else {
       wonPrize = PRIZE_TABLE.find(p => p.id === prizeId);
     }
-
-    console.log(`🎁 Prêmio ganho: ${wonPrize?.name} (ID: ${prizeId})`);
-    console.log(`🎲 Random: ${randomNumber}, Seed: ${userSeed}:${serverSeed}:${nonce}`);
-
     const randomData = {
       randomNumber,
       userSeed,
@@ -511,7 +487,7 @@ export function usePurchase() {
     tokenAmount: number,
     timestamp: number,
     arraySignature: Uint8Array,
-    backendPubkey: string
+    backendPubkey: string,
   ) {
     const sysvarInstructions = new PublicKey('Sysvar1nstructions1111111111111111111111111');
     const tx = new Transaction();
@@ -529,12 +505,9 @@ export function usePurchase() {
     const config = new PublicKey(CONFIG_ACCOUNT);
     const description = `Solana Box ${message} USD`;
 
-    // Adicionar conta metaplexMetadata
-    const metaplexMetadata = new PublicKey(METAPLEX_PROGRAM_ID);
-
     try {
       const ix = await program.methods
-        .mintNftWithPayment(
+        .burnTokensWithSignature(
           new anchor.BN(tokenAmount),
           new anchor.BN(timestamp),
           arraySignature,
@@ -552,7 +525,6 @@ export function usePurchase() {
           config,
           sysvarInstructions,
           tokenProgram: TOKEN_PROGRAM_ID,
-          metaplexMetadata, // Adicionar metaplexMetadata
           systemProgram: SystemProgram.programId,
           rent: SYSVAR_RENT_PUBKEY
         }).instruction();
@@ -561,16 +533,9 @@ export function usePurchase() {
       tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
       tx.feePayer = provider.wallet.publicKey;
 
-      // Simular a transação antes de enviá-la
       try {
-        console.log("🔍 Simulando transação...");
         const simulateResult = await connection.simulateTransaction(tx);
-
-        console.log("✅ Simulação bem-sucedida!");
-        console.log("📊 Resultado da simulação:", simulateResult.value);
-
         if (simulateResult.value.logs) {
-          console.log("📝 Logs da simulação:");
           simulateResult.value.logs.forEach((log, i) => {
             console.log(`${i + 1}: ${log}`);
           });
@@ -581,18 +546,13 @@ export function usePurchase() {
         }
       } catch (simError) {
         console.error("❌ Erro ao simular transação:", simError);
-        // Aqui você pode decidir se quer continuar ou interromper a execução
-        // throw simError;
       }
-
       const signedTx = await provider.wallet.signTransaction(tx);
       return await connection.sendRawTransaction(signedTx.serialize(), {
         skipPreflight: true,
       });
     } catch (error: any) {
       console.error("Erro detalhado na transação crypto:", error);
-
-      // Log mais detalhado da estrutura da instrução
       if (error.logs) {
         console.error("Logs da transação:", error.logs);
       }
@@ -633,27 +593,22 @@ export function usePurchase() {
 
   function handleMintError(error: any) {
     console.error("Erro ao processar transação:", error);
-
-    if (error.message) {
-      console.error("Error message:", error.message);
-    }
-    if (error.stack) {
-      console.error("Error stack:", error.stack);
-    }
-
+    if (error.message) console.error("Error message:", error.message);
+    if (error.stack) console.error("Error stack:", error.stack);
+    let errorMsg = "Erro ao abrir caixa surpresa. Tente novamente.";
     if (error.message?.includes("_bn")) {
-      toast.error("Erro na configuração da conta NFT. Tente novamente.");
+      errorMsg = "Erro na configuração da conta NFT. Tente novamente.";
     } else if (error.message?.includes("insufficient")) {
-      toast.error("Saldo insuficiente");
+      errorMsg = "Saldo insuficiente";
     } else if (error.message?.includes("User rejected")) {
-      toast.error("Transação cancelada pelo usuário");
-    } else {
-      toast.error("Erro ao abrir caixa surpresa. Tente novamente.");
+      errorMsg = "Transação cancelada pelo usuário";
     }
+    toast.error(errorMsg);
+    setErrorMessage(errorMsg);
   }
 
   useEffect(() => {
-    getBalance();
+    refreshBalance();
     fetchCurrentStock();
   }, [connected, publicKey]);
 
@@ -663,6 +618,13 @@ export function usePurchase() {
     isLoading,
     connected,
     currentStock,
-    lastSimulationResult
+    modalOpen,
+    modalStatus,
+    errorMessage,
+    transactionHash,
+    currentPrize,
+    currentBoxType,
+    currentAmount,
+    closeModal
   };
 }

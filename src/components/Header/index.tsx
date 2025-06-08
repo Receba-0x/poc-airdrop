@@ -18,6 +18,7 @@ import { BurnTicker } from "../BurnTicker";
 import { StakingIcon } from "../Icons/StakingIcon";
 import { LanguageToggle } from "../LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUser } from "@/contexts/UserContext";
 const WalletMultiButton = dynamic(
   () =>
     import("@solana/wallet-adapter-react-ui").then(
@@ -31,8 +32,9 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { scrollY } = useScroll();
   const headerOpacity = useTransform(scrollY, [0, 50], [0.8, 1]);
-  const { balance, isLoading, connected } = usePurchase();
+  const { isLoading, connected } = usePurchase();
   const { t } = useLanguage();
+  const { balance } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {

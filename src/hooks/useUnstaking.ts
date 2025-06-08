@@ -12,11 +12,29 @@ export function useUnstaking() {
   const { connection } = useConnection();
   const [isLoading, setIsLoading] = useState(false);
   const [stakeInfo, setStakeInfo] = useState<any>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalStatus, setModalStatus] = useState<"loading" | "success" | "error">("loading");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [transactionHash, setTransactionHash] = useState("");
+
+  const closeModal = () => {
+    setModalOpen(false);
+    if (modalStatus === "success") {
+      // Refresh data after successful unstake
+      setTimeout(() => {
+        getCurrentStake();
+      }, 1000);
+    }
+  };
 
   const onUnstake = async () => {
     try {
       if (!publicKey) throw new Error("Wallet not connected");
       setIsLoading(true);
+      setModalOpen(true);
+      setModalStatus("loading");
+      setErrorMessage("");
+      setTransactionHash("");
 
       const wallet: any = {
         publicKey,
@@ -66,8 +84,11 @@ export function useUnstaking() {
       const now = Math.floor(Date.now() / 1000);
       if (now < stakeAccountData.unlockTime.toNumber()) {
         const secondsLeft = stakeAccountData.unlockTime.toNumber() - now;
-        console.log("Você só pode des-stake em", secondsLeft, "segundos");
-        throw new Error(`Você só pode des-stake em ${secondsLeft} segundos`);
+        const errorMsg = `Você só pode des-stake em ${secondsLeft} segundos`;
+        console.log(errorMsg);
+        setModalStatus("error");
+        setErrorMessage(errorMsg);
+        throw new Error(errorMsg);
       }
 
       const tx = await program.methods
@@ -88,85 +109,104 @@ export function useUnstaking() {
           commitment: "confirmed",
           maxRetries: 5,
         });
-      setTimeout(() => {
-        getCurrentStake();
-        console.log("Unstaking successful!", tx);
-      }, 2000);
-
-      console.log("Unstaking successful!");
+      
+      setTransactionHash(tx);
+      setModalStatus("success");
+      
+      console.log("Unstaking successful!", tx);
     } catch (error) {
       console.error("Unstaking failed:", error);
-      throw error;
+      setModalStatus("error");
+      setErrorMessage(error instanceof Error ? error.message : String(error));
     } finally {
       setIsLoading(false);
     }
   };
 
   const getCurrentStake = async () => {
-    if (!publicKey) throw new Error("Wallet not connected");
+    if (!publicKey) return;
 
-    const wallet: any = {
-      publicKey,
-      signTransaction,
-      signAllTransactions,
-    };
-
-    const provider = new AnchorProvider(connection, wallet, { commitment: "confirmed" });
-    const idl = await anchor.Program.fetchIdl(PROGRAM_ID, provider);
-    const program = new Program(idl, provider);
-
-    const [stakeAccount] = await PublicKey.findProgramAddress(
-      [
-        Buffer.from('stake_account'),
-        publicKey.toBuffer(),
-        new PublicKey(PAYMENT_TOKEN_MINT).toBuffer(),
-      ],
-      program.programId
-    );
-
-    const stakeInfo = await (program.account as any).stakeAccount.fetch(stakeAccount);
-
-    console.log("Stake Info:", stakeInfo);
-    const now = Date.now() / 1000;
-    const secondsLeft = stakeInfo.unlockTime - now;
-
-    const amount = stakeInfo.amount instanceof BN
-      ? Number(stakeInfo.amount.toString()) / 1e9
-      : Number(stakeInfo.amount) / 1e9;
-
-    const startTime = stakeInfo.startTime instanceof BN
-      ? new Date(Number(stakeInfo.startTime.toString()) * 1000)
-      : new Date(Number(stakeInfo.startTime) * 1000);
-
-    const unlockTime = stakeInfo.unlockTime instanceof BN
-      ? new Date(Number(stakeInfo.unlockTime.toString()) * 1000)
-      : new Date(Number(stakeInfo.unlockTime) * 1000);
-
-    let period = "";
-    if (typeof stakeInfo.period === "object") {
-      period = Object.keys(stakeInfo.period)[0];
-    } else {
-      period = stakeInfo.period;
+    try {
+      const wallet: any = {
+        publicKey,
+        signTransaction,
+        signAllTransactions,
+      };
+  
+      const provider = new AnchorProvider(connection, wallet, { commitment: "confirmed" });
+      const idl = await anchor.Program.fetchIdl(PROGRAM_ID, provider);
+      const program = new Program(idl, provider);
+  
+      const [stakeAccount] = await PublicKey.findProgramAddress(
+        [
+          Buffer.from('stake_account'),
+          publicKey.toBuffer(),
+          new PublicKey(PAYMENT_TOKEN_MINT).toBuffer(),
+        ],
+        program.programId
+      );
+  
+      try {
+        const stakeInfo = await (program.account as any).stakeAccount.fetch(stakeAccount);
+    
+        console.log("Stake Info:", stakeInfo);
+        const now = Date.now() / 1000;
+        const secondsLeft = stakeInfo.unlockTime - now;
+    
+        const amount = stakeInfo.amount instanceof BN
+          ? Number(stakeInfo.amount.toString()) / 1e9
+          : Number(stakeInfo.amount) / 1e9;
+    
+        const startTime = stakeInfo.startTime instanceof BN
+          ? new Date(Number(stakeInfo.startTime.toString()) * 1000)
+          : new Date(Number(stakeInfo.startTime) * 1000);
+    
+        const unlockTime = stakeInfo.unlockTime instanceof BN
+          ? new Date(Number(stakeInfo.unlockTime.toString()) * 1000)
+          : new Date(Number(stakeInfo.unlockTime) * 1000);
+    
+        let period = "";
+        if (typeof stakeInfo.period === "object") {
+          period = Object.keys(stakeInfo.period)[0];
+        } else {
+          period = stakeInfo.period;
+        }
+    
+        const claimed = stakeInfo.claimed;
+        setStakeInfo({
+          amount,
+          startTime,
+          unlockTime,
+          period,
+          claimed,
+          secondsLeft
+        });
+      } catch (error) {
+        // No stake found
+        setStakeInfo(null);
+      }
+    } catch (error) {
+      console.error("Error fetching stake info:", error);
     }
-
-    const claimed = stakeInfo.claimed;
-    setStakeInfo({
-      amount,
-      startTime,
-      unlockTime,
-      period,
-      claimed,
-      secondsLeft
-    });
   };
 
   useEffect(() => {
-    getCurrentStake();
+    if (publicKey) {
+      getCurrentStake();
+    } else {
+      setStakeInfo(null);
+    }
   }, [publicKey]);
 
   return {
     isLoading,
     onUnstake,
     stakeInfo,
+    // Modal props
+    modalOpen,
+    modalStatus,
+    errorMessage,
+    transactionHash,
+    closeModal,
   };
 } 

@@ -54,6 +54,24 @@ export const translations = {
     'staking.confirmUnstake': 'Confirm Unstake',
     'staking.insufficientBalance': 'Insufficient balance',
 
+    // Transaction Modal
+    'staking.stakingInProgress': 'Staking in Progress',
+    'staking.unstakingInProgress': 'Unstaking in Progress',
+    'staking.stakingSuccess': 'Staking Successful',
+    'staking.unstakingSuccess': 'Unstaking Successful',
+    'staking.stakingFailed': 'Staking Failed',
+    'staking.unstakingFailed': 'Unstaking Failed',
+    'staking.processingStakeMessage': 'Your staking transaction is being processed on the blockchain.',
+    'staking.processingUnstakeMessage': 'Your unstaking transaction is being processed on the blockchain.',
+    'staking.stakingSuccessMessage': 'Your tokens have been successfully staked.',
+    'staking.unstakingSuccessMessage': 'Your tokens have been successfully unstaked.',
+    'staking.transactionDetails': 'Transaction Details',
+    'common.transactionHash': 'Transaction Hash',
+    'common.pleaseDoNotCloseWindow': 'Please do not close this window',
+    'common.done': 'Done',
+    'common.close': 'Close',
+    'common.errorOccurred': 'An error occurred during the transaction',
+
     // Impact
     'impact.title': 'Blockchain and Social Impact',
     'impact.description1': 'The advancement of blockchain technology and cryptocurrencies goes beyond finance, creating opportunities for social impact initiatives. Tokens like the Adriano Token combine financial potential and social transformation, creating projects where economic success drives real benefits for communities.',
@@ -148,6 +166,10 @@ export const translations = {
     'transactions.completed': 'Completed',
     'transactions.error': 'Error',
     'transactions.processing': 'Processing...',
+    'transactions.claimed': 'Claimed',
+    'transactions.claim': 'Claim',
+    'transactions.name': 'Name',
+    'transactions.viewOnExplorer': 'View on Solana Explorer',
 
     // Boxes
     'boxes.title': 'All Boxes',
@@ -170,6 +192,9 @@ export const translations = {
     'box.stats.total': 'Total Available',
     'box.stats.limited': 'Limited Edition',
     'box.soldOut': 'Sold Out',
+    'box.type': 'Box Type',
+    'box.yourPrize': 'Your Prize',
+    'box.wonPrize': 'Prize Won',
 
     // Purchase Process
     'purchase.initializing': 'Initializing',
@@ -194,6 +219,11 @@ export const translations = {
     'items.mikasaBall': 'Mikasa Soccer Ball',
     'items.iphoneGiftCard': 'Amazon iPhone Gift Card',
     'items.macbookGiftCard': 'Amazon Macbook Gift Card',
+    'items.goldenTicket': 'Golden Ticket',
+    'items.teamJersey': 'Team Jersey',
+    'items.officialBall': 'Official Ball',
+    'items.macbookM3': 'MacBook M3',
+    'items.iphone16': 'iPhone 16 Pro Max',
 
     // Common
     'common.loading': 'Loading...',
@@ -213,6 +243,17 @@ export const translations = {
     'common.export': 'Export',
     'common.import': 'Import',
     'common.language': 'Language',
+    'common.refresh': 'Refresh',
+    'common.copied': 'Copied to clipboard!',
+    'common.copy': 'Copy',
+    'common.checkingDelegation': 'Checking permissions...',
+    'common.preparing': 'Preparing...',
+    'common.pleaseSign': 'Please sign with your wallet...',
+    'common.sending': 'Sending...',
+    'common.approved': 'Approved!',
+    'common.tryAgain': 'Try Again',
+    'common.processing': 'Processing...',
+    'common.walletNotConnected': 'Wallet not connected',
     
     // Admin Panel
     'admin.title': 'Admin Panel',
@@ -248,6 +289,42 @@ export const translations = {
     'admin.prizeDistribution': 'Prize Distribution',
     'admin.purchasesCount': 'purchases',
     'admin.noPurchasesForStats': 'No purchases data available for statistics',
+
+    // Shipping Form
+    'shipping.addressForm': 'Shipping Address Form',
+    'shipping.proceedMessage': 'To proceed with your claim, we need your shipping address details to deliver your order',
+    'shipping.fullName': 'Full Name',
+    'shipping.country': 'Country',
+    'shipping.selectCountry': 'Select country',
+    'shipping.streetAddress': 'Street Address',
+    'shipping.apartment': 'Apartment, Suite, etc.',
+    'shipping.city': 'City',
+    'shipping.stateProvince': 'State/Province/Region',
+    'shipping.zipCode': 'ZIP/Postal Code',
+    'shipping.phoneNumber': 'Phone Number',
+    'shipping.email': 'Email Address',
+    'shipping.agreeToTerms': 'I agree to the',
+    'shipping.termsAndConditions': 'Terms and Conditions',
+    'shipping.confirm': 'Confirm',
+    'shipping.existingAddressFound': 'We found your existing shipping address:',
+    'shipping.useNewAddress': 'Use New Address',
+    'shipping.useThisAddress': 'Use This Address',
+    'shipping.useExistingAddress': 'Use Existing Address',
+    'shipping.existingAddress': 'Existing Address',
+    'shipping.enterNewAddress': 'Enter New Address',
+    'shipping.nftBurnWarning': 'Note: Claiming this item will burn (destroy) the NFT associated with it.',
+    'shipping.claimSuccessful': 'Claim Successful!',
+    'shipping.addressSaved': 'Your shipping address has been saved.',
+    'shipping.nftBurned': 'Your NFT was successfully burned as part of the claim process.',
+    'shipping.mustAgreeToTerms': 'You must agree to terms and conditions',
+    'shipping.submitAddress': 'Submit Address',
+    'common.transactionSignature': 'Transaction Signature',
+
+    // NFT Delegation
+    'nft.approveOperator': 'Approve Operator',
+    'nft.approveOperatorExplanation': 'Before claiming your physical prize, you need to approve our server as an operator for this NFT. This will allow us to burn the NFT when you claim your prize.',
+    'shipping.delegateRequired': 'Approval Required',
+    'shipping.delegateRequiredMessage': 'To claim your physical prize, we need your permission to burn (destroy) the NFT associated with this item.',
   },
   pt: {
     // Header
@@ -303,6 +380,24 @@ export const translations = {
     'staking.waitToUnstake': 'Aguardar para Retirar',
     'staking.confirmUnstake': 'Confirmar Retirada',
     'staking.insufficientBalance': 'Saldo insuficiente',
+
+    // Transaction Modal
+    'staking.stakingInProgress': 'Stake em Andamento',
+    'staking.unstakingInProgress': 'Retirada em Andamento',
+    'staking.stakingSuccess': 'Stake Realizado com Sucesso',
+    'staking.unstakingSuccess': 'Retirada Realizada com Sucesso',
+    'staking.stakingFailed': 'Falha no Stake',
+    'staking.unstakingFailed': 'Falha na Retirada',
+    'staking.processingStakeMessage': 'Sua transação de stake está sendo processada na blockchain.',
+    'staking.processingUnstakeMessage': 'Sua transação de retirada está sendo processada na blockchain.',
+    'staking.stakingSuccessMessage': 'Seus tokens foram colocados em stake com sucesso.',
+    'staking.unstakingSuccessMessage': 'Seus tokens foram retirados com sucesso.',
+    'staking.transactionDetails': 'Detalhes da Transação',
+    'common.transactionHash': 'Hash da Transação',
+    'common.pleaseDoNotCloseWindow': 'Por favor, não feche esta janela',
+    'common.done': 'Concluído',
+    'common.close': 'Fechar',
+    'common.errorOccurred': 'Ocorreu um erro durante a transação',
 
     // Impact
     'impact.title': 'Blockchain e Impacto Social',
@@ -398,6 +493,10 @@ export const translations = {
     'transactions.completed': 'Concluído',
     'transactions.error': 'Erro',
     'transactions.processing': 'Processando...',
+    'transactions.claimed': 'Reclamado',
+    'transactions.claim': 'Reclamar',
+    'transactions.name': 'Nome',
+    'transactions.viewOnExplorer': 'Visualizar no Solana Explorer',
 
     // Boxes
     'boxes.title': 'Todas as Caixas',
@@ -420,6 +519,9 @@ export const translations = {
     'box.stats.total': 'Total Disponível',
     'box.stats.limited': 'Edição Limitada',
     'box.soldOut': 'Esgotado',
+    'box.type': 'Tipo de Caixa',
+    'box.yourPrize': 'Seu Prêmio',
+    'box.wonPrize': 'Prêmio Ganho',
 
     // Purchase Process
     'purchase.initializing': 'Inicializando',
@@ -444,6 +546,11 @@ export const translations = {
     'items.mikasaBall': 'Bola Mikasa de Futebol',
     'items.iphoneGiftCard': 'Gift Card Amazon iPhone',
     'items.macbookGiftCard': 'Gift Card Amazon Macbook',
+    'items.goldenTicket': 'Ticket Dourado',
+    'items.teamJersey': 'Camisas de Time',
+    'items.officialBall': 'Bolas Oficiais',
+    'items.macbookM3': 'MacBook M3',
+    'items.iphone16': 'iPhone 16 Pro Max',
 
     // Common
     'common.loading': 'Carregando...',
@@ -463,6 +570,17 @@ export const translations = {
     'common.export': 'Exportar',
     'common.import': 'Importar',
     'common.language': 'Idioma',
+    'common.refresh': 'Atualizar',
+    'common.copied': 'Copiado para a área de transferência!',
+    'common.copy': 'Copiar',
+    'common.checkingDelegation': 'Verificando permissões...',
+    'common.preparing': 'Preparando...',
+    'common.pleaseSign': 'Por favor, assine com sua carteira...',
+    'common.sending': 'Enviando...',
+    'common.approved': 'Aprovado!',
+    'common.tryAgain': 'Tentar Novamente',
+    'common.processing': 'Processando...',
+    'common.walletNotConnected': 'Carteira não conectada',
     
     // Admin Panel
     'admin.title': 'Painel Administrativo',
@@ -498,5 +616,41 @@ export const translations = {
     'admin.prizeDistribution': 'Distribuição de Prêmios',
     'admin.purchasesCount': 'compras',
     'admin.noPurchasesForStats': 'Não há dados de compras disponíveis para estatísticas',
+
+    // Shipping Form
+    'shipping.addressForm': 'Formulário de Endereço de Entrega',
+    'shipping.proceedMessage': 'Para prosseguir com sua solicitação, precisamos dos detalhes do seu endereço de entrega para enviar seu pedido',
+    'shipping.fullName': 'Nome Completo',
+    'shipping.country': 'País',
+    'shipping.selectCountry': 'Selecione o país',
+    'shipping.streetAddress': 'Endereço',
+    'shipping.apartment': 'Apartamento, Complemento, etc.',
+    'shipping.city': 'Cidade',
+    'shipping.stateProvince': 'Estado/Província/Região',
+    'shipping.zipCode': 'CEP/Código Postal',
+    'shipping.phoneNumber': 'Número de Telefone',
+    'shipping.email': 'Endereço de Email',
+    'shipping.agreeToTerms': 'Eu concordo com os',
+    'shipping.termsAndConditions': 'Termos e Condições',
+    'shipping.confirm': 'Confirmar',
+    'shipping.existingAddressFound': 'Encontramos seu endereço de entrega existente:',
+    'shipping.useNewAddress': 'Usar Novo Endereço',
+    'shipping.useThisAddress': 'Usar Este Endereço',
+    'shipping.useExistingAddress': 'Usar Endereço Existente',
+    'shipping.existingAddress': 'Endereço Existente',
+    'shipping.enterNewAddress': 'Inserir Novo Endereço',
+    'shipping.nftBurnWarning': 'Observação: Reivindicar este item irá queimar (destruir) a NFT associada a ele.',
+    'shipping.claimSuccessful': 'Reivindicação Bem-sucedida!',
+    'shipping.addressSaved': 'Seu endereço de entrega foi salvo.',
+    'shipping.nftBurned': 'Sua NFT foi queimada com sucesso como parte do processo de reivindicação.',
+    'shipping.mustAgreeToTerms': 'Você deve concordar com os termos e condições',
+    'shipping.submitAddress': 'Enviar Endereço',
+    'common.transactionSignature': 'Assinatura da Transação',
+
+    // NFT Delegation
+    'nft.approveOperator': 'Aprovar Operador',
+    'nft.approveOperatorExplanation': 'Antes de reclamar seu prêmio físico, você precisa aprovar nosso servidor como operador para essa NFT. Isso permitirá que queimemos a NFT quando você reclamar seu prêmio.',
+    'shipping.delegateRequired': 'Aprovação Necessária',
+    'shipping.delegateRequiredMessage': 'Para reclamar seu prêmio físico, precisamos da sua permissão para queimar (destruir) o NFT associado a este item.',
   }
 }; 

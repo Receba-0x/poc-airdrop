@@ -3,6 +3,7 @@ import { Button } from "../Button";
 import { LogoIcon } from "../Icons/LogoIcon";
 import { useStaking } from "@/hooks/useStaking";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { TransactionModal } from "../TransactionModal";
 
 export function StakeContent() {
   const staking = useStaking();
@@ -11,12 +12,11 @@ export function StakeContent() {
   return (
     <div className="min-h-[420px] flex flex-col">
       <div className="flex-1 space-y-4 sm:space-y-6">
-        {/* Amount Input Section */}
         <div>
           <div className="flex flex-col sm:flex-row sm:justify-between mb-2 gap-1 sm:gap-0">
             <span className="text-sm sm:text-base">{t("staking.amount")}</span>
             <span className="text-sm sm:text-base text-gray-300">
-              {t("staking.balance")}: {staking.balance} $ADR
+              {t("staking.balance")}: {staking.balance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $ADR
             </span>
           </div>
           <div className="flex items-center bg-[#1A1A1A] rounded p-2 sm:p-3">
@@ -47,8 +47,6 @@ export function StakeContent() {
             </p>
           )}
         </div>
-
-        {/* Period Selection */}
         <div>
           <h2 className="mb-3 sm:mb-4 font-semibold text-lg sm:text-xl">
             {t("staking.period")}
@@ -60,11 +58,10 @@ export function StakeContent() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => staking.setSelectedPeriod(periodInfo.period)}
-                className={`${
-                  staking.selectedPeriod === periodInfo.period
-                    ? "bg-[#FFD60A] text-black"
-                    : "bg-[#1A1A1A] hover:bg-[#2A2A2A]"
-                } px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-200 text-center`}
+                className={`${staking.selectedPeriod === periodInfo.period
+                  ? "bg-[#FFD60A] text-black"
+                  : "bg-[#1A1A1A] hover:bg-[#2A2A2A]"
+                  } px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-200 text-center`}
               >
                 <div className="font-medium">{periodInfo.label}</div>
                 <div className="text-[10px] sm:text-[11px] opacity-75 mt-0.5">
@@ -121,6 +118,18 @@ export function StakeContent() {
           {staking.isLoading ? t("common.loading") : t("staking.stake")}
         </Button>
       </div>
+
+      <TransactionModal
+        isOpen={staking.modalOpen}
+        onClose={staking.closeModal}
+        status={staking.modalStatus}
+        type="stake"
+        amount={staking.amount}
+        period={staking.getSelectedPeriodLabel()}
+        errorMessage={staking.errorMessage}
+        transactionHash={staking.transactionHash}
+        estimatedRewards={staking.estimatedRewards}
+      />
     </div>
   );
 }

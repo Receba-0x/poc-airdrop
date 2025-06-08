@@ -2,6 +2,7 @@ import { Button } from "../Button";
 import { useUnstaking } from "@/hooks/useUnstaking";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { TransactionModal } from "../TransactionModal";
 
 function formatTimeLeft(seconds: number) {
   if (seconds <= 0) return "00:00:00";
@@ -18,7 +19,7 @@ function formatTimeLeft(seconds: number) {
 }
 
 export function UnstakeContent() {
-  const { stakeInfo, onUnstake, isLoading } = useUnstaking();
+  const { stakeInfo, onUnstake, isLoading, modalOpen, modalStatus, errorMessage, transactionHash, closeModal } = useUnstaking();
   const { t } = useLanguage();
   const [secondsLeft, setSecondsLeft] = useState<number>(0);
 
@@ -167,6 +168,17 @@ export function UnstakeContent() {
             : t("staking.confirmUnstake")}
         </Button>
       </div>
+      
+      {/* Transaction Modal */}
+      <TransactionModal
+        isOpen={modalOpen}
+        onClose={closeModal}
+        status={modalStatus}
+        type="unstake"
+        amount={stakeInfo.amount?.toString()}
+        errorMessage={errorMessage}
+        transactionHash={transactionHash}
+      />
     </div>
   );
 }

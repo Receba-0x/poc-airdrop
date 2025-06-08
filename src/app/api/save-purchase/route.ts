@@ -31,24 +31,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Se o Supabase não estiver configurado, apenas fazer log dos dados
     if (!isSupabaseConfigured || !supabase) {
-      console.log('🎁 Purchase data (Supabase not configured):');
-      console.log({
-        wallet,
-        nftMint,
-        nftMetadata,
-        tokenAmount,
-        transactionSignature,
-        prizeId,
-        prizeName,
-        randomNumber,
-        userSeed,
-        serverSeed,
-        nonce,
-        timestamp
-      });
-
       return NextResponse.json({
         success: true,
         message: 'Data logged successfully (database not configured)',
@@ -56,7 +39,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Inserir dados da compra/abertura de caixa
     const { data, error } = await supabase
       .from('purchases')
       .insert([
@@ -64,8 +46,8 @@ export async function POST(request: NextRequest) {
           wallet_address: wallet,
           nft_mint: nftMint,
           nft_metadata: nftMetadata,
-          amount_purchased: tokenAmount,
-          token_amount_burned: tokenAmount,
+          amount_purchased: Number(Number(tokenAmount) / 1e9),
+          token_amount_burned: Number(Number(tokenAmount) / 1e9),
           transaction_signature: transactionSignature,
           prize_id: prizeId,
           prize_name: prizeName,
@@ -74,7 +56,7 @@ export async function POST(request: NextRequest) {
           server_seed: serverSeed,
           nonce: nonce,
           purchase_timestamp: timestamp,
-          is_crypto: prizeId >= 100 && prizeId <= 111, // Verificar se é prêmio crypto
+          is_crypto: prizeId >= 100 && prizeId <= 111 || prizeId >= 1 && prizeId <= 4,
           status: 'completed'
         }
       ])

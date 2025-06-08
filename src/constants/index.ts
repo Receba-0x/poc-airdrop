@@ -10,23 +10,74 @@ export const PAYMENT_TOKEN_MINT =
 export const NETWORK = "devnet";
 export const CONFIG_ACCOUNT = "GAnjrKx377NS9ceg6k4nB7vaDX8bAo9yWfJSD4vhrecr";
 export const TOKEN_METADATA_PROGRAM = [11, 112, 101, 177, 227, 209, 124, 69, 56, 157, 82, 127, 107, 4, 195, 205, 88, 184, 108, 115, 26, 160, 253, 181, 73, 182, 209, 188, 3, 248, 41, 70];
+export const METAPLEX_PROGRAM_ID = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
 
-export const getItensData = (t: (key: string) => string) => [{ id: "t-shirt1", title: t("items.soccerJersey"), image: "/images/itens/camisa1.png", }, { id: "t-shirt2", title: t("items.soccerJersey"), image: "/images/itens/camisa2.png", }, { id: "t-shirt3", title: t("items.soccerJersey"), image: "/images/itens/camisa3.png", }, { id: "t-shirt4", title: t("items.soccerJersey"), image: "/images/itens/camisa4.png", }, { id: "chuteira", title: t("items.soccerCleats"), image: "/images/itens/chuteira.png", }, { id: "mikasa", title: t("items.mikasaBall"), image: "/images/itens/ball.png", }, { id: "iphone", title: t("items.iphoneGiftCard"), image: "/images/itens/iphone.png", }, { id: "macbook", title: t("items.macbookGiftCard"), image: "/images/itens/macbook.png", },];
+export const getItensData = (t: (key: string) => string) => {
+  return PRIZE_TABLE.map(prize => {
+    const name = getPrizeTranslation(prize.id, t) || prize.name;
+    return {
+      id: prize.id,
+      name: name,
+      title: name,
+      type: prize.type,
+      amount: prize.amount,
+      image: getImageForPrize(prize, t),
+    };
+  });
+};
+
+function getPrizeTranslation(prizeId: number, t: (key: string) => string): string | null {
+  switch (prizeId) {
+    case 5:
+      return t("items.teamJersey");
+    case 6:
+      return t("items.officialBall");
+    case 7:
+      return t("items.soccerCleats");
+    case 8:
+      return t("items.macbookM3");
+    case 9:
+      return t("items.iphone16");
+    case 10:
+      return t("items.goldenTicket");
+    default:
+      return null;
+  }
+}
+
+function getImageForPrize(prize: any, t: (key: string) => string) {
+  switch (prize.id) {
+    case 5:
+      return "/images/itens/camisa1.png";
+    case 6:
+      return "/images/itens/ball.png";
+    case 7:
+      return "/images/itens/chuteira.png";
+    case 8:
+      return "/images/itens/macbook.png";
+    case 9:
+      return "/images/itens/iphone.png";
+    case 10:
+      return "/images/itens/sol-coin.png";
+    default:
+      if (prize.type === "sol") {
+        return "/images/itens/sol-coin.png";
+      }
+      return "/images/itens/camisa1.png";
+  }
+}
 
 export const PRIZE_TABLE = [
-  { id: 1, name: "0.01 SOL", type: "sol", amount: 0.01, probability: 0.208636, stockRequired: false },
-  { id: 2, name: "0.05 SOL", type: "sol", amount: 0.05, probability: 0.125182, stockRequired: false },
-  { id: 3, name: "0.1 SOL", type: "sol", amount: 0.1, probability: 0.062591, stockRequired: false },
-  { id: 4, name: "0.3 SOL", type: "sol", amount: 0.3, probability: 0.020864, stockRequired: false },
-  { id: 5, name: "NFT Comum", type: "nft", metadata: "/metadata/chuteira.json", probability: 0.222545, stockRequired: false },
-  { id: 6, name: "NFT Rara", type: "nft", metadata: "/metadata/chuteira.json", probability: 0.041727, stockRequired: false },
-  { id: 7, name: "NFT Lendária", type: "nft", metadata: "/metadata/chuteira.json", probability: 0.013909, stockRequired: false },
-  { id: 8, name: "Camisas de time", type: "physical", metadata: "/metadata/chuteira.json", probability: 0.150000, stockRequired: true, stock: 90 },
-  { id: 9, name: "Bolas oficiais", type: "physical", metadata: "/metadata/chuteira.json", probability: 0.080000, stockRequired: true, stock: 40 },
-  { id: 10, name: "Chuteiras", type: "physical", metadata: "/metadata/chuteira.json", probability: 0.060000, stockRequired: true, stock: 30 },
-  { id: 11, name: "MacBook M3", type: "physical", metadata: "/metadata/chuteira.json", probability: 0.003636, stockRequired: true, stock: 1 },
-  { id: 12, name: "iPhone 16 Pro Max", type: "physical", metadata: "/metadata/chuteira.json", probability: 0.007273, stockRequired: true, stock: 2 },
-  { id: 13, name: "Ticket Dourado", type: "special", metadata: "/metadata/chuteira.json", probability: 0.003636, stockRequired: true, stock: 10 },
+  { id: 1, name: "0.01 SOL", type: "sol", amount: 0.01, probability: 0.2900, stockRequired: false },
+  { id: 2, name: "0.05 SOL", type: "sol", amount: 0.05, probability: 0.1740, stockRequired: false },
+  { id: 3, name: "0.1 SOL", type: "sol", amount: 0.1, probability: 0.0870, stockRequired: false },
+  { id: 4, name: "0.3 SOL", type: "sol", amount: 0.3, probability: 0.0290, stockRequired: false },
+  { id: 5, name: "Camisas de time", type: "physical", metadata: "t-shirt1", probability: 0.2100, stockRequired: true, stock: 90 },
+  { id: 6, name: "Bolas oficiais", type: "physical", metadata: "mikasa", probability: 0.1120, stockRequired: true, stock: 40 },
+  { id: 7, name: "Chuteiras", type: "physical", metadata: "chuteira", probability: 0.0840, stockRequired: true, stock: 30 },
+  { id: 8, name: "MacBook M3", type: "physical", metadata: "macbook", probability: 0.0050, stockRequired: true, stock: 1 },
+  { id: 9, name: "iPhone 16 Pro Max", type: "physical", metadata: "iphone", probability: 0.0090, stockRequired: true, stock: 2 },
+  { id: 10, name: "Ticket Dourado", type: "special", metadata: "ticket", probability: 0.0050, stockRequired: true, stock: 10 },
 ];
 
 export const CRYPTO_PRIZE_TABLE = [

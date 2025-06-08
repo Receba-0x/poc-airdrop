@@ -34,3 +34,29 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Shipping Address Feature
+
+### Overview
+The application now includes a shipping address feature that allows users to claim physical items they've won. When a user wins a non-cryptocurrency prize, they can click the "Claim" button on the transaction history page to provide their shipping information.
+
+### Setup
+To set up the shipping address functionality:
+
+1. Execute the SQL script in `scripts/setup_shipping_addresses.sql` in your Supabase project's SQL Editor. This script:
+   - Creates the `shipping_addresses` table to store shipping information
+   - Adds `claimed` and `claimed_at` columns to the `purchases` table
+   - Sets up Row Level Security (RLS) policies for the shipping_addresses table
+   - Configures triggers for timestamp updates
+
+2. Make sure your environment variables include the Supabase configuration:
+```
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_key
+```
+
+### Features
+- Claim button appears only for physical (non-SOL) prizes that haven't been claimed yet
+- Shipping form includes all necessary fields for delivery
+- Addresses are stored securely in Supabase with appropriate access controls
+- Transaction status updates to "Claimed" after successful submission

@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { StakingPeriod } from "@/interfaces";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUser } from '@/contexts/UserContext';
 
 interface PeriodInfo {
   label: string;
@@ -60,15 +61,18 @@ const getPeriodInfo = (t: (key: string) => string): Record<StakingPeriod, Period
 });
 
 export function useStaking() {
-  const { publicKey, signTransaction, signAllTransactions, connected } = useWallet();
+  const { publicKey, signTransaction, signAllTransactions } = useWallet();
   const { connection } = useConnection();
   const { t } = useLanguage();
-
+  const { balance, refreshBalance } = useUser();
   const PERIOD_INFO = getPeriodInfo(t);
-  const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState<StakingPeriod>(StakingPeriod.Minutes1);
   const [isLoading, setIsLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalStatus, setModalStatus] = useState<"loading" | "success" | "error">("loading");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [transactionHash, setTransactionHash] = useState("");
 
   const handleMaxClick = () => {
     setAmount(balance.toString());
@@ -87,10 +91,22 @@ export function useStaking() {
     return (Number(amount) * periodInfo.apy / 100) * (periodInfo.minutes / (365 * 24 * 60));
   };
 
+  const closeModal = () => {
+    setModalOpen(false);
+    if (modalStatus === "success") {
+      setAmount("");
+      setSelectedPeriod(StakingPeriod.Minutes1);
+    }
+  };
+
   const onStake = async () => {
     try {
       if (!publicKey) throw new Error("Wallet not connected");
       setIsLoading(true);
+      setModalOpen(true);
+      setModalStatus("loading");
+      setErrorMessage("");
+      setTransactionHash("");
 
       const wallet: any = {
         publicKey,
@@ -180,15 +196,17 @@ export function useStaking() {
           maxRetries: 5,
         });
 
+      setTransactionHash(tx);
+      setModalStatus("success");
+
       setTimeout(() => {
-        getBalance();
+        refreshBalance();
         console.log("Staking successful!", tx);
-        setAmount("");
-        setSelectedPeriod(StakingPeriod.Minutes1);
       }, 2000);
     } catch (error) {
       console.error("Staking failed:", error);
-      throw error;
+      setModalStatus("error");
+      setErrorMessage(error instanceof Error ? error.message : String(error));
     } finally {
       setIsLoading(false);
     }
@@ -196,44 +214,6 @@ export function useStaking() {
 
   const estimatedRewards = calculateRewards();
   const isValid = amount && Number(amount) <= balance;
-
-  const getBalance = async () => {
-    if (!connected || !publicKey) return;
-    setIsLoading(true);
-    try {
-      const tokenMint = new PublicKey(PAYMENT_TOKEN_MINT);
-
-      getAssociatedTokenAddress(tokenMint, publicKey)
-        .then((tokenAccount) => {
-          return connection
-            .getTokenAccountBalance(tokenAccount)
-            .then((tokenAccountInfo) => {
-              setBalance(
-                parseFloat(tokenAccountInfo.value.uiAmount?.toString() || "0")
-              );
-            })
-            .catch((err) => {
-              console.log("Token account may not exist yet:", err);
-              setBalance(0);
-            });
-        })
-        .catch((error) => {
-          console.error("Error fetching token balance:", error);
-          setBalance(0);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    } catch (error) {
-      console.error("Invalid token mint address:", error);
-      setIsLoading(false);
-      setBalance(0);
-    }
-  };
-
-  useEffect(() => {
-    getBalance();
-  }, [connected, publicKey]);
 
   return {
     balance,
@@ -250,6 +230,12 @@ export function useStaking() {
       ...info,
       period: info.period,
     })),
-    getBalance,
+    // Modal props
+    modalOpen,
+    modalStatus,
+    errorMessage,
+    transactionHash,
+    closeModal,
+    getSelectedPeriodLabel: () => PERIOD_INFO[selectedPeriod]?.label,
   };
 }
