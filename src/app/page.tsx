@@ -17,7 +17,7 @@ export default function Home() {
       <TokenInfoSection />
       <ImpactSection />
       <CarouselSection />
-     {/*  <RoadMapSection /> */}
+      <RoadMapSection />
       <TokenomicsChart />
       <JoinSection />
       <FaqSection />
