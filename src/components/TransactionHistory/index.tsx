@@ -1,18 +1,19 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "../Header";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTransactions } from "@/hooks/useTransactions";
 import { SolanaIcon } from "../Icons/SolanaIcon";
 import { ShirtIcon } from "../Icons/ShirtIcon";
 import { ShippingAddressForm } from "../ShippingAddressForm";
+import { Button } from "../Button";
 
 export function TransactionHistory() {
   const { t } = useLanguage();
   const { transactions, isLoading, error, refreshTransactions } = useTransactions();
   const [shippingModalOpen, setShippingModalOpen] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] = useState<{id: string, name: string} | null>(null);
-  
+  const [selectedTransaction, setSelectedTransaction] = useState<{ id: string, name: string, prizeId?: number } | null>(null);
+
   const getStatusTranslation = (status: string) => {
     switch (status) {
       case "Completed":
@@ -40,28 +41,29 @@ export function TransactionHistory() {
       alert(t("common.copied"));
     });
   };
-  
+
   const handleClaimClick = (transaction: any) => {
     setSelectedTransaction({
       id: transaction.id,
-      name: transaction.name
+      name: transaction.name,
+      prizeId: transaction.prizeId
     });
     setShippingModalOpen(true);
   };
-  
+
   const closeShippingModal = () => {
     setShippingModalOpen(false);
     setSelectedTransaction(null);
   };
-  
+
   const isPhysicalItem = (transaction: any) => {
     return !transaction.isCrypto && !transaction.name.includes("SOL");
   };
-  
+
   const canBeClaimed = (transaction: any) => {
-    return isPhysicalItem(transaction) && 
-           transaction.status === "Completed" && 
-           !transaction.claimed;
+    return isPhysicalItem(transaction) &&
+      transaction.status === "Completed" &&
+      !transaction.claimed;
   };
 
   return (
@@ -75,12 +77,13 @@ export function TransactionHistory() {
           </h1>
 
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="secondary"
               onClick={() => refreshTransactions()}
-              className="px-4 py-2 rounded-md text-sm bg-[#1A1A1A] text-gray-400 hover:bg-[#222222] transition-colors"
+              className="text-sm py-2 px-4"
             >
               {t("common.refresh")}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -105,14 +108,14 @@ export function TransactionHistory() {
                     <div className="w-12 h-12 bg-[#1A1A1A] rounded-full flex items-center justify-center">
                       {getItemIcon(tx)}
                     </div>
-                    
+
                     <div className="flex-1">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
                         <h3 className="font-medium text-white">{tx.name}</h3>
                         <div className="text-sm text-gray-400">{tx.date}</div>
                       </div>
-                      
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <div className="px-2 py-1 rounded text-xs font-medium bg-[#1A1A1A]">
                             <span className={`
@@ -124,29 +127,30 @@ export function TransactionHistory() {
                               {getStatusTranslation(tx.status)}
                             </span>
                           </div>
-                          
+
                           <div className="text-gray-400 text-sm">
                             <span className="text-yellow-400 font-medium">${tx.value.toFixed(2)}</span>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center gap-2">
                           {tx.txHash && (
-                            <button 
+                            <button
                               onClick={() => copyToClipboard(tx.txHash)}
-                              className="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1"
+                              className="text-xs text-white hover:text-white transition-colors flex items-center gap-1"
                             >
-                              <span>{t("common.copy")}</span>
+                              {tx.txHash.slice(0, 4)}...{tx.txHash.slice(-4)}
+                              <span className="text-gray-400">{t("common.copy")}</span>
                             </button>
                           )}
-                          
+
                           {canBeClaimed(tx) && (
-                            <button
+                            <Button
+                              className="text-xs py-1 px-3"
                               onClick={() => handleClaimClick(tx)}
-                              className="px-3 py-1 rounded text-xs font-medium bg-[#39A900] text-white hover:bg-[#2C8500] transition-colors"
                             >
                               {t("transactions.claim") || "Claim"}
-                            </button>
+                            </Button>
                           )}
                         </div>
                       </div>
@@ -158,13 +162,15 @@ export function TransactionHistory() {
           </div>
         )}
       </div>
-      
+
       {selectedTransaction && (
         <ShippingAddressForm
+          refreshTransactions={refreshTransactions}
           isOpen={shippingModalOpen}
           onClose={closeShippingModal}
           transactionId={selectedTransaction.id}
           itemName={selectedTransaction.name}
+          prizeId={selectedTransaction.prizeId}
         />
       )}
     </section>

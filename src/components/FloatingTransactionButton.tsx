@@ -8,21 +8,16 @@ export function FloatingTransactionButton() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
-  // Controlar visibilidade baseada na direção do scroll
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
-      // Ocultar quando scrollando para baixo e mostrar quando scrollando para cima
       if (currentScrollY > lastScrollY && currentScrollY > 300) {
         setIsVisible(false);
       } else {
         setIsVisible(true);
       }
-      
       setLastScrollY(currentScrollY);
     };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
@@ -34,8 +29,8 @@ export function FloatingTransactionButton() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         initial={{ opacity: 0, y: 20 }}
-        animate={{ 
-          opacity: isVisible ? 1 : 0, 
+        animate={{
+          opacity: isVisible ? 1 : 0,
           y: isVisible ? 0 : 20,
           scale: isVisible ? 1 : 0.8
         }}

@@ -34,36 +34,25 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   };
 
   const loadSolanaPriceFromCache = () => {
-    console.log("Tentando carregar preço da Solana do cache");
     const cachedData = localStorage.getItem(SOLANA_PRICE_CACHE_KEY);
-    
     if (cachedData) {
       try {
         const { price, timestamp } = JSON.parse(cachedData);
         const now = Date.now();
-        
         if (now - timestamp < SOLANA_PRICE_CACHE_EXPIRY) {
-          console.log('Usando preço da Solana em cache:', price);
           setSolanaPrice(price);
           return price;
-        } else {
-          console.log('Cache do preço da Solana expirou');
         }
       } catch (error) {
         console.error('Erro ao ler cache do preço da Solana:', error);
       }
-    } else {
-      console.log('Nenhum cache de preço da Solana encontrado');
     }
-    
     return null;
   };
 
   async function getSolanaPrice() {
     const cachedPrice = loadSolanaPriceFromCache();
-    if (cachedPrice !== null) {
-      return cachedPrice;
-    }
+    if (cachedPrice !== null) return cachedPrice;
 
     try {
       const TOKEN_ID = "solana";
@@ -79,7 +68,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           timestamp: Date.now()
         })
       );
-      console.log('Preço da Solana atualizado:', price);
       return price;
     } catch (error) {
       console.error('Erro ao buscar preço da Solana:', error);
@@ -89,7 +77,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const getBalance = async () => {
     if (!connected || !publicKey) return;
-
     try {
       const tokenMint = new PublicKey(PAYMENT_TOKEN_MINT);
       getAssociatedTokenAddress(tokenMint, publicKey)
@@ -118,13 +105,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     getBalance();
     const savedBalance = localStorage.getItem('balance');
     if (savedBalance) setBalance(parseFloat(savedBalance));
-    
-    // Inicializar o preço da Solana no carregamento
     const cachedPrice = loadSolanaPriceFromCache();
     if (cachedPrice === null) {
-      console.log("Buscando preço da Solana da API no carregamento inicial");
       getSolanaPrice()
-        .then(price => console.log("Preço da Solana inicializado:", price))
         .catch(err => console.error("Erro ao inicializar preço da Solana:", err));
     }
   }, [connected, publicKey]);

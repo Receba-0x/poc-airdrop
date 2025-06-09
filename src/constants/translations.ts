@@ -258,6 +258,7 @@ export const translations = {
     'common.tryAgain': 'Try Again',
     'common.processing': 'Processing...',
     'common.walletNotConnected': 'Wallet not connected',
+    'common.change': 'Change',
 
     // Admin Panel
     'admin.title': 'Admin Panel',
@@ -323,12 +324,30 @@ export const translations = {
     'shipping.mustAgreeToTerms': 'You must agree to terms and conditions',
     'shipping.submitAddress': 'Submit Address',
     'common.transactionSignature': 'Transaction Signature',
+    'shipping.existingAddresses': 'Existing Addresses',
+    'shipping.backToExistingAddresses': 'Back to existing addresses',
+    'shipping.country.brazil': 'Brazil',
+    'shipping.country.unitedStates': 'United States',
+    'shipping.country.portugal': 'Portugal',
+    'shipping.country.other': 'Other',
+    'shipping.selectAnAddress': 'Please select an address',
 
     // NFT Delegation
     'nft.approveOperator': 'Approve Operator',
     'nft.approveOperatorExplanation': 'Before claiming your physical prize, you need to approve our server as an operator for this NFT. This will allow us to burn the NFT when you claim your prize.',
     'shipping.delegateRequired': 'Approval Required',
     'shipping.delegateRequiredMessage': 'To claim your physical prize, we need your permission to burn (destroy) the NFT associated with this item.',
+
+    // Teams
+    'teams.selectJersey': 'Select Jersey',
+    'teams.jerseySelectionMessage': 'Please select which team jersey you would like to receive:',
+    'teams.corinthians': 'Corinthians',
+    'teams.brasil': 'Brazil',
+    'teams.flamengo': 'Flamengo',
+    'teams.internacional': 'Internacional',
+    'teams.selectedTeam': 'Selected Team',
+    'teams.selectTeam': 'Select Team',
+    'teams.teamSelected': 'Team selected',
   },
   pt: {
     // Header
@@ -589,6 +608,7 @@ export const translations = {
     'common.tryAgain': 'Tentar Novamente',
     'common.processing': 'Processando...',
     'common.walletNotConnected': 'Carteira não conectada',
+    'common.change': 'Alterar',
 
     // Admin Panel
     'admin.title': 'Painel Administrativo',
@@ -654,11 +674,29 @@ export const translations = {
     'shipping.mustAgreeToTerms': 'Você deve concordar com os termos e condições',
     'shipping.submitAddress': 'Enviar Endereço',
     'common.transactionSignature': 'Assinatura da Transação',
+    'shipping.existingAddresses': 'Endereços Existentes',
+    'shipping.backToExistingAddresses': 'Voltar para endereços existentes',
+    'shipping.country.brazil': 'Brasil',
+    'shipping.country.unitedStates': 'Estados Unidos',
+    'shipping.country.portugal': 'Portugal',
+    'shipping.country.other': 'Outro',
+    'shipping.selectAnAddress': 'Selecione um endereço',
 
     // NFT Delegation
     'nft.approveOperator': 'Aprovar Operador',
     'nft.approveOperatorExplanation': 'Antes de reclamar seu prêmio físico, você precisa aprovar nosso servidor como operador para essa NFT. Isso permitirá que queimemos a NFT quando você reclamar seu prêmio.',
     'shipping.delegateRequired': 'Aprovação Necessária',
     'shipping.delegateRequiredMessage': 'Para reclamar seu prêmio físico, precisamos da sua permissão para queimar (destruir) o NFT associado a este item.',
+
+    // Teams
+    'teams.selectJersey': 'Selecione a Camisa',
+    'teams.jerseySelectionMessage': 'Por favor, selecione qual camisa de time você gostaria de receber:',
+    'teams.corinthians': 'Corinthians',
+    'teams.brasil': 'Brasil',
+    'teams.flamengo': 'Flamengo',
+    'teams.internacional': 'Internacional',
+    'teams.selectedTeam': 'Time Selecionado',
+    'teams.selectTeam': 'Selecionar Time',
+    'teams.teamSelected': 'Time selecionado',
   }
 }; 

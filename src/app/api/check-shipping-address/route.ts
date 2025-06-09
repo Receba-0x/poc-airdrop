@@ -9,48 +9,50 @@ const supabase = isSupabaseConfigured ? createClient(supabaseUrl, supabaseServic
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const wallet = searchParams.get('wallet');
+    const wallet = request.nextUrl.searchParams.get('wallet');
 
     if (!wallet) {
       return NextResponse.json(
-        { success: false, error: 'Wallet address is required' },
+        { success: false, error: 'Missing wallet parameter' },
         { status: 400 }
       );
     }
 
     if (!isSupabaseConfigured || !supabase) {
       return NextResponse.json({
-        success: false,
-        error: 'Database not configured',
-        hasAddress: false
-      }, { status: 500 });
+        success: true,
+        hasAddress: false,
+        message: 'Database not configured'
+      });
     }
 
     const { data, error } = await supabase
       .from('shipping_addresses')
       .select('*')
       .eq('wallet_address', wallet)
-      .order('created_at', { ascending: false })
-      .limit(1);
+      .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error checking shipping address:', error);
+      console.error('Error fetching shipping addresses:', error);
       return NextResponse.json(
-        { success: false, error: 'Database error', hasAddress: false },
+        { success: false, error: 'Error fetching shipping addresses' },
         { status: 500 }
       );
     }
 
+    const hasAddress = data && data.length > 0;
+
     return NextResponse.json({
       success: true,
-      hasAddress: data && data.length > 0,
-      data: data && data.length > 0 ? data[0] : null
+      hasAddress,
+      data: hasAddress ? data : null,
+      count: data?.length || 0
     });
-  } catch (error: any) {
-    console.error('Error in check-shipping-address endpoint:', error);
+
+  } catch (error) {
+    console.error('Error processing shipping address check:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Internal server error', hasAddress: false },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }

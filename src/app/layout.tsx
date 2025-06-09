@@ -7,7 +7,7 @@ const nunito = Nunito_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "ADR Token",
-  description: "ADR Token",
+  description: "ADR Token"
 };
 
 type RootLayoutProps = {
@@ -17,6 +17,9 @@ type RootLayoutProps = {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" className={`scroll-smooth ${nunito.className}`}>
+      <head>
+        <link rel="icon" href="/images/logo_token.png" />
+      </head>
       <body>
         <Providers>{children}</Providers>
       </body>

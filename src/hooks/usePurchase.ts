@@ -477,8 +477,6 @@ export function usePurchase() {
       new PublicKey(METAPLEX_PROGRAM_ID)
     );
 
-    console.log("Metaplex metadata PDA:", metaplexMetadata.toString())
-
     const method = program.methods
       .mintNftWithPayment(
         COLLECTION_NAME,
@@ -507,11 +505,8 @@ export function usePurchase() {
         rent: SYSVAR_RENT_PUBKEY,
         tokenMetadataProgram: new PublicKey(TOKEN_METADATA_PROGRAM)
       });
-
     const tx = await method.transaction();
-
     const message = `{"wallet":"${provider.wallet.publicKey.toString()}","amount":${tokenAmount},"timestamp":${timestamp}}`;
-
     tx.instructions.unshift(
       Ed25519Program.createInstructionWithPublicKey({
         publicKey: new PublicKey(backendPubkey).toBytes(),
@@ -523,7 +518,7 @@ export function usePurchase() {
     tx.feePayer = provider.wallet.publicKey;
     const signedTx = await provider.wallet.signTransaction(tx);
     return await connection.sendRawTransaction(signedTx.serialize(), {
-      skipPreflight: true,
+      skipPreflight: false,
     });
   }
 
@@ -578,24 +573,9 @@ export function usePurchase() {
       tx.add(ix);
       tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
       tx.feePayer = provider.wallet.publicKey;
-
-      try {
-        const simulateResult = await connection.simulateTransaction(tx);
-        if (simulateResult.value.logs) {
-          simulateResult.value.logs.forEach((log, i) => {
-            console.log(`${i + 1}: ${log}`);
-          });
-        }
-
-        if (simulateResult.value.err) {
-          console.error("⚠️ Aviso: A simulação teve erro:", simulateResult.value.err);
-        }
-      } catch (simError) {
-        console.error("❌ Erro ao simular transação:", simError);
-      }
       const signedTx = await provider.wallet.signTransaction(tx);
       return await connection.sendRawTransaction(signedTx.serialize(), {
-        skipPreflight: true,
+        skipPreflight: false,
       });
     } catch (error: any) {
       console.error("Erro detalhado na transação crypto:", error);

@@ -7,18 +7,19 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   showCloseButton?: boolean;
+  preventClose?: boolean;
 }
 
-export function Modal({ isOpen, onClose, title, children, showCloseButton = true }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, showCloseButton = true, preventClose = false }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape" && !preventClose) onClose();
     };
 
     const handleClickOutside = (e: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node) && !preventClose) {
         onClose();
       }
     };
@@ -34,7 +35,7 @@ export function Modal({ isOpen, onClose, title, children, showCloseButton = true
       document.removeEventListener("mousedown", handleClickOutside);
       document.body.style.overflow = "auto";
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, preventClose]);
 
   return (
     <AnimatePresence>
@@ -55,7 +56,7 @@ export function Modal({ isOpen, onClose, title, children, showCloseButton = true
           >
             <div className="flex items-center justify-between text-white px-4 py-3 border-b border-[#303030]">
               <h2 className="text-lg font-semibold">{title}</h2>
-              {showCloseButton && (
+              {showCloseButton && !preventClose && (
                 <button
                   onClick={onClose}
                   className="text-gray-400 hover:text-white transition-colors"
