@@ -217,16 +217,65 @@ export function TransactionPurchaseModal({
             )}
             
             {status === "success" && prize && (
-              <div className="bg-[#1A1A1A] rounded-lg p-3 w-full mt-4">
-                <h3 className="text-sm text-gray-400 mb-2">{t("box.yourPrize")}</h3>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-300">{t("box.wonPrize")}:</span>
-                  <span className="font-medium text-[#FFD60A]">{prize.name}</span>
+              <div className="bg-[#1A1A1A] rounded-lg p-4 w-full mt-4">
+                <h3 className="text-sm text-gray-400 mb-3">{t("box.yourPrize")}</h3>
+                
+                <div className="flex items-center mb-3">
+                  {prize.image && (
+                    <div className="flex-shrink-0 w-12 h-12 mr-3">
+                      <img 
+                        src={prize.image} 
+                        alt={prize.name} 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-300">{t("box.wonPrize")}:</span>
+                      <span className="font-medium text-[#FFD60A]">{prize.name}</span>
+                    </div>
+                    {prize.amount && (
+                      <div className="flex justify-between mt-2">
+                        <span className="text-sm text-gray-300">{t("transactions.amount")}:</span>
+                        <span className="font-medium text-[#FFD60A]">
+                          {prize.amount} {prize.type === "sol" ? "SOL" : "$ADR"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                {prize.amount && (
-                  <div className="flex justify-between mt-2">
-                    <span className="text-sm text-gray-300">{t("transactions.amount")}:</span>
-                    <span className="font-medium text-[#FFD60A]">{prize.amount} {prize.type === "sol" ? "SOL" : "$ADR"}</span>
+                
+                {prize.type === "sol" && (
+                  <div className="bg-gradient-to-r from-[#2A2A2A] to-[#1A1A1A] rounded-md p-3 mt-2 border border-[#3A3A3A]">
+                    <div className="flex items-center">
+                      <div className="w-8 h-8 bg-green-400/10 rounded-full flex items-center justify-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-green-400 text-sm font-medium">{t("box.solDelivered")}</p>
+                        <p className="text-gray-400 text-xs">{t("box.checkWallet")}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {prize.type === "physical" && (
+                  <div className="bg-gradient-to-r from-[#2A2A2A] to-[#1A1A1A] rounded-md p-3 mt-2 border border-[#3A3A3A]">
+                    <div className="flex items-center">
+                      <div className="w-8 h-8 bg-yellow-400/10 rounded-full flex items-center justify-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                          <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H14a1 1 0 001-1v-3h-5.05a2.5 2.5 0 00-4.9 0H3V5a1 1 0 011-1h4a1 1 0 001-1 1 1 0 011-1h3a1 1 0 011 1 1 1 0 001 1h4a1 1 0 011 1v6h-1M3 4a1 1 0 011-1h5.5l.15-.15a2.5 2.5 0 013.7 0L13.5 3H18a1 1 0 011 1v2h-1" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-yellow-400 text-sm font-medium">{t("box.physicalPrize")}</p>
+                        <p className="text-gray-400 text-xs">{t("box.claimInstructions")}</p>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

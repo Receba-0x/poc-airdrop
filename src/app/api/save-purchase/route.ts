@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       timestamp,
     } = await request.json();
 
-    if (!wallet || !nftMint || !transactionSignature || !prizeId) {
+    if (!wallet || !transactionSignature || !prizeId) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -70,15 +70,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Se for prêmio físico, atualizar estoque usando a função RPC
-    const physicalPrizes = [8, 9, 10, 11, 12, 13];
+    const physicalPrizes = [5, 6, 7, 8, 9, 10];
     if (physicalPrizes.includes(prizeId)) {
       const { data: stockData, error: stockError } = await supabase
         .rpc('decrement_stock', { prize_id: prizeId });
 
       if (stockError) {
         console.error('Error updating stock:', stockError);
-        // Não falha a transação se não conseguir atualizar estoque
       } else {
         console.log(`Stock updated for prize ${prizeId}, new stock: ${stockData}`);
       }

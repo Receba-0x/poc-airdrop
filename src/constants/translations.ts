@@ -149,7 +149,7 @@ export const translations = {
     'footer.telegram': 'Join our Telegram',
     'footer.whitepaper': 'Whitepaper',
     'footer.terms': 'Terms of use',
-    
+
     // Wallet
     'wallet.connect': 'Connect Wallet',
     'wallet.connected': 'Connected',
@@ -195,6 +195,10 @@ export const translations = {
     'box.type': 'Box Type',
     'box.yourPrize': 'Your Prize',
     'box.wonPrize': 'Prize Won',
+    'box.solDelivered': 'SOL Successfully Delivered',
+    'box.checkWallet': 'Check your wallet balance',
+    'box.physicalPrize': 'Physical Prize',
+    'box.claimInstructions': 'Click Claim in your transaction history to receive it',
 
     // Purchase Process
     'purchase.initializing': 'Initializing',
@@ -254,7 +258,7 @@ export const translations = {
     'common.tryAgain': 'Try Again',
     'common.processing': 'Processing...',
     'common.walletNotConnected': 'Wallet not connected',
-    
+
     // Admin Panel
     'admin.title': 'Admin Panel',
     'admin.description': 'Access the administrative controls for ADR Token',
@@ -522,6 +526,10 @@ export const translations = {
     'box.type': 'Tipo de Caixa',
     'box.yourPrize': 'Seu Prêmio',
     'box.wonPrize': 'Prêmio Ganho',
+    'box.solDelivered': 'SOL Entregue com Sucesso',
+    'box.checkWallet': 'Verifique o saldo da sua carteira',
+    'box.physicalPrize': 'Prêmio Físico',
+    'box.claimInstructions': 'Clique em Reclamar no seu histórico de transações para recebê-lo',
 
     // Purchase Process
     'purchase.initializing': 'Inicializando',
@@ -581,7 +589,7 @@ export const translations = {
     'common.tryAgain': 'Tentar Novamente',
     'common.processing': 'Processando...',
     'common.walletNotConnected': 'Carteira não conectada',
-    
+
     // Admin Panel
     'admin.title': 'Painel Administrativo',
     'admin.description': 'Acesse os controles administrativos do ADR Token',

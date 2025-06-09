@@ -126,31 +126,75 @@ export function usePurchase() {
         const cryptoPrize = CRYPTO_PRIZE_TABLE.find(p => p.id === prizeId);
         if (!cryptoPrize) {
           console.error(`❌ Prêmio crypto não encontrado: ${prizeId}`);
-          return;
+          return null;
         }
-        const solAmount = cryptoPrize.amount * LAMPORTS_PER_SOL;
-        SystemProgram.transfer({
-          fromPubkey: new PublicKey(process.env.NEXT_PUBLIC_TREASURY_WALLET!),
-          toPubkey: userAddress,
-          lamports: solAmount,
-        });
-        return;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            const { data } = await axios.post('/api/deliver-prize', {
+              prizeId,
+              recipient: userAddress.toString(),
+              amount: cryptoPrize.amount,
+              type: 'sol'
+            });
+
+            if (data.success) {
+              console.log(`✅ Prêmio entregue com sucesso! Tx: ${data.txSignature}`);
+              toast.success(`${cryptoPrize.amount} SOL foi enviado para sua carteira!`);
+              return data.txSignature;
+            } else {
+              console.error(`❌ Erro ao entregar prêmio (tentativa ${attempt}/3):`, data.error);
+              if (attempt === 3) toast.error("Não foi possível entregar o prêmio automaticamente. Entre em contato com o suporte.");
+            }
+          } catch (err) {
+            console.error(`❌ Erro na requisição para entregar prêmio (tentativa ${attempt}/3):`, err);
+            if (attempt === 3) toast.error("Não foi possível entregar o prêmio automaticamente. Entre em contato com o suporte.");
+          }
+
+          // Wait before retrying
+          if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+
+        return null;
       }
+
       const prize = PRIZE_TABLE.find(p => p.id === prizeId);
       if (!prize) {
         console.error(`❌ Prêmio não encontrado: ${prizeId}`);
-        return;
+        return null;
       }
+
       if (prize.type === "sol") {
-        const solAmount = (prize.amount || 0) * LAMPORTS_PER_SOL;
-        SystemProgram.transfer({
-          fromPubkey: new PublicKey(process.env.NEXT_PUBLIC_TREASURY_WALLET!),
-          toPubkey: userAddress,
-          lamports: solAmount,
-        });
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            const { data } = await axios.post('/api/deliver-prize', {
+              prizeId,
+              recipient: userAddress.toString(),
+              amount: prize.amount || 0,
+              type: 'sol'
+            });
+
+            if (data.success) {
+              console.log(`✅ Prêmio entregue com sucesso! Tx: ${data.txSignature}`);
+              toast.success(`${prize.amount} SOL foi enviado para sua carteira!`);
+              return data.txSignature;
+            } else {
+              console.error(`❌ Erro ao entregar prêmio (tentativa ${attempt}/3):`, data.error);
+              if (attempt === 3) toast.error("Não foi possível entregar o prêmio automaticamente. Entre em contato com o suporte.");
+            }
+          } catch (err) {
+            console.error(`❌ Erro na requisição para entregar prêmio (tentativa ${attempt}/3):`, err);
+            if (attempt === 3) toast.error("Não foi possível entregar o prêmio automaticamente. Entre em contato com o suporte.");
+          }
+
+          // Wait before retrying
+          if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 2000));
+        }
       }
+
+      return null;
     } catch (error) {
       console.error("❌ Erro ao entregar prêmio:", error);
+      return null;
     }
   }
 
@@ -168,7 +212,6 @@ export function usePurchase() {
 
       const provider = await initializeProvider();
       await checkSufficientBalance(provider);
-
       setModalStatus("processing");
       const {
         program,
@@ -197,9 +240,9 @@ export function usePurchase() {
       if (onlyBurn) {
         txSig = await sendCryptoTransaction(provider, program, tokenAmount, timestamp, arraySignature, backendPubkey);
       } else {
-        txSig = await sendMainTransaction(provider, program, tokenAmount, timestamp, arraySignature, backendPubkey, nftCounter, nftMintAddress, nftMetadataAddress, nftTokenAccount, payerPaymentTokenAccount, collectionMetadata);
+        txSig = await sendMainTransaction(provider, program, tokenAmount, timestamp, arraySignature, backendPubkey, nftCounter, nftMintAddress, nftMetadataAddress, nftTokenAccount, payerPaymentTokenAccount, collectionMetadata, prize);
       }
-      
+
       setTransactionHash(txSig);
       await deliverPrize(provider.wallet.publicKey, prizeId);
       setModalStatus("saving");
@@ -211,7 +254,8 @@ export function usePurchase() {
         txSig,
         prizeId,
         wonPrize,
-        randomData
+        randomData,
+        onlyBurn
       );
 
       await refreshBalance();
@@ -419,6 +463,7 @@ export function usePurchase() {
     nftTokenAccount: PublicKey,
     payerPaymentTokenAccount: PublicKey,
     collectionMetadata: PublicKey,
+    prize: any
   ) {
     const sysvarInstructions = new PublicKey('Sysvar1nstructions1111111111111111111111111');
     const backendAuthority = new PublicKey(backendPubkey);
@@ -438,7 +483,7 @@ export function usePurchase() {
       .mintNftWithPayment(
         COLLECTION_NAME,
         COLLECTION_SYMBOL,
-        `${COLLECTION_URI}/iphone.json`,
+        `${COLLECTION_URI}/${prize.metadata}.json`,
         new anchor.BN(tokenAmount),
         new anchor.BN(timestamp),
         arraySignature
@@ -570,13 +615,14 @@ export function usePurchase() {
     txSig: string,
     prizeId: number,
     wonPrize: any,
-    randomData: any
+    randomData: any,
+    onlyBurn: boolean
   ) {
     try {
       await axios.post('/api/save-purchase', {
         wallet: provider.wallet.publicKey.toString(),
-        nftMint: nftMintAddress.toString(),
-        nftMetadata: nftMetadataAddress.toString(),
+        nftMint: onlyBurn ? null : nftMintAddress.toString(),
+        nftMetadata: onlyBurn ? null : nftMetadataAddress.toString(),
         tokenAmount,
         transactionSignature: txSig,
         prizeId,

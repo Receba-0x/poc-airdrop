@@ -8,11 +8,12 @@ import { PurchaseIcon } from "../Icons/PurchaseIcon";
 import ItemCard from "../ItemCard.tsx";
 import { ScrollAnimation } from "../ScrollAnimation";
 import { motion } from "framer-motion";
-import { CRYPTO_PRIZE_TABLE, getItensData } from "@/constants";
+import { CRYPTO_PRIZE_TABLE, PRIZE_TABLE, getItensData } from "@/constants";
 import { usePurchase } from "@/hooks/usePurchase";
 import { useBoxStats } from "@/hooks/useBoxStats";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { TransactionPurchaseModal } from "../TransactionPurchaseModal";
+import crypto from "crypto";
 
 type ProcessStage =
   | "idle"
@@ -30,9 +31,14 @@ export function BoxSection({ boxName }: { boxName: string }) {
   const animationRef = useRef<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const { onMint, modalOpen, modalStatus, errorMessage: purchaseErrorMessage, transactionHash, currentPrize, currentBoxType, currentAmount, closeModal } = usePurchase();
+  const { onMint, modalOpen, modalStatus, errorMessage: purchaseErrorMessage, transactionHash, currentPrize, currentBoxType, currentAmount, closeModal, currentStock } = usePurchase();
   const { stats, isLoading: statsLoading, refetch } = useBoxStats();
   const { t } = useLanguage();
+  
+  // Simulation states
+  const [simulationModalOpen, setSimulationModalOpen] = useState(false);
+  const [simulationStatus, setSimulationStatus] = useState<"initializing" | "processing" | "determining" | "delivering" | "saving" | "success" | "error">("initializing");
+  const [simulationPrize, setSimulationPrize] = useState<any>(null);
 
   const isCrypto = boxName === "cryptos";
   const itens = isCrypto ? CRYPTO_PRIZE_TABLE : getItensData(t);
@@ -91,6 +97,69 @@ export function BoxSection({ boxName }: { boxName: string }) {
     } catch (error: any) {
       console.error("Erro ao processar compra:", error);
     }
+  };
+  
+  const generateRandomNumber = () => {
+    const buffer = crypto.randomBytes(4);
+    const hexNumber = buffer.toString('hex').substring(0, 8);
+    return parseInt(hexNumber, 16) / 0xffffffff;
+  };
+  
+  const checkStock = (prizeId: number): boolean => {
+    const prize = PRIZE_TABLE.find(p => p.id === prizeId);
+    if (!prize?.stockRequired) return true;
+    return (currentStock[prizeId] || 0) > 0;
+  };
+  
+  const simulateDeterminePrize = (randomNumber: number, isCrypto: boolean = false) => {
+    if (isCrypto) {
+      let cumulativeProbability = 0;
+      for (const prize of CRYPTO_PRIZE_TABLE) {
+        cumulativeProbability += prize.probability;
+        if (randomNumber < cumulativeProbability) return prize;
+      }
+      return CRYPTO_PRIZE_TABLE[0];
+    } else {
+      let cumulativeProbability = 0;
+      for (const prize of PRIZE_TABLE) {
+        cumulativeProbability += prize.probability;
+        if (randomNumber < cumulativeProbability) {
+          if (prize.stockRequired && !checkStock(prize.id)) continue;
+          return prize;
+        }
+      }
+      const fallbackPrize = PRIZE_TABLE.find(p => p.type === "sol" && !p.stockRequired);
+      if (fallbackPrize) return fallbackPrize;
+      return PRIZE_TABLE[0];
+    }
+  };
+
+  const handleSimulation = async () => {
+    setSimulationModalOpen(true);
+    setSimulationStatus("initializing");
+    setTimeout(() => {
+      setSimulationStatus("processing");
+      setTimeout(() => {
+        setSimulationStatus("determining");
+        setTimeout(() => {
+          const randomNumber = generateRandomNumber();
+          const prize = simulateDeterminePrize(randomNumber, isCrypto);
+          setSimulationPrize(prize);
+          setSimulationStatus("delivering");
+          setTimeout(() => {
+            setSimulationStatus("saving");
+            setTimeout(() => {
+              setSimulationStatus("success");
+            }, 1000);
+          }, 1500);
+        }, 2000);
+      }, 1500);
+    }, 1000);
+  };
+  
+  const closeSimulationModal = () => {
+    setSimulationModalOpen(false);
+    setSimulationPrize(null);
   };
 
   const boxImage = boxName === "cryptos" ? "/images/boxes/cripto.png" : "/images/boxes/super-prize.png";
@@ -257,7 +326,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
                     <Button
                       className="w-full sm:w-[209px] h-[44px] sm:h-[52px]"
                       variant="secondary"
-                      onClick={() => undefined}
+                      onClick={handleSimulation}
                     >
                       <SimulationIcon className="w-5 h-5" />
                       <span className="ml-1 text-sm sm:text-base">
@@ -316,6 +385,15 @@ export function BoxSection({ boxName }: { boxName: string }) {
         errorMessage={purchaseErrorMessage}
         transactionHash={transactionHash}
         prize={currentPrize}
+      />
+      
+      <TransactionPurchaseModal
+        isOpen={simulationModalOpen}
+        onClose={closeSimulationModal}
+        status={simulationStatus}
+        amount={boxPriceInToken.toString()}
+        boxType={isCrypto ? t("box.cryptos") : t("box.superPrizes")}
+        prize={simulationPrize}
       />
     </>
   );
