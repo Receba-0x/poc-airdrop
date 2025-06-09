@@ -48,22 +48,22 @@ function getPrizeTranslation(prizeId: number, t: (key: string) => string): strin
 function getImageForPrize(prize: any, t: (key: string) => string) {
   switch (prize.id) {
     case 5:
-      return "/images/itens/camisa1.png";
+      return "/images/itens/camisa1.webp";
     case 6:
-      return "/images/itens/ball.png";
+      return "/images/itens/ball.webp";
     case 7:
-      return "/images/itens/chuteira.png";
+      return "/images/itens/chuteira.webp";
     case 8:
-      return "/images/itens/macbook.png";
+      return "/images/itens/macbook.webp";
     case 9:
-      return "/images/itens/iphone.png";
+      return "/images/itens/iphone.webp";
     case 10:
-      return "/images/itens/sol-coin.png";
+      return "/images/itens/sol-coin.webp";
     default:
       if (prize.type === "sol") {
-        return "/images/itens/sol-coin.png";
+        return "/images/itens/sol-coin.webp";
       }
-      return "/images/itens/camisa1.png";
+      return "/images/itens/camisa1.webp";
   }
 }
 
@@ -81,15 +81,15 @@ export const PRIZE_TABLE = [
 ];
 
 export const CRYPTO_PRIZE_TABLE = [
-  { id: 101, name: "0.005 SOL", type: "sol", amount: 0.005, probability: 0.1500, value_usd: 0.83, image: "/images/itens/sol-coin.png", },
-  { id: 102, name: "0.01 SOL", type: "sol", amount: 0.01, probability: 0.2000, value_usd: 1.65, image: "/images/itens/sol-coin.png", },
-  { id: 103, name: "0.03 SOL", type: "sol", amount: 0.03, probability: 0.2000, value_usd: 4.95, image: "/images/itens/sol-coin.png", },
-  { id: 104, name: "0.05 SOL", type: "sol", amount: 0.05, probability: 0.1500, value_usd: 8.25, image: "/images/itens/sol-coin.png", },
-  { id: 105, name: "0.1 SOL", type: "sol", amount: 0.1, probability: 0.1200, value_usd: 16.50, image: "/images/itens/sol-coin.png", },
-  { id: 106, name: "0.2 SOL", type: "sol", amount: 0.2, probability: 0.0800, value_usd: 33.00, image: "/images/itens/sol-coin.png", },
-  { id: 107, name: "0.3 SOL", type: "sol", amount: 0.3, probability: 0.0500, value_usd: 49.50, image: "/images/itens/sol-coin.png", },
-  { id: 108, name: "0.5 SOL", type: "sol", amount: 0.5, probability: 0.0300, value_usd: 82.50, image: "/images/itens/sol-coin.png", },
-  { id: 109, name: "0.8 SOL", type: "sol", amount: 0.8, probability: 0.0100, value_usd: 132.00, image: "/images/itens/sol-coin.png", },
-  { id: 110, name: "1 SOL", type: "sol", amount: 1.0, probability: 0.0070, value_usd: 165.00, image: "/images/itens/sol-coin.png", },
-  { id: 111, name: "3 SOL", type: "sol", amount: 3.0, probability: 0.0030, value_usd: 495.00, image: "/images/itens/sol-coin.png", },
+  { id: 101, name: "0.005 SOL", type: "sol", amount: 0.005, probability: 0.1500, value_usd: 0.83, image: "/images/itens/sol-coin.webp", },
+  { id: 102, name: "0.01 SOL", type: "sol", amount: 0.01, probability: 0.2000, value_usd: 1.65, image: "/images/itens/sol-coin.webp", },
+  { id: 103, name: "0.03 SOL", type: "sol", amount: 0.03, probability: 0.2000, value_usd: 4.95, image: "/images/itens/sol-coin.webp", },
+  { id: 104, name: "0.05 SOL", type: "sol", amount: 0.05, probability: 0.1500, value_usd: 8.25, image: "/images/itens/sol-coin.webp", },
+  { id: 105, name: "0.1 SOL", type: "sol", amount: 0.1, probability: 0.1200, value_usd: 16.50, image: "/images/itens/sol-coin.webp", },
+  { id: 106, name: "0.2 SOL", type: "sol", amount: 0.2, probability: 0.0800, value_usd: 33.00, image: "/images/itens/sol-coin.webp", },
+  { id: 107, name: "0.3 SOL", type: "sol", amount: 0.3, probability: 0.0500, value_usd: 49.50, image: "/images/itens/sol-coin.webp", },
+  { id: 108, name: "0.5 SOL", type: "sol", amount: 0.5, probability: 0.0300, value_usd: 82.50, image: "/images/itens/sol-coin.webp", },
+  { id: 109, name: "0.8 SOL", type: "sol", amount: 0.8, probability: 0.0100, value_usd: 132.00, image: "/images/itens/sol-coin.webp", },
+  { id: 110, name: "1 SOL", type: "sol", amount: 1.0, probability: 0.0070, value_usd: 165.00, image: "/images/itens/sol-coin.webp", },
+  { id: 111, name: "3 SOL", type: "sol", amount: 3.0, probability: 0.0030, value_usd: 495.00, image: "/images/itens/sol-coin.webp", },
 ];

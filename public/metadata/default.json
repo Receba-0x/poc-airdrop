@@ -3,7 +3,7 @@
   "symbol": "ADR",
   "description": "NFT comemorativa do imperador Adriano — edição limitada.",
   "seller_fee_basis_points": 500,
-  "image": "https://adr-token.vercel.app/images/itens/chuteira.png",
+  "image": "https://adr-token.vercel.app/images/itens/chuteira.webp",
   "external_url": "https://adr-token.vercel.app",
   "attributes": [
     {
@@ -30,7 +30,7 @@
   "properties": {
     "files": [
       {
-        "uri": "https://arweave.net/abc123xyz456imagem.png",
+        "uri": "https://arweave.net/abc123xyz456imagem.webp",
         "type": "image/png"
       }
     ],

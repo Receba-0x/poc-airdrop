@@ -18,7 +18,7 @@ export function TeamSelectionModal({ isOpen, onClose, onSelect }: TeamSelectionM
     { id: "corinthians", name: t("teams.corinthians") || "Corinthians" },
     { id: "brasil", name: t("teams.brasil") || "Brasil" },
     { id: "flamengo", name: t("teams.flamengo") || "Flamengo" },
-    { id: "internacional", name: t("teams.internacional") || "Internacional" }
+    { id: "inter", name: t("teams.inter") || "Inter" }
   ];
 
   function onSelectTeam(team: string) {

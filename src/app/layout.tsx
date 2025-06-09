@@ -18,7 +18,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" className={`scroll-smooth ${nunito.className}`}>
       <head>
-        <link rel="icon" href="/images/logo_token.png" />
+        <link rel="icon" href="/images/logo_token.webp" />
       </head>
       <body>
         <Providers>{children}</Providers>

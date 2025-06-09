@@ -10,7 +10,6 @@ interface BoxCardProps {
     id: string;
     title: string;
     image: string;
-    price: number;
   };
 }
 

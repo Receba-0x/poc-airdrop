@@ -7,18 +7,11 @@ export const runtime = 'nodejs';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_KEY;
-const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
 const isSupabaseConfigured = supabaseUrl && supabaseServiceKey;
 const supabase = isSupabaseConfigured ? createClient(supabaseUrl, supabaseServiceKey) : null;
 
-const checkAdminAuth = (request: NextRequest) => {
-  const referer = request.headers.get('referer') || '';
-  if (!referer.includes('/admin')) return false;
-  return true;
-};
-
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Verificar autenticação
     const authHeader = request.headers.get('authorization');
@@ -36,39 +29,39 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Obter parâmetros de paginação da URL
-    const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get('page') || '1');
-    const pageSize = parseInt(url.searchParams.get('pageSize') || '10');
-    
-    // Calcular o offset para a paginação
-    const offset = (page - 1) * pageSize;
-
-    // Buscar as compras com paginação
-    const { data, error, count } = await supabase
-      .from('purchases')
-      .select('*', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(offset, offset + pageSize - 1);
+    // Chamar a função para criar/preencher a tabela prize_stock
+    const { data, error } = await supabase.rpc('create_prize_stock_table');
 
     if (error) {
-      console.error('Error fetching purchases:', error);
+      console.error('Error initializing prize stock table:', error);
       return NextResponse.json({ 
         success: false, 
         error: error.message 
       }, { status: 500 });
     }
 
+    // Obter os dados da tabela para confirmar
+    const { data: stockData, error: fetchError } = await supabase
+      .from('prize_stock')
+      .select('*')
+      .order('prize_id');
+
+    if (fetchError) {
+      console.error('Error fetching prize stock data:', fetchError);
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Prize stock table initialized but could not fetch data'
+      });
+    }
+
     return NextResponse.json({ 
       success: true, 
-      data: data || [],
-      total: count,
-      page,
-      pageSize
+      message: 'Prize stock table initialized successfully',
+      data: stockData
     });
 
   } catch (error) {
-    console.error('Error in purchases endpoint:', error);
+    console.error('Error in initialize-stock endpoint:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Internal server error' 

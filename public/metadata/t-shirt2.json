@@ -2,7 +2,7 @@
   "name": "Adriano Imperador Soccer Jersey #2",
   "symbol": "ADR-JERSEY2",
   "description": "Exclusive autographed soccer jersey from Adriano Imperador. A rare collectible item celebrating the legend of Brazilian football. Part of the official $ADR collection.",
-  "image": "https://adr-token.vercel.app/images/itens/camisa2.png",
+  "image": "https://adr-token.vercel.app/images/itens/camisa2.webp",
   "external_url": "https://adr-token.vercel.app",
   "attributes": [
     {
@@ -41,7 +41,7 @@
   "properties": {
     "files": [
       {
-        "uri": "/images/itens/camisa2.png",
+        "uri": "/images/itens/camisa2.webp",
         "type": "image/png"
       }
     ],

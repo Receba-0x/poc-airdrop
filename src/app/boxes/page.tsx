@@ -8,14 +8,12 @@ const boxData = [
   {
     id: "cryptos",
     title: "Cryptos",
-    image: "/images/boxes/cripto.png",
-    price: 50.5,
+    image: "/images/boxes/cripto.webp",
   },
   {
     id: "super",
     title: "Super prizes",
-    image: "/images/boxes/super-prize.png",
-    price: 10.21,
+    image: "/images/boxes/super-prize.webp",
   },
 ];
 
@@ -59,7 +57,7 @@ export default function BoxesPage() {
       <Header />
       <div className="container w-full py-8 md:pt-[80px] mt-[80px] max-w-[1280px] md:mt-20 px-6 md:px-0">
         <motion.div
-          className='bg-[url("/images/banner.png")] md:bg-[url("/images/banner.png")] bg-cover bg-center h-[220px] sm:h-[320px] rounded-xl mb-8'
+          className='bg-[url("/images/banner.png")] md:bg-[url("/images/banner.png")] bg-cover bg-no-repeat h-[220px] sm:h-[320px] rounded-xl mb-8'
           variants={bannerVariants}
           initial="hidden"
           animate="visible"

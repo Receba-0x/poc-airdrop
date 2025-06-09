@@ -239,7 +239,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Para camisas (ID 5), o time é obrigatório
     const isPrizeJersey = itemName.toLowerCase().includes('jersey') || itemName.toLowerCase().includes('camisa');
     if (isPrizeJersey && !teamSelected) {
       return NextResponse.json(
@@ -296,21 +295,13 @@ export async function POST(request: NextRequest) {
       if (!burnSignature) {
         burnError = 'Falha ao queimar o NFT - verificar logs para detalhes';
       } else {
-        console.log(`NFT queimado com sucesso. Assinatura: ${burnSignature}`);
-
-        // Adicionar informações extras para camisa
         const updateData: any = {
           shippingAddressId,
           burnSignature
         };
-        
-        if (isPrizeJersey && teamSelected) {
-          updateData.teamSelected = teamSelected;
-        }
-        
+        if (isPrizeJersey && teamSelected) updateData.teamSelected = teamSelected;
         await updatePurchaseStatus(transactionId, walletAddress, shippingAddressId, burnSignature);
-        
-        // Se for uma camisa, salvar o time selecionado
+
         if (isPrizeJersey && teamSelected && supabase) {
           try {
             await supabase
@@ -318,13 +309,11 @@ export async function POST(request: NextRequest) {
               .update({ team_selected: teamSelected })
               .eq('nft_mint', transactionId)
               .eq('wallet_address', walletAddress);
-              
-            console.log(`Time selecionado ${teamSelected} salvo para o NFT ${transactionId}`);
           } catch (teamError) {
             console.error('Erro ao salvar time selecionado:', teamError);
           }
         }
-        
+
         console.log('Status da compra atualizado no banco de dados');
       }
     } catch (error: any) {

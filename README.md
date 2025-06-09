@@ -1,3 +1,70 @@
+# ADR Token - Sistema de Gestão de Estoque
+
+Este repositório contém o código para o sistema de gestão de estoque de prêmios físicos do projeto ADR Token.
+
+## Funcionalidades Implementadas
+
+### Gestão de Estoque para Prêmios Físicos
+
+- **Verificação de Estoque**: O sistema verifica automaticamente se há estoque disponível antes de processar o resgate de prêmios físicos.
+- **Atualização Automática**: O estoque é decrementado automaticamente quando um usuário resgata um prêmio físico.
+- **Painel Administrativo**: Interface para os administradores gerenciarem o estoque dos prêmios físicos.
+
+### Funções de Banco de Dados
+
+- Tabela `prize_stock` para armazenar informações de estoque
+- Funções SQL para incrementar, decrementar e resetar o estoque
+- Sistema seguro de atualização de estoque através de RLS (Row Level Security)
+
+### API REST
+
+- `/api/admin/update-stock`: Endpoint para visualizar e atualizar o estoque
+- `/api/admin/initialize-stock`: Endpoint para inicializar a tabela de estoque
+- Validação de estoque integrada ao endpoint de processamento de compras (`/api/save-purchase`)
+
+## Configuração
+
+1. Configure as variáveis de ambiente:
+   ```
+   SUPABASE_URL=https://your-supabase-project.supabase.co
+   SUPABASE_KEY=your-supabase-key
+   ADMIN_SECRET=admin-secret-key-for-api
+   NEXT_PUBLIC_ADMIN_SECRET=admin123
+   ```
+
+2. Execute o script SQL `scripts/setup_prize_stock.sql` no seu banco de dados Supabase para configurar a tabela e funções.
+
+3. Inicialize o estoque acessando o painel administrativo e usando a função "Inicializar Estoque".
+
+## Uso do Painel Administrativo
+
+1. Acesse `/admin/login` e entre com a senha definida em `NEXT_PUBLIC_ADMIN_SECRET`.
+2. Na aba "Estoque", você poderá:
+   - Visualizar o estoque atual de todos os prêmios físicos
+   - Incrementar ou decrementar o estoque manualmente
+   - Resetar o estoque para o valor inicial
+   - Inicializar a tabela de estoque caso seja necessário
+
+## Prêmios Físicos
+
+Os seguintes prêmios são considerados físicos e têm seu estoque gerenciado:
+
+- ID 5: Team Jersey (90 unidades)
+- ID 6: Official Ball (40 unidades)
+- ID 7: Soccer Cleats (30 unidades)
+- ID 8: MacBook M3 (1 unidades)
+- ID 9: iPhone 16 Pro Max (2 unidades)
+- ID 10: Golden Ticket (10 unidades)
+
+## Desenvolvimento
+
+Para executar o projeto localmente:
+
+```bash
+npm install
+npm run dev
+```
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
