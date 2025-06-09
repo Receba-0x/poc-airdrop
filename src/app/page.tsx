@@ -7,6 +7,7 @@ import { TokenomicsChart } from "@/components/TokenomicsChart";
 import { JoinSection } from "@/components/JoinSection";
 import { FaqSection } from "@/components/FaqSection";
 import { Footer } from "@/components/Footer";
+import { RoadMapSection } from "@/components/RoadMapSection";
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
       <TokenInfoSection />
       <ImpactSection />
       <CarouselSection />
+     {/*  <RoadMapSection /> */}
       <TokenomicsChart />
       <JoinSection />
       <FaqSection />

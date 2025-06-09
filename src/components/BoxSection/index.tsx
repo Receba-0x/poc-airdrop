@@ -162,7 +162,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
     setSimulationPrize(null);
   };
 
-  const boxImage = boxName === "cryptos" ? "/images/boxes/cripto.png" : "/images/boxes/super-prize.png";
+  const boxImage = boxName === "cryptos" ? "/images/boxes/cripto.webp" : "/images/boxes/super-prize.webp";
   const boxPrice = boxName === "cryptos" ? 17.50 : 45;
   const tokenPrice = 0.002
   const boxPriceInToken = boxPrice / tokenPrice;
