@@ -341,6 +341,7 @@ export function usePurchase() {
       const FEE_USD = isCrypto ? 1.65 : 7.65;
       const FEE_SOL = FEE_USD / solanaPrice;
       const lamports = Math.ceil(FEE_SOL * LAMPORTS_PER_SOL);
+      console.log(FEE_SOL)
       const solFeeTransaction = new Transaction();
       const solFeeTransfer = SystemProgram.transfer({
         fromPubkey: provider.wallet.publicKey,
