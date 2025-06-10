@@ -54,8 +54,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Se não houver dados de estoque, criar valores padrão
-    let cryptoBoxData = boxStockData?.find(box => box.box_type === 'crypto');
-    let superPrizeBoxData = boxStockData?.find(box => box.box_type === 'super_prize');
+    const cryptoBoxData = boxStockData?.find(box => box.box_type === 'crypto');
+    const superPrizeBoxData = boxStockData?.find(box => box.box_type === 'super_prize');
 
     const DEFAULT_MAX_BOXES = 275;
 
