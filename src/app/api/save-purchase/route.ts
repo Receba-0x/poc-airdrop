@@ -25,6 +25,8 @@ export async function POST(request: NextRequest) {
       serverSeed,
       nonce,
       timestamp,
+      box_type,
+      is_crypto_box
     } = await request.json();
 
     if (!wallet || !transactionSignature || !prizeId) {
@@ -51,10 +53,10 @@ export async function POST(request: NextRequest) {
           .select('current_stock')
           .eq('prize_id', prizeId)
           .single();
-        
+
         currentStock = stockCheck?.current_stock;
         console.log(`Verificando estoque para prêmio ${prizeId}: ${currentStock}`);
-        
+
         // Se o estoque estiver zerado, retornar erro
         if (currentStock !== null && currentStock <= 0) {
           return NextResponse.json(
@@ -66,6 +68,26 @@ export async function POST(request: NextRequest) {
         console.error('Erro ao verificar estoque:', stockError);
         // Continuamos mesmo com erro na verificação do estoque
       }
+    }
+
+    // Verificar o estoque de caixas
+    const { data: boxStockData, error: boxStockError } = await supabase
+      .from('box_stock')
+      .select('*')
+      .eq('box_type', is_crypto_box ? 'crypto' : 'super_prize')
+      .single();
+
+    if (boxStockError && boxStockError.code !== 'PGRST116') {
+      console.error('Erro ao verificar estoque de caixas:', boxStockError);
+    }
+
+    const { error: updateBoxStockError } = await supabase
+      .from('box_stock')
+      .update({ current_stock: boxStockData.current_stock - 1 })
+      .eq('box_type', is_crypto_box ? 'crypto' : 'super_prize');
+
+    if (updateBoxStockError) {
+      console.error('Erro ao atualizar estoque de caixas:', updateBoxStockError);
     }
 
     const { data, error } = await supabase
@@ -86,6 +108,8 @@ export async function POST(request: NextRequest) {
           nonce: nonce,
           purchase_timestamp: timestamp,
           is_crypto: prizeId >= 100 && prizeId <= 111 || prizeId >= 1 && prizeId <= 4,
+          is_crypto_box: is_crypto_box,
+          box_type: box_type,
           status: 'completed'
         }
       ])
@@ -99,10 +123,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Atualizar o estoque para prêmios físicos
     let stockUpdated = false;
     let newStock = null;
-    
+
     if (PHYSICAL_PRIZES.includes(prizeId)) {
       try {
         const { data: stockData, error: stockError } = await supabase

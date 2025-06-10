@@ -41,7 +41,7 @@ export function AdminHeader({ activeTab, onTabChange }: AdminHeaderProps) {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('tokenExpiresAt');
     localStorage.removeItem('adminUser');
-    router.push('/admin/login');
+    router.push('/');
   };
 
   const setupExecSQL = async () => {

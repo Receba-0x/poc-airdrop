@@ -295,15 +295,30 @@ export function BoxSection({ boxName }: { boxName: string }) {
                     {(!isCrypto && !statsLoading) && (
                       <div className="flex flex-col sm:flex-row gap-2 text-xs text-[#B4B4B4]">
                         <span>
-                          {t("box.stats.opened")}: <span className="text-white font-medium">{stats.totalBoxesOpened}</span>
+                          {t("box.stats.opened")}: <span className="text-white font-medium">{stats.totalSuperPrizeBoxesOpened}</span>
                         </span>
                         <span className="hidden sm:inline">•</span>
                         <span>
-                          {t("box.stats.remaining")}: <span className="text-[#28D939] font-medium">{stats.remainingBoxes}</span>
+                          {t("box.stats.remaining")}: <span className="text-[#28D939] font-medium">{stats.remainingSuperPrizeBoxes}</span>
                         </span>
                         <span className="hidden sm:inline">•</span>
                         <span>
-                          {t("box.stats.total")}: <span className="text-white font-medium">{stats.maxBoxes}</span>
+                          {t("box.stats.total")}: <span className="text-white font-medium">{stats.maxSuperPrizeBoxes}</span>
+                        </span>
+                      </div>
+                    )}
+                    {(isCrypto && !statsLoading) && (
+                      <div className="flex flex-col sm:flex-row gap-2 text-xs text-[#B4B4B4]">
+                        <span>
+                          {t("box.stats.opened")}: <span className="text-white font-medium">{stats.totalCryptoBoxesOpened}</span>
+                        </span>
+                        <span className="hidden sm:inline">•</span>
+                        <span>
+                          {t("box.stats.remaining")}: <span className="text-[#28D939] font-medium">{stats.remainingCryptoBoxes}</span>
+                        </span>
+                        <span className="hidden sm:inline">•</span>
+                        <span>
+                          {t("box.stats.total")}: <span className="text-white font-medium">{stats.maxCryptoBoxes}</span>
                         </span>
                       </div>
                     )}
@@ -342,11 +357,14 @@ export function BoxSection({ boxName }: { boxName: string }) {
                       className="w-full sm:w-[209px] h-[44px] sm:h-[52px]"
                       variant="primary"
                       onClick={handlePurchase}
-                      disabled={stats.remainingBoxes <= 0}
+                      disabled={isCrypto ? stats.remainingCryptoBoxes <= 0 : stats.remainingSuperPrizeBoxes <= 0}
                     >
                       <PurchaseIcon className="w-5 h-5" />
                       <span className="ml-1 text-sm sm:text-base">
-                        {stats.remainingBoxes <= 0 ? t("box.soldOut") : t("box.purchase")}
+                        {isCrypto ? 
+                          (stats.remainingCryptoBoxes <= 0 ? t("box.soldOut") : t("box.purchase")) : 
+                          (stats.remainingSuperPrizeBoxes <= 0 ? t("box.soldOut") : t("box.purchase"))
+                        }
                       </span>
                     </Button>
                   </motion.div>

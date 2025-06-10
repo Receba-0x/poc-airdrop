@@ -4,17 +4,31 @@ import axios from 'axios';
 
 interface BoxStats {
   totalBoxesOpened: number;
+  totalCryptoBoxesOpened: number;
+  totalSuperPrizeBoxesOpened: number;
   remainingBoxes: number;
+  remainingCryptoBoxes: number;
+  remainingSuperPrizeBoxes: number;
   maxBoxes: number;
+  maxCryptoBoxes: number;
+  maxSuperPrizeBoxes: number;
   prizeStatistics: any[];
   recentPurchases: any[];
 }
 
 export function useBoxStats() {
+  const MAX_BOXES_PER_TYPE = 275; // Default value if API doesn't provide it
+  
   const [stats, setStats] = useState<BoxStats>({
     totalBoxesOpened: 0,
-    remainingBoxes: 275,
-    maxBoxes: 275,
+    totalCryptoBoxesOpened: 0,
+    totalSuperPrizeBoxesOpened: 0,
+    remainingBoxes: MAX_BOXES_PER_TYPE,
+    remainingCryptoBoxes: MAX_BOXES_PER_TYPE,
+    remainingSuperPrizeBoxes: MAX_BOXES_PER_TYPE,
+    maxBoxes: MAX_BOXES_PER_TYPE,
+    maxCryptoBoxes: MAX_BOXES_PER_TYPE,
+    maxSuperPrizeBoxes: MAX_BOXES_PER_TYPE,
     prizeStatistics: [],
     recentPurchases: []
   });
@@ -29,14 +43,29 @@ export function useBoxStats() {
       const response = await axios.get('/api/prize-stats');
       
       if (response.data.success) {
-        const { totalBoxesOpened, prizeStatistics, recentPurchases } = response.data.data;
-        const maxBoxes = 275; // Valor conforme especificação
-        const remainingBoxes = Math.max(0, maxBoxes - totalBoxesOpened);
+        const { 
+          totalBoxesOpened, 
+          totalCryptoBoxesOpened, 
+          totalSuperPrizeBoxesOpened, 
+          remainingCryptoBoxes,
+          remainingSuperPrizeBoxes,
+          maxCryptoBoxes,
+          maxSuperPrizeBoxes,
+          prizeStatistics, 
+          recentPurchases 
+        } = response.data.data;
         
+        // Use API values or fallback to defaults
         setStats({
-          totalBoxesOpened,
-          remainingBoxes,
-          maxBoxes,
+          totalBoxesOpened: totalBoxesOpened || 0,
+          totalCryptoBoxesOpened: totalCryptoBoxesOpened || 0,
+          totalSuperPrizeBoxesOpened: totalSuperPrizeBoxesOpened || 0,
+          remainingBoxes: remainingSuperPrizeBoxes || MAX_BOXES_PER_TYPE - totalSuperPrizeBoxesOpened || 0,
+          remainingCryptoBoxes: remainingCryptoBoxes || MAX_BOXES_PER_TYPE - totalCryptoBoxesOpened || 0,
+          remainingSuperPrizeBoxes: remainingSuperPrizeBoxes || MAX_BOXES_PER_TYPE - totalSuperPrizeBoxesOpened || 0,
+          maxBoxes: maxSuperPrizeBoxes || MAX_BOXES_PER_TYPE,
+          maxCryptoBoxes: maxCryptoBoxes || MAX_BOXES_PER_TYPE,
+          maxSuperPrizeBoxes: maxSuperPrizeBoxes || MAX_BOXES_PER_TYPE,
           prizeStatistics: prizeStatistics || [],
           recentPurchases: recentPurchases || []
         });

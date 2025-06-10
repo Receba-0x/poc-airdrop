@@ -612,6 +612,8 @@ export function usePurchase() {
         serverSeed: randomData.serverSeed,
         nonce: randomData.nonce,
         timestamp: new Date().toISOString(),
+        box_type: currentBoxType,
+        is_crypto_box: currentBoxType === t("box.cryptos")
       });
     } catch (saveError) {
       console.error("Erro ao salvar no banco:", saveError);

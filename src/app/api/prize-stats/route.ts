@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
         data: {
           prizeStatistics: [],
           totalBoxesOpened: 0,
+          totalCryptoBoxesOpened: 0,
+          totalSuperPrizeBoxesOpened: 0,
           recentPurchases: []
         }
       });
@@ -38,19 +40,40 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Buscar total de caixas abertas
-    const { count: totalBoxes, error: countError } = await supabase
-      .from('purchases')
-      .select('*', { count: 'exact', head: true });
+    // Buscar estoque de caixas do box_stock table
+    const { data: boxStockData, error: boxStockError } = await supabase
+      .from('box_stock')
+      .select('*');
 
-    if (countError) {
-      console.error('Error fetching total boxes count:', countError);
+    if (boxStockError) {
+      console.error('Error fetching box stock:', boxStockError);
+      return NextResponse.json(
+        { error: 'Failed to fetch box stock' },
+        { status: 500 }
+      );
     }
+
+    // Se não houver dados de estoque, criar valores padrão
+    let cryptoBoxData = boxStockData?.find(box => box.box_type === 'crypto');
+    let superPrizeBoxData = boxStockData?.find(box => box.box_type === 'super_prize');
+
+    const DEFAULT_MAX_BOXES = 275;
+
+    // Valores padrão se não existirem registros
+    const cryptoBoxInitial = cryptoBoxData?.initial_stock || DEFAULT_MAX_BOXES;
+    const cryptoBoxCurrent = cryptoBoxData?.current_stock || DEFAULT_MAX_BOXES;
+    const cryptoBoxesOpened = cryptoBoxInitial - cryptoBoxCurrent;
+
+    const superPrizeBoxInitial = superPrizeBoxData?.initial_stock || DEFAULT_MAX_BOXES;
+    const superPrizeBoxCurrent = superPrizeBoxData?.current_stock || DEFAULT_MAX_BOXES;
+    const superPrizeBoxesOpened = superPrizeBoxInitial - superPrizeBoxCurrent;
+
+    const totalBoxesOpened = cryptoBoxesOpened + superPrizeBoxesOpened;
 
     // Buscar últimas aberturas de caixas
     const { data: recentPurchases, error: recentError } = await supabase
       .from('purchases')
-      .select('wallet_address, prize_name, purchase_timestamp')
+      .select('wallet_address, prize_name, purchase_timestamp, is_crypto, is_crypto_box, box_type')
       .order('purchase_timestamp', { ascending: false })
       .limit(10);
 
@@ -62,7 +85,13 @@ export async function GET(request: NextRequest) {
       success: true,
       data: {
         prizeStatistics: prizeStats,
-        totalBoxesOpened: totalBoxes || 0,
+        totalBoxesOpened,
+        totalCryptoBoxesOpened: cryptoBoxesOpened,
+        totalSuperPrizeBoxesOpened: superPrizeBoxesOpened,
+        remainingCryptoBoxes: cryptoBoxCurrent,
+        remainingSuperPrizeBoxes: superPrizeBoxCurrent,
+        maxCryptoBoxes: cryptoBoxInitial,
+        maxSuperPrizeBoxes: superPrizeBoxInitial,
         recentPurchases: recentPurchases || []
       }
     });
