@@ -4,7 +4,7 @@ const securityHeaders = [
   {
     key: "Content-Security-Policy",
     value:
-      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.mainnet-beta.solana.com https://api.devnet.solana.com wss://api.devnet.solana.com; img-src 'self' data: blob:;"
+      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.mainnet-beta.solana.com https://api.devnet.solana.com wss://api.devnet.solana.com https://api.mainnet-beta.solana.com https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd; img-src 'self' data: blob:;"
   },
   {
     key: "X-Frame-Options",

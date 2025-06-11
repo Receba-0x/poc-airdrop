@@ -179,14 +179,9 @@ export function usePurchase() {
     try {
       const balance = await connection.getBalance(provider.wallet.publicKey);
       const txFeeInSol = 0.000005;
+      console.log(solanaPrice);
       const requiredSol = txFeeInSol + txFeeInSol / solanaPrice;
       const requiredLamports = Math.ceil(requiredSol * LAMPORTS_PER_SOL);
-
-      console.log(
-        `Saldo: ${
-          balance / LAMPORTS_PER_SOL
-        } SOL, Necessário: ${requiredSol.toFixed(6)} SOL`
-      );
 
       if (balance < requiredLamports) {
         toast.error(
