@@ -1,25 +1,36 @@
-import { NextRequest, NextResponse } from 'next/server';
-import nacl from 'tweetnacl';
-import bs58 from 'bs58';
+import { NextRequest, NextResponse } from "next/server";
+import nacl from "tweetnacl";
+import bs58 from "bs58";
+
+export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { boxType, wallet } = body;
+    const { boxType, wallet, clientSeed } = body;
+
     if (!boxType || !wallet) {
-      return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing parameters" },
+        { status: 400 }
+      );
     }
-    const boxPrice = boxType === 1 ? 17.50 : 45;
-    const tokenPrice = 0.002
+    const userSeed = clientSeed || wallet;
+    const boxPrice = boxType === 1 ? 17.5 : 45;
+    const tokenPrice = 0.002;
     const boxPriceInSol = boxPrice / tokenPrice;
     const tokenAmount = Number(10 * 1e9);
+
     const privateKey = bs58.decode(process.env.PRIVATE_KEY!);
     const keypair = nacl.sign.keyPair.fromSecretKey(privateKey);
     const timestamp = Math.floor(Date.now() / 1000);
     const backendPubkey = bs58.encode(keypair.publicKey);
     const messagePayload = { wallet, amount: tokenAmount, timestamp };
     const message = JSON.stringify(messagePayload);
-    const signature = nacl.sign.detached(Buffer.from(message), keypair.secretKey);
+    const signature = nacl.sign.detached(
+      Buffer.from(message),
+      keypair.secretKey
+    );
 
     return NextResponse.json({
       boxType,
@@ -28,9 +39,13 @@ export async function POST(req: NextRequest) {
       timestamp,
       signature: Array.from(signature),
       backendPubkey,
+      clientSeed: userSeed, // Inclui o clientSeed na resposta
     });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

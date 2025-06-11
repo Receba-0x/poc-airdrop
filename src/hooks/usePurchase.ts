@@ -8,23 +8,15 @@ import {
   LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
 import * as anchor from "@coral-xyz/anchor";
-import {
-  TOKEN_PROGRAM_ID,
-  getAssociatedTokenAddress,
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from "@solana/spl-token";
 import { Program, AnchorProvider } from "@coral-xyz/anchor";
 import {
   COLLECTION_METADATA,
-  COLLECTION_NAME,
-  COLLECTION_SYMBOL,
-  COLLECTION_URI,
   CONFIG_ACCOUNT,
   CRYPTO_PRIZE_TABLE,
   PAYMENT_TOKEN_MINT,
   PRIZE_TABLE,
   PROGRAM_ID,
-  TOKEN_METADATA_PROGRAM,
 } from "@/constants";
 import { toast } from "react-hot-toast";
 import { useEffect, useState } from "react";
@@ -34,17 +26,26 @@ import crypto from "crypto";
 import { useUser } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const METAPLEX_PROGRAM_ID = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
-
 export function usePurchase() {
-  const { publicKey, signTransaction, signAllTransactions, connected } = useWallet();
+  const { publicKey, signTransaction, signAllTransactions, connected } =
+    useWallet();
   const { connection } = useConnection();
   const { balance, refreshBalance, solanaPrice } = useUser();
   const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
-  const [currentStock, setCurrentStock] = useState<{ [key: number]: number }>({});
+  const [currentStock, setCurrentStock] = useState<{ [key: number]: number }>(
+    {}
+  );
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalStatus, setModalStatus] = useState<"initializing" | "processing" | "determining" | "delivering" | "saving" | "success" | "error">("initializing");
+  const [modalStatus, setModalStatus] = useState<
+    | "initializing"
+    | "processing"
+    | "determining"
+    | "delivering"
+    | "saving"
+    | "success"
+    | "error"
+  >("initializing");
   const [errorMessage, setErrorMessage] = useState("");
   const [transactionHash, setTransactionHash] = useState("");
   const [currentPrize, setCurrentPrize] = useState<any>(null);
@@ -61,7 +62,7 @@ export function usePurchase() {
 
   async function fetchCurrentStock(): Promise<{ [key: number]: number }> {
     try {
-      const response = await axios.get('/api/get-stock');
+      const response = await axios.get("/api/get-stock");
       if (response.data.success) {
         setCurrentStock(response.data.stock);
         return response.data.stock;
@@ -69,132 +70,7 @@ export function usePurchase() {
       throw new Error("Erro ao buscar estoque");
     } catch (error) {
       console.error("Erro ao buscar estoque:", error);
-      return {
-        5: 90,
-        6: 40,
-        7: 30,
-        8: 1,
-        9: 2,
-        10: 10
-      };
-    }
-  }
-
-  function checkStock(prizeId: number, stock: { [key: number]: number }): boolean {
-    const prize = PRIZE_TABLE.find(p => p.id === prizeId);
-    if (!prize?.stockRequired) return true;
-    return (stock[prizeId] || 0) > 0;
-  }
-
-  function generateProvablyFairNumber(userSeed: string, serverSeed: string, nonce: number): number {
-    const combined = `${userSeed}:${serverSeed}:${nonce}`;
-    const hash = crypto.createHash('sha256').update(combined).digest('hex');
-    const hexNumber = parseInt(hash.substring(0, 8), 16);
-    return hexNumber / 0xffffffff;
-  }
-
-  async function determinePrize(randomNumber: number, isCrypto: boolean = false): Promise<number | null> {
-    if (isCrypto) return determineCryptoPrize(randomNumber);
-    const stock = await fetchCurrentStock();
-    let cumulativeProbability = 0;
-    for (const prize of PRIZE_TABLE) {
-      cumulativeProbability += prize.probability;
-      if (randomNumber < cumulativeProbability) {
-        if (prize.stockRequired && !checkStock(prize.id, stock)) continue;
-        return prize.id;
-      }
-    }
-
-    const fallbackPrize = PRIZE_TABLE.find(p => p.type === "sol" && !p.stockRequired);
-    if (fallbackPrize) return fallbackPrize.id;
-
-    return 1;
-  }
-
-  function determineCryptoPrize(randomNumber: number): number {
-    let cumulativeProbability = 0;
-    for (const prize of CRYPTO_PRIZE_TABLE) {
-      cumulativeProbability += prize.probability;
-      if (randomNumber < cumulativeProbability) return prize.id;
-    }
-    return CRYPTO_PRIZE_TABLE[0].id;
-  }
-
-  async function deliverPrize(userAddress: PublicKey, prizeId: number) {
-    try {
-      if (prizeId >= 100 && prizeId <= 111) {
-        const cryptoPrize = CRYPTO_PRIZE_TABLE.find(p => p.id === prizeId);
-        if (!cryptoPrize) {
-          console.error(`❌ Prêmio crypto não encontrado: ${prizeId}`);
-          return null;
-        }
-        for (let attempt = 1; attempt <= 3; attempt++) {
-          try {
-            const { data } = await axios.post('/api/deliver-prize', {
-              prizeId,
-              recipient: userAddress.toString(),
-              amount: cryptoPrize.amount,
-              type: 'sol'
-            });
-
-            if (data.success) {
-              console.log(`✅ Prêmio entregue com sucesso! Tx: ${data.txSignature}`);
-              toast.success(`${cryptoPrize.amount} SOL foi enviado para sua carteira!`);
-              return data.txSignature;
-            } else {
-              console.error(`❌ Erro ao entregar prêmio (tentativa ${attempt}/3):`, data.error);
-              if (attempt === 3) toast.error("Não foi possível entregar o prêmio automaticamente. Entre em contato com o suporte.");
-            }
-          } catch (err) {
-            console.error(`❌ Erro na requisição para entregar prêmio (tentativa ${attempt}/3):`, err);
-            if (attempt === 3) toast.error("Não foi possível entregar o prêmio automaticamente. Entre em contato com o suporte.");
-          }
-
-          // Wait before retrying
-          if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 2000));
-        }
-
-        return null;
-      }
-
-      const prize = PRIZE_TABLE.find(p => p.id === prizeId);
-      if (!prize) {
-        console.error(`❌ Prêmio não encontrado: ${prizeId}`);
-        return null;
-      }
-
-      if (prize.type === "sol") {
-        for (let attempt = 1; attempt <= 3; attempt++) {
-          try {
-            const { data } = await axios.post('/api/deliver-prize', {
-              prizeId,
-              recipient: userAddress.toString(),
-              amount: prize.amount || 0,
-              type: 'sol'
-            });
-
-            if (data.success) {
-              console.log(`✅ Prêmio entregue com sucesso! Tx: ${data.txSignature}`);
-              toast.success(`${prize.amount} SOL foi enviado para sua carteira!`);
-              return data.txSignature;
-            } else {
-              console.error(`❌ Erro ao entregar prêmio (tentativa ${attempt}/3):`, data.error);
-              if (attempt === 3) toast.error("Não foi possível entregar o prêmio automaticamente. Entre em contato com o suporte.");
-            }
-          } catch (err) {
-            console.error(`❌ Erro na requisição para entregar prêmio (tentativa ${attempt}/3):`, err);
-            if (attempt === 3) toast.error("Não foi possível entregar o prêmio automaticamente. Entre em contato com o suporte.");
-          }
-
-          // Wait before retrying
-          if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 2000));
-        }
-      }
-
-      return null;
-    } catch (error) {
-      console.error("❌ Erro ao entregar prêmio:", error);
-      return null;
+      return {};
     }
   }
 
@@ -208,7 +84,7 @@ export function usePurchase() {
       setTransactionHash("");
       setCurrentPrize(null);
       setCurrentBoxType(isCrypto ? t("box.cryptos") : t("box.superPrizes"));
-      setCurrentAmount("45");
+      setCurrentAmount(isCrypto ? "17.5" : "45");
 
       const provider = await initializeProvider();
       await checkSufficientBalance(provider);
@@ -217,59 +93,68 @@ export function usePurchase() {
         program,
         nftMintAddress,
         nftMetadataAddress,
-        nftTokenAccount,
         payerPaymentTokenAccount,
-        nonce,
-        nftCounter,
-        collectionMetadata
       } = await prepareNftAccounts(provider);
       await sendSolFeeTransaction(provider, isCrypto);
-      const { tokenAmount, timestamp, arraySignature, backendPubkey } =
-        await fetchBackendData(provider, isCrypto, payerPaymentTokenAccount);
+      const {
+        tokenAmount,
+        timestamp,
+        arraySignature,
+        backendPubkey,
+        clientSeed,
+      } = await fetchBackendData(provider, isCrypto, payerPaymentTokenAccount);
+      const txSig = await sendCryptoTransaction(
+        provider,
+        program,
+        tokenAmount,
+        timestamp,
+        arraySignature,
+        backendPubkey
+      );
+      setTransactionHash(txSig);
       setModalStatus("determining");
-      const { prizeId, wonPrize, randomData } =
-        await determineUserPrize(provider, isCrypto, nonce, timestamp);
-      setCurrentPrize(wonPrize);
-      setModalStatus("delivering");
-      let txSig;
-      let onlyBurn = isCrypto;
-      if (prizeId >= 100 && prizeId <= 111) onlyBurn = true;
-      const prize = PRIZE_TABLE.find(p => p.id === prizeId);
-      if (prize?.type === "sol") onlyBurn = true;
+      const { data } = await axios.post("/api/mint-nft", {
+        wallet: publicKey.toString(),
+        boxType: isCrypto ? 1 : 2,
+        clientSeed,
+        transactionSignature: txSig,
+        tokenAmount,
+      });
 
-      if (onlyBurn) {
-        txSig = await sendCryptoTransaction(provider, program, tokenAmount, timestamp, arraySignature, backendPubkey);
-      } else {
-        txSig = await sendMainTransaction(provider, program, tokenAmount, timestamp, arraySignature, backendPubkey, nftCounter, nftMintAddress, nftMetadataAddress, nftTokenAccount, payerPaymentTokenAccount, collectionMetadata, prize);
+      if (!data.success) {
+        throw new Error(data.error || "Error processing purchase");
       }
 
-      setTransactionHash(txSig);
-      await deliverPrize(provider.wallet.publicKey, prizeId);
-      setModalStatus("saving");
-      await savePurchaseData(
-        provider,
-        nftMintAddress,
-        nftMetadataAddress,
-        tokenAmount,
-        txSig,
-        prizeId,
-        wonPrize,
-        randomData,
-        onlyBurn
-      );
+      const prizeId = data.prizeId;
+      let wonPrize = null;
+
+      if (prizeId >= 100 && prizeId <= 111) {
+        wonPrize = CRYPTO_PRIZE_TABLE.find((p) => p.id === prizeId);
+      } else {
+        wonPrize = PRIZE_TABLE.find((p) => p.id === prizeId);
+      }
+
+      setCurrentPrize(wonPrize);
+
+      if (data.txSignature) {
+        setTransactionHash(data.txSignature);
+      }
+
+      setModalStatus("success");
 
       await refreshBalance();
-      setModalStatus("success");
 
       const result = {
         tx: txSig,
-        nftMint: nftMintAddress.toString(),
-        nftMetadata: nftMetadataAddress.toString(),
+        prizeTx: data.txSignature,
+        nftMint: data.nftMint || nftMintAddress.toString(),
+        nftMetadata: data.nftMetadata || nftMetadataAddress.toString(),
         prize: wonPrize,
         isCrypto: prizeId >= 100 && prizeId <= 111,
         prizeId,
-        provablyFair: randomData,
+        provablyFair: data.randomData,
       };
+
       return result;
     } catch (error: any) {
       handleMintError(error);
@@ -294,13 +179,21 @@ export function usePurchase() {
     try {
       const balance = await connection.getBalance(provider.wallet.publicKey);
       const txFeeInSol = 0.000005;
-      const requiredSol = txFeeInSol + (txFeeInSol / solanaPrice);
+      const requiredSol = txFeeInSol + txFeeInSol / solanaPrice;
       const requiredLamports = Math.ceil(requiredSol * LAMPORTS_PER_SOL);
 
-      console.log(`Saldo: ${balance / LAMPORTS_PER_SOL} SOL, Necessário: ${requiredSol.toFixed(6)} SOL`);
+      console.log(
+        `Saldo: ${
+          balance / LAMPORTS_PER_SOL
+        } SOL, Necessário: ${requiredSol.toFixed(6)} SOL`
+      );
 
       if (balance < requiredLamports) {
-        toast.error(`Saldo insuficiente. Você precisa de pelo menos ${requiredSol.toFixed(4)} SOL`);
+        toast.error(
+          `Saldo insuficiente. Você precisa de pelo menos ${requiredSol.toFixed(
+            4
+          )} SOL`
+        );
         throw new Error("Saldo em SOL insuficiente");
       }
     } catch (error) {
@@ -326,10 +219,14 @@ export function usePurchase() {
     let nonce = 0;
 
     try {
-      nftCounterData = await (program.account as any).nftCounter.fetch(nftCounter);
+      nftCounterData = await (program.account as any).nftCounter.fetch(
+        nftCounter
+      );
       nonce = nftCounterData.count ? nftCounterData.count.toNumber() : 0;
     } catch (error) {
-      console.log("NFT Counter account not found or not initialized, using nonce 0");
+      console.log(
+        "NFT Counter account not found or not initialized, using nonce 0"
+      );
       nonce = 0;
     }
 
@@ -337,18 +234,14 @@ export function usePurchase() {
     let countBytes;
 
     if (nftCounterData && nftCounterData.count) {
-      countBytes = nftCounterData.count.toArrayLike(Buffer, 'le', 8);
+      countBytes = nftCounterData.count.toArrayLike(Buffer, "le", 8);
     } else {
       countBytes = Buffer.alloc(8);
       countBytes.writeBigUInt64LE(BigInt(0), 0);
     }
 
     const [nftMintAddress] = PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("nft_mint"),
-        collectionMetadata.toBuffer(),
-        countBytes
-      ],
+      [Buffer.from("nft_mint"), collectionMetadata.toBuffer(), countBytes],
       program.programId
     );
 
@@ -376,16 +269,19 @@ export function usePurchase() {
       payerPaymentTokenAccount,
       nonce,
       nftCounter,
-      collectionMetadata
+      collectionMetadata,
     };
   }
 
-  async function sendSolFeeTransaction(provider: AnchorProvider, isCrypto: boolean) {
+  async function sendSolFeeTransaction(
+    provider: AnchorProvider,
+    isCrypto: boolean
+  ) {
     try {
       const FEE_USD = isCrypto ? 1.65 : 7.65;
       const FEE_SOL = FEE_USD / solanaPrice;
       const lamports = Math.ceil(FEE_SOL * LAMPORTS_PER_SOL);
-      console.log(FEE_SOL)
+      console.log(FEE_SOL);
       const solFeeTransaction = new Transaction();
       const solFeeTransfer = SystemProgram.transfer({
         fromPubkey: provider.wallet.publicKey,
@@ -393,10 +289,16 @@ export function usePurchase() {
         lamports,
       });
       solFeeTransaction.add(solFeeTransfer);
-      solFeeTransaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+      solFeeTransaction.recentBlockhash = (
+        await connection.getLatestBlockhash()
+      ).blockhash;
       solFeeTransaction.feePayer = provider.wallet.publicKey;
-      const signedSolFeeTransaction = await provider.wallet.signTransaction(solFeeTransaction);
-      const solFeeTxSig = await connection.sendRawTransaction(signedSolFeeTransaction.serialize());
+      const signedSolFeeTransaction = await provider.wallet.signTransaction(
+        solFeeTransaction
+      );
+      const solFeeTxSig = await connection.sendRawTransaction(
+        signedSolFeeTransaction.serialize()
+      );
       return solFeeTxSig;
     } catch (error) {
       console.error("Erro ao enviar taxa em SOL:", error);
@@ -409,117 +311,37 @@ export function usePurchase() {
     isCrypto: boolean,
     payerPaymentTokenAccount: PublicKey
   ) {
-    const { data } = await axios.post('/api/purchase', {
+    const clientSeed = provider.wallet.publicKey.toString() + "_" + Date.now();
+    const { data } = await axios.post("/api/purchase", {
       boxType: isCrypto ? 1 : 2,
-      wallet: provider.wallet.publicKey.toString()
+      wallet: provider.wallet.publicKey.toString(),
+      clientSeed,
     });
-    const { tokenAmount, timestamp, signature, backendPubkey } = data;
+    const {
+      tokenAmount,
+      timestamp,
+      signature,
+      backendPubkey,
+      clientSeed: serverClientSeed,
+    } = data;
     const arraySignature = new Uint8Array(signature);
-    const tokenAccount = await connection.getTokenAccountBalance(payerPaymentTokenAccount);
-    if (tokenAccount.value.uiAmount && tokenAccount.value.amount < tokenAmount) {
+    const tokenAccount = await connection.getTokenAccountBalance(
+      payerPaymentTokenAccount
+    );
+    if (
+      tokenAccount.value.uiAmount &&
+      tokenAccount.value.amount < tokenAmount
+    ) {
       toast.error("Saldo insuficiente de tokens ADR");
       throw new Error("Saldo insuficiente de tokens ADR");
     }
-    return { tokenAmount, timestamp, arraySignature, backendPubkey };
-  }
-
-  async function determineUserPrize(
-    provider: AnchorProvider,
-    isCrypto: boolean,
-    nonce: number,
-    timestamp: number
-  ) {
-    const userSeed = provider.wallet.publicKey.toString();
-    const serverSeed = `${timestamp}_${Math.random()}`;
-    const randomNumber = generateProvablyFairNumber(userSeed, serverSeed, nonce);
-    const prizeId = await determinePrize(randomNumber, isCrypto);
-    if (!prizeId) throw new Error("Erro ao determinar prêmio");
-    let wonPrize;
-    if (prizeId >= 100 && prizeId <= 111) {
-      wonPrize = CRYPTO_PRIZE_TABLE.find(p => p.id === prizeId);
-    } else {
-      wonPrize = PRIZE_TABLE.find(p => p.id === prizeId);
-    }
-    const randomData = {
-      randomNumber,
-      userSeed,
-      serverSeed,
-      nonce
+    return {
+      tokenAmount,
+      timestamp,
+      arraySignature,
+      backendPubkey,
+      clientSeed: serverClientSeed,
     };
-
-    return { prizeId, wonPrize, randomData };
-  }
-
-  async function sendMainTransaction(
-    provider: AnchorProvider,
-    program: Program,
-    tokenAmount: number,
-    timestamp: number,
-    arraySignature: Uint8Array,
-    backendPubkey: string,
-    nftCounter: PublicKey,
-    nftMint: PublicKey,
-    nftMetadata: PublicKey,
-    nftTokenAccount: PublicKey,
-    payerPaymentTokenAccount: PublicKey,
-    collectionMetadata: PublicKey,
-    prize: any
-  ) {
-    const sysvarInstructions = new PublicKey('Sysvar1nstructions1111111111111111111111111');
-    const backendAuthority = new PublicKey(backendPubkey);
-    const config = new PublicKey(CONFIG_ACCOUNT);
-    const [metaplexMetadata] = PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("metadata"),
-        new PublicKey(METAPLEX_PROGRAM_ID).toBuffer(),
-        nftMint.toBuffer(),
-      ],
-      new PublicKey(METAPLEX_PROGRAM_ID)
-    );
-
-    const method = program.methods
-      .mintNftWithPayment(
-        COLLECTION_NAME,
-        COLLECTION_SYMBOL,
-        `${COLLECTION_URI}/${prize.metadata}.json`,
-        new anchor.BN(tokenAmount),
-        new anchor.BN(timestamp),
-        arraySignature
-      )
-      .accounts({
-        payer: provider.wallet.publicKey,
-        backendAuthority,
-        nftCounter,
-        nftMint,
-        nftMetadata,
-        metaplexMetadata,
-        nftTokenAccount,
-        collectionMetadata,
-        paymentTokenMint: new PublicKey(PAYMENT_TOKEN_MINT),
-        payerPaymentTokenAccount,
-        config,
-        sysvarInstructions,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-        systemProgram: SystemProgram.programId,
-        rent: SYSVAR_RENT_PUBKEY,
-        tokenMetadataProgram: new PublicKey(TOKEN_METADATA_PROGRAM)
-      });
-    const tx = await method.transaction();
-    const message = `{"wallet":"${provider.wallet.publicKey.toString()}","amount":${tokenAmount},"timestamp":${timestamp}}`;
-    tx.instructions.unshift(
-      Ed25519Program.createInstructionWithPublicKey({
-        publicKey: new PublicKey(backendPubkey).toBytes(),
-        message: Buffer.from(message),
-        signature: arraySignature,
-      })
-    );
-    tx.recentBlockhash = (await provider.connection.getLatestBlockhash()).blockhash;
-    tx.feePayer = provider.wallet.publicKey;
-    const signedTx = await provider.wallet.signTransaction(tx);
-    return await connection.sendRawTransaction(signedTx.serialize(), {
-      skipPreflight: false,
-    });
   }
 
   async function sendCryptoTransaction(
@@ -528,9 +350,11 @@ export function usePurchase() {
     tokenAmount: number,
     timestamp: number,
     arraySignature: Uint8Array,
-    backendPubkey: string,
+    backendPubkey: string
   ) {
-    const sysvarInstructions = new PublicKey('Sysvar1nstructions1111111111111111111111111');
+    const sysvarInstructions = new PublicKey(
+      "Sysvar1nstructions1111111111111111111111111"
+    );
     const tx = new Transaction();
     const message = `{"wallet":"${provider.wallet.publicKey.toString()}","amount":${tokenAmount},"timestamp":${timestamp}}`;
 
@@ -567,8 +391,9 @@ export function usePurchase() {
           sysvarInstructions,
           tokenProgram: TOKEN_PROGRAM_ID,
           systemProgram: SystemProgram.programId,
-          rent: SYSVAR_RENT_PUBKEY
-        }).instruction();
+          rent: SYSVAR_RENT_PUBKEY,
+        })
+        .instruction();
 
       tx.add(ix);
       tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
@@ -584,39 +409,6 @@ export function usePurchase() {
       }
 
       throw error;
-    }
-  }
-
-  async function savePurchaseData(
-    provider: AnchorProvider,
-    nftMintAddress: PublicKey,
-    nftMetadataAddress: PublicKey,
-    tokenAmount: number,
-    txSig: string,
-    prizeId: number,
-    wonPrize: any,
-    randomData: any,
-    onlyBurn: boolean
-  ) {
-    try {
-      await axios.post('/api/save-purchase', {
-        wallet: provider.wallet.publicKey.toString(),
-        nftMint: onlyBurn ? null : nftMintAddress.toString(),
-        nftMetadata: onlyBurn ? null : nftMetadataAddress.toString(),
-        tokenAmount,
-        transactionSignature: txSig,
-        prizeId,
-        prizeName: wonPrize?.name,
-        randomNumber: randomData.randomNumber,
-        userSeed: randomData.userSeed,
-        serverSeed: randomData.serverSeed,
-        nonce: randomData.nonce,
-        timestamp: new Date().toISOString(),
-        box_type: currentBoxType,
-        is_crypto_box: currentBoxType === t("box.cryptos")
-      });
-    } catch (saveError) {
-      console.error("Erro ao salvar no banco:", saveError);
     }
   }
 
@@ -654,6 +446,6 @@ export function usePurchase() {
     currentPrize,
     currentBoxType,
     currentAmount,
-    closeModal
+    closeModal,
   };
 }
