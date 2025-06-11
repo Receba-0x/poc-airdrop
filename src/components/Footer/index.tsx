@@ -89,7 +89,7 @@ export function Footer() {
             whileTap={{ scale: 0.95 }}
           >
             <TwitterIcon className="w-5 h-5" />
-            <span className="text-sm font-medium">{t('footer.twitter')}</span>
+            <span className="text-sm font-medium">{t("footer.twitter")}</span>
           </motion.a>
 
           <motion.a
@@ -101,25 +101,19 @@ export function Footer() {
             whileTap={{ scale: 0.95 }}
           >
             <TelegramIcon className="w-5 h-5" />
-            <span className="text-sm font-medium">{t('footer.telegram')}</span>
-          </motion.a>
-
-          <motion.a
-            href="/whitepaper"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-[#EEEEEE] hover:text-[#28D939] transition-colors duration-200"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <DocumentIcon className="w-5 h-5" />
-            <span className="text-sm font-medium">{t('footer.whitepaper')}</span>
+            <span className="text-sm font-medium">{t("footer.telegram")}</span>
           </motion.a>
         </div>
 
         <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-[#BDBDBD] text-xs sm:text-sm text-center sm:text-left">
-            © 2025 ADR Token. {t("footer.rights")} <Link href="/terms" className="text-[#28D939] hover:text-[#28D939] transition-colors duration-200">{t("footer.terms")}</Link>
+            © 2025 ADR Token. {t("footer.rights")}{" "}
+            <Link
+              href="/terms"
+              className="text-[#28D939] hover:text-[#28D939] transition-colors duration-200"
+            >
+              {t("footer.terms")}
+            </Link>
           </div>
 
           <Button className="w-full sm:w-auto py-3 px-4 sm:px-6 text-sm sm:text-base">
