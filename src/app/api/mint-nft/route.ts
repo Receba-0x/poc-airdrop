@@ -65,7 +65,7 @@ async function determinePrize(
   randomNumber: number,
   isCrypto: boolean = false
 ): Promise<{ prizeId: number; wonPrize: any }> {
-  let stock: { [key: number]: number } = {};
+  const stock: { [key: number]: number } = {};
 
   if (isSupabaseConfigured && supabase) {
     const { data: stockData, error } = await supabase
