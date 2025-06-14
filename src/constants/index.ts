@@ -2,18 +2,24 @@ export const COLLECTION_NAME = "ADR Collection";
 export const COLLECTION_SYMBOL = "ADR";
 export const COLLECTION_URI = "https://adr-token.vercel.app/metadata";
 export const COLLECTION_MINT = "B3js6wNMcDdQsNv2UsP3zd4zps7tAVS9cxu3aSFZ5Mth";
-export const COLLECTION_METADATA = "6UAq8sFKccmxTXtRtHKbEc19BFGxrvfSvDVRuJ33NikD";
-export const COLLECTION_TOKEN_ACCOUNT = "3kig3DHddw1yAMuP4MdagQSv2QdGbKwGY4YPvtLLYUpT";
+export const COLLECTION_METADATA =
+  "6UAq8sFKccmxTXtRtHKbEc19BFGxrvfSvDVRuJ33NikD";
+export const COLLECTION_TOKEN_ACCOUNT =
+  "3kig3DHddw1yAMuP4MdagQSv2QdGbKwGY4YPvtLLYUpT";
 export const PROGRAM_ID = "EN2SeC45TuHgrLg33ZhJLsYSX5gxnunrVm5P6Dx5eiRS";
 export const PAYMENT_TOKEN_MINT =
-  "2ADpKWBqVKCjaWY2xFkXTPo6v2Z863SefjT2GUfNHhay";
+  "6fWhJxuTjoUgYNx5NJpb8w8AyonmVbHhhdmN2AfwUTMH";
 export const NETWORK = "devnet";
 export const CONFIG_ACCOUNT = "GAnjrKx377NS9ceg6k4nB7vaDX8bAo9yWfJSD4vhrecr";
-export const TOKEN_METADATA_PROGRAM = [11, 112, 101, 177, 227, 209, 124, 69, 56, 157, 82, 127, 107, 4, 195, 205, 88, 184, 108, 115, 26, 160, 253, 181, 73, 182, 209, 188, 3, 248, 41, 70];
-export const METAPLEX_PROGRAM_ID = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
+export const TOKEN_METADATA_PROGRAM = [
+  11, 112, 101, 177, 227, 209, 124, 69, 56, 157, 82, 127, 107, 4, 195, 205, 88,
+  184, 108, 115, 26, 160, 253, 181, 73, 182, 209, 188, 3, 248, 41, 70,
+];
+export const METAPLEX_PROGRAM_ID =
+  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
 
 export const getItensData = (t: (key: string) => string) => {
-  return PRIZE_TABLE.map(prize => {
+  return PRIZE_TABLE.map((prize) => {
     const name = getPrizeTranslation(prize.id, t) || prize.name;
     return {
       id: prize.id,
@@ -26,7 +32,10 @@ export const getItensData = (t: (key: string) => string) => {
   });
 };
 
-function getPrizeTranslation(prizeId: number, t: (key: string) => string): string | null {
+function getPrizeTranslation(
+  prizeId: number,
+  t: (key: string) => string
+): string | null {
   switch (prizeId) {
     case 5:
       return t("items.teamJersey");
@@ -68,28 +77,192 @@ function getImageForPrize(prize: any, t: (key: string) => string) {
 }
 
 export const PRIZE_TABLE = [
-  { id: 1, name: "0.01 SOL", type: "sol", amount: 0.01, probability: 0.2900, stockRequired: false },
-  { id: 2, name: "0.05 SOL", type: "sol", amount: 0.05, probability: 0.1740, stockRequired: false },
-  { id: 3, name: "0.1 SOL", type: "sol", amount: 0.1, probability: 0.0870, stockRequired: false },
-  { id: 4, name: "0.3 SOL", type: "sol", amount: 0.3, probability: 0.0290, stockRequired: false },
-  { id: 5, name: "Camisas de time", type: "physical", metadata: "t-shirt1", probability: 0.2100, stockRequired: true, stock: 90 },
-  { id: 6, name: "Bolas oficiais", type: "physical", metadata: "mikasa", probability: 0.1120, stockRequired: true, stock: 40 },
-  { id: 7, name: "Chuteiras", type: "physical", metadata: "chuteira", probability: 0.0840, stockRequired: true, stock: 30 },
-  { id: 8, name: "MacBook M3", type: "physical", metadata: "macbook", probability: 0.0050, stockRequired: true, stock: 1 },
-  { id: 9, name: "iPhone 16 Pro Max", type: "physical", metadata: "iphone", probability: 0.0090, stockRequired: true, stock: 2 },
-  { id: 10, name: "Ticket Dourado", type: "special", metadata: "ticket", probability: 0.0050, stockRequired: true, stock: 10 },
+  {
+    id: 1,
+    name: "0.01 SOL",
+    type: "sol",
+    amount: 0.01,
+    probability: 0.29,
+    stockRequired: false,
+  },
+  {
+    id: 2,
+    name: "0.05 SOL",
+    type: "sol",
+    amount: 0.05,
+    probability: 0.174,
+    stockRequired: false,
+  },
+  {
+    id: 3,
+    name: "0.1 SOL",
+    type: "sol",
+    amount: 0.1,
+    probability: 0.087,
+    stockRequired: false,
+  },
+  {
+    id: 4,
+    name: "0.3 SOL",
+    type: "sol",
+    amount: 0.3,
+    probability: 0.029,
+    stockRequired: false,
+  },
+  {
+    id: 5,
+    name: "Camisas de time",
+    type: "physical",
+    metadata: "t-shirt1",
+    probability: 0.21,
+    stockRequired: true,
+    stock: 90,
+  },
+  {
+    id: 6,
+    name: "Bolas oficiais",
+    type: "physical",
+    metadata: "mikasa",
+    probability: 0.112,
+    stockRequired: true,
+    stock: 40,
+  },
+  {
+    id: 7,
+    name: "Chuteiras",
+    type: "physical",
+    metadata: "chuteira",
+    probability: 0.084,
+    stockRequired: true,
+    stock: 30,
+  },
+  {
+    id: 8,
+    name: "MacBook M3",
+    type: "physical",
+    metadata: "macbook",
+    probability: 0.005,
+    stockRequired: true,
+    stock: 1,
+  },
+  {
+    id: 9,
+    name: "iPhone 16 Pro Max",
+    type: "physical",
+    metadata: "iphone",
+    probability: 0.009,
+    stockRequired: true,
+    stock: 2,
+  },
+  {
+    id: 10,
+    name: "Ticket Dourado",
+    type: "special",
+    metadata: "ticket",
+    probability: 0.005,
+    stockRequired: true,
+    stock: 10,
+  },
 ];
 
 export const CRYPTO_PRIZE_TABLE = [
-  { id: 101, name: "0.005 SOL", type: "sol", amount: 0.005, probability: 0.1500, value_usd: 0.83, image: "/images/itens/sol-coin.webp", },
-  { id: 102, name: "0.01 SOL", type: "sol", amount: 0.01, probability: 0.2000, value_usd: 1.65, image: "/images/itens/sol-coin.webp", },
-  { id: 103, name: "0.03 SOL", type: "sol", amount: 0.03, probability: 0.2000, value_usd: 4.95, image: "/images/itens/sol-coin.webp", },
-  { id: 104, name: "0.05 SOL", type: "sol", amount: 0.05, probability: 0.1500, value_usd: 8.25, image: "/images/itens/sol-coin.webp", },
-  { id: 105, name: "0.1 SOL", type: "sol", amount: 0.1, probability: 0.1200, value_usd: 16.50, image: "/images/itens/sol-coin.webp", },
-  { id: 106, name: "0.2 SOL", type: "sol", amount: 0.2, probability: 0.0800, value_usd: 33.00, image: "/images/itens/sol-coin.webp", },
-  { id: 107, name: "0.3 SOL", type: "sol", amount: 0.3, probability: 0.0500, value_usd: 49.50, image: "/images/itens/sol-coin.webp", },
-  { id: 108, name: "0.5 SOL", type: "sol", amount: 0.5, probability: 0.0300, value_usd: 82.50, image: "/images/itens/sol-coin.webp", },
-  { id: 109, name: "0.8 SOL", type: "sol", amount: 0.8, probability: 0.0100, value_usd: 132.00, image: "/images/itens/sol-coin.webp", },
-  { id: 110, name: "1 SOL", type: "sol", amount: 1.0, probability: 0.0070, value_usd: 165.00, image: "/images/itens/sol-coin.webp", },
-  { id: 111, name: "3 SOL", type: "sol", amount: 3.0, probability: 0.0030, value_usd: 495.00, image: "/images/itens/sol-coin.webp", },
+  {
+    id: 101,
+    name: "0.005 SOL",
+    type: "sol",
+    amount: 0.005,
+    probability: 0.15,
+    value_usd: 0.83,
+    image: "/images/itens/sol-coin.webp",
+  },
+  {
+    id: 102,
+    name: "0.01 SOL",
+    type: "sol",
+    amount: 0.01,
+    probability: 0.2,
+    value_usd: 1.65,
+    image: "/images/itens/sol-coin.webp",
+  },
+  {
+    id: 103,
+    name: "0.03 SOL",
+    type: "sol",
+    amount: 0.03,
+    probability: 0.2,
+    value_usd: 4.95,
+    image: "/images/itens/sol-coin.webp",
+  },
+  {
+    id: 104,
+    name: "0.05 SOL",
+    type: "sol",
+    amount: 0.05,
+    probability: 0.15,
+    value_usd: 8.25,
+    image: "/images/itens/sol-coin.webp",
+  },
+  {
+    id: 105,
+    name: "0.1 SOL",
+    type: "sol",
+    amount: 0.1,
+    probability: 0.12,
+    value_usd: 16.5,
+    image: "/images/itens/sol-coin.webp",
+  },
+  {
+    id: 106,
+    name: "0.2 SOL",
+    type: "sol",
+    amount: 0.2,
+    probability: 0.08,
+    value_usd: 33.0,
+    image: "/images/itens/sol-coin.webp",
+  },
+  {
+    id: 107,
+    name: "0.3 SOL",
+    type: "sol",
+    amount: 0.3,
+    probability: 0.05,
+    value_usd: 49.5,
+    image: "/images/itens/sol-coin.webp",
+  },
+  {
+    id: 108,
+    name: "0.5 SOL",
+    type: "sol",
+    amount: 0.5,
+    probability: 0.03,
+    value_usd: 82.5,
+    image: "/images/itens/sol-coin.webp",
+  },
+  {
+    id: 109,
+    name: "0.8 SOL",
+    type: "sol",
+    amount: 0.8,
+    probability: 0.01,
+    value_usd: 132.0,
+    image: "/images/itens/sol-coin.webp",
+  },
+  {
+    id: 110,
+    name: "1 SOL",
+    type: "sol",
+    amount: 1.0,
+    probability: 0.007,
+    value_usd: 165.0,
+    image: "/images/itens/sol-coin.webp",
+  },
+  {
+    id: 111,
+    name: "3 SOL",
+    type: "sol",
+    amount: 3.0,
+    probability: 0.003,
+    value_usd: 495.0,
+    image: "/images/itens/sol-coin.webp",
+  },
 ];

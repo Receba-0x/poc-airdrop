@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const boxPrice = boxType === 1 ? 17.5 : 45;
     const tokenPrice = 0.002;
     const boxPriceInSol = boxPrice / tokenPrice;
-    const tokenAmount = Number(10 * 1e9);
+    const tokenAmount = Number(boxPriceInSol * 1e9);
 
     const privateKey = bs58.decode(process.env.PRIVATE_KEY!);
     const keypair = nacl.sign.keyPair.fromSecretKey(privateKey);
