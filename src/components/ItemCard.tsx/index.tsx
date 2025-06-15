@@ -73,9 +73,6 @@ export default function ItemCard({ item, currentStock = {} }: ItemCardProps) {
               <div className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded mb-2">
                 {t("common.soldOut")}
               </div>
-              <p className="text-white text-xs font-medium">
-                {t("common.allSold")}
-              </p>
             </div>
           </div>
         )}

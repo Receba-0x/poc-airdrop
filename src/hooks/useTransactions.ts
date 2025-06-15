@@ -45,8 +45,8 @@ export function useTransactions() {
           for (let i = 0; i < data.transactions.length; i++) {
             const tx = data.transactions[i];
             try {
-              let prizeName = tx.prize_name || "Unknown Prize";
-              let prizeValue = tx.amount_purchased || 0;
+              const prizeName = tx.prize_name || "Unknown Prize";
+              const prizeValue = tx.amount_purchased || 0;
               const prizeId = tx.prize_id || 0;
               const isCrypto = tx.is_crypto || prizeId >= 100;
               const claimed = tx.claimed;
