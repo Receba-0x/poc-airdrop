@@ -16,16 +16,15 @@ export const TokenomicsChart = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const { t } = useLanguage();
   const tokenDistribution = [
-    { label: t("tokenomics.liquidity"), percentage: 25, color: "#FFCA16" },
-    { label: t("tokenomics.charity"), percentage: 15, color: "#FE852E" },
-    {
-      label: t("tokenomics.publicDistribution"),
-      percentage: 25,
-      color: "#FFFFFF",
-    },
-    { label: t("tokenomics.team"), percentage: 15, color: "#3A62FF" },
-    { label: t("tokenomics.marketing"), percentage: 12, color: "#C665FF" },
-    { label: t("tokenomics.cex"), percentage: 8, color: "#1FD822" },
+    { label: t("tokenomics.presale"), percentage: 11, color: "#009C3B" },
+    { label: t("tokenomics.lp"), percentage: 7.5, color: "#FFDF00" },
+    { label: t("tokenomics.staking"), percentage: 25, color: "#002776" },
+    { label: t("tokenomics.community"), percentage: 5, color: "#00A651" },
+    { label: t("tokenomics.treasury"), percentage: 7, color: "#FFD700" },
+    { label: t("tokenomics.reserveFunds"), percentage: 3, color: "#1E90FF" },
+    { label: t("tokenomics.marketing"), percentage: 5, color: "#32CD32" },
+    { label: t("tokenomics.team"), percentage: 25, color: "#4169E1" },
+    { label: t("tokenomics.costs"), percentage: 11.5, color: "#FFA500" },
   ];
 
   useEffect(() => {
@@ -143,11 +142,10 @@ export const TokenomicsChart = () => {
           delay={0.1}
         >
           <div className="text-[#EEE] text-[30px] xl:text-[36px] w-full font-black text-center flex items-center justify-center gap-2 leading-[40px] md:leading-[61.6px]">
-            {" "}
             {t("tokenomics.title")}
             <div className="flex items-center gap-2">
-              <StarIcon fill={tokenDistribution[5].color} />
-              <StarIcon fill={tokenDistribution[3].color} />
+              <StarIcon fill={tokenDistribution[1].color} />
+              <StarIcon fill={tokenDistribution[7].color} />
               <StarIcon fill={tokenDistribution[0].color} />
             </div>
           </div>
@@ -167,7 +165,6 @@ export const TokenomicsChart = () => {
               options={chartOptions as any}
               ref={chartRef}
             />
-            {/* Soccer player icon in center */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <motion.div
                 className="w-[60%] h-[60%] max-w-[120px] max-h-[120px] flex items-center justify-center"
@@ -184,7 +181,6 @@ export const TokenomicsChart = () => {
           </motion.div>
         </div>
 
-        {/* Legend items with animation */}
         <div className="flex flex-col pl-[15%] gap-4 w-full lg:w-1/2">
           {tokenDistribution.map((item, index) => (
             <ScrollAnimation

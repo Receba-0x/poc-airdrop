@@ -7,12 +7,20 @@ import { SolanaIcon } from "../Icons/SolanaIcon";
 import { ShirtIcon } from "../Icons/ShirtIcon";
 import { ShippingAddressForm } from "../ShippingAddressForm";
 import { Button } from "../Button";
+import { LogoIcon } from "../Icons/LogoIcon";
 
 export function TransactionHistory() {
   const { t } = useLanguage();
-  const { transactions, isLoading, error, refreshTransactions } = useTransactions();
+  const { transactions, isLoading, error, refreshTransactions } =
+    useTransactions();
   const [shippingModalOpen, setShippingModalOpen] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] = useState<{ id: string, name: string, prizeId?: number } | null>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<{
+    id: string;
+    name: string;
+    prizeId?: number;
+  } | null>(null);
+
+  console.log(transactions);
 
   const getStatusTranslation = (status: string) => {
     switch (status) {
@@ -24,6 +32,10 @@ export function TransactionHistory() {
         return t("transactions.processing");
       case "Claimed":
         return t("transactions.claimed");
+      case "Delivering":
+        return t("transactions.delivering");
+      case "Delivered":
+        return t("transactions.delivered");
       default:
         return status;
     }
@@ -46,7 +58,7 @@ export function TransactionHistory() {
     setSelectedTransaction({
       id: transaction.id,
       name: transaction.name,
-      prizeId: transaction.prizeId
+      prizeId: transaction.prizeId,
     });
     setShippingModalOpen(true);
   };
@@ -61,9 +73,11 @@ export function TransactionHistory() {
   };
 
   const canBeClaimed = (transaction: any) => {
-    return isPhysicalItem(transaction) &&
+    return (
+      isPhysicalItem(transaction) &&
       transaction.status === "Completed" &&
-      !transaction.claimed;
+      !transaction.claimed
+    );
   };
 
   return (
@@ -103,7 +117,10 @@ export function TransactionHistory() {
           <div className="bg-[#0F0F0F] border border-[#222222] rounded-md overflow-hidden">
             <div className="divide-y divide-[#222222]">
               {transactions.map((tx, i) => (
-                <div key={i} className="p-4 hover:bg-[#1A1A1A] transition-colors">
+                <div
+                  key={i}
+                  className="p-4 hover:bg-[#1A1A1A] transition-colors"
+                >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-[#1A1A1A] rounded-full flex items-center justify-center">
                       {getItemIcon(tx)}
@@ -118,18 +135,40 @@ export function TransactionHistory() {
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <div className="px-2 py-1 rounded text-xs font-medium bg-[#1A1A1A]">
-                            <span className={`
-                              ${tx.status === "Completed" ? "text-green-400" : ""}
+                            <span
+                              className={`
+                              ${
+                                tx.status === "Completed"
+                                  ? "text-green-400"
+                                  : ""
+                              }
                               ${tx.status === "Error" ? "text-red-400" : ""}
-                              ${tx.status === "Processing..." ? "text-yellow-400" : ""}
+                              ${
+                                tx.status === "Processing..."
+                                  ? "text-yellow-400"
+                                  : ""
+                              }
                               ${tx.status === "Claimed" ? "text-blue-400" : ""}
-                            `}>
+                              ${
+                                tx.status === "Delivering"
+                                  ? "text-blue-400"
+                                  : ""
+                              }
+                              ${
+                                tx.status === "Delivered" ? "text-blue-400" : ""
+                              }
+                            `}
+                            >
                               {getStatusTranslation(tx.status)}
                             </span>
                           </div>
 
-                          <div className="text-gray-400 text-sm">
-                            <span className="text-yellow-400 font-medium">${tx.value.toFixed(2)}</span>
+                          <div className="text-gray-400 font-medium flex items-center gap-1 text-sm">
+                            <LogoIcon className="w-4 h-4" />
+                            {tx.value.toLocaleString("en-US", {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 2,
+                            })}
                           </div>
                         </div>
 
@@ -140,7 +179,9 @@ export function TransactionHistory() {
                               className="text-xs text-white hover:text-white transition-colors flex items-center gap-1"
                             >
                               {tx.txHash.slice(0, 4)}...{tx.txHash.slice(-4)}
-                              <span className="text-gray-400">{t("common.copy")}</span>
+                              <span className="text-gray-400">
+                                {t("common.copy")}
+                              </span>
                             </button>
                           )}
 

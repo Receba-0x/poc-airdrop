@@ -14,15 +14,15 @@ interface BoxCardProps {
 }
 
 export default function BoxCard({ box }: BoxCardProps) {
-  const boxPrice = box.id === "cryptos" ? 17.50 : 45;
-  const tokenPrice = 0.002
+  const boxPrice = box.id === "cryptos" ? 17.5 : 45;
+  const tokenPrice = 0.002;
   const boxPriceInSol = boxPrice / tokenPrice;
   return (
     <motion.div
       className="bg-[#171717] rounded-lg overflow-hidden hover:bg-[#1E1E1E] transition-colors h-full"
       whileHover={{
         y: -8,
-        boxShadow: "0 10px 20px rgba(0, 0, 0, 0.2)"
+        boxShadow: "0 10px 20px rgba(0, 0, 0, 0.2)",
       }}
       transition={{ duration: 0.3 }}
     >
@@ -61,7 +61,10 @@ export default function BoxCard({ box }: BoxCardProps) {
             transition={{ duration: 0.2 }}
           >
             <LogoIcon className="w-5 h-6" />
-            <span className="font-bold">{boxPriceInSol}</span>
+            <span className="font-bold">{boxPriceInSol.toLocaleString("en-US", {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 2,
+            })}</span>
           </motion.div>
         </div>
       </Link>

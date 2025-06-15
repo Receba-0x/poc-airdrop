@@ -62,7 +62,7 @@ export function RoadMapSection() {
 
   return (
     <div className="w-full flex flex-col items-center justify-start overflow-hidden pb-10 lg:pb-[112px] bg-[#0F0F0F]">
-      <div className="flex flex-col items-center justify-center max-w-[1062px] px-6 md:px-0">
+      <div className="flex flex-col items-center justify-center max-w-[1280px] px-6 md:px-0">
         <ScrollAnimation
           type="slide"
           direction="down"
@@ -75,7 +75,7 @@ export function RoadMapSection() {
         </ScrollAnimation>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-between w-full max-w-[1200px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-between w-full max-w-[1280px]">
         {roadMap.map((item, index) => (
           <div key={index} className="flex flex-col items-center justify-start rounded-lg overflow-hidden bg-[#191919] h-full">
             <h2 className="text-[#EEE] text-lg xl:text-[24px] bg-[#222222] w-full font-bold text-center flex items-center justify-center gap-2 py-4">

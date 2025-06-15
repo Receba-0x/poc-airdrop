@@ -15,29 +15,37 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { TransactionPurchaseModal } from "../TransactionPurchaseModal";
 import crypto from "crypto";
 
-type ProcessStage =
-  | "idle"
-  | "initializing"
-  | "processing_payment"
-  | "determining_prize"
-  | "delivering_prize"
-  | "saving_data"
-  | "complete"
-  | "error";
-
 export function BoxSection({ boxName }: { boxName: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const { onMint, modalOpen, modalStatus, errorMessage: purchaseErrorMessage, transactionHash, currentPrize, currentBoxType, currentAmount, closeModal, currentStock } = usePurchase();
+  const {
+    onMint,
+    modalOpen,
+    modalStatus,
+    errorMessage: purchaseErrorMessage,
+    transactionHash,
+    currentPrize,
+    currentBoxType,
+    currentAmount,
+    closeModal,
+    currentStock,
+  } = usePurchase();
   const { stats, isLoading: statsLoading, refetch } = useBoxStats();
   const { t } = useLanguage();
-  
-  // Simulation states
+
   const [simulationModalOpen, setSimulationModalOpen] = useState(false);
-  const [simulationStatus, setSimulationStatus] = useState<"initializing" | "processing" | "determining" | "delivering" | "saving" | "success" | "error">("initializing");
+  const [simulationStatus, setSimulationStatus] = useState<
+    | "initializing"
+    | "processing"
+    | "determining"
+    | "delivering"
+    | "saving"
+    | "success"
+    | "error"
+  >("initializing");
   const [simulationPrize, setSimulationPrize] = useState<any>(null);
 
   const isCrypto = boxName === "cryptos";
@@ -98,20 +106,23 @@ export function BoxSection({ boxName }: { boxName: string }) {
       console.error("Erro ao processar compra:", error);
     }
   };
-  
+
   const generateRandomNumber = () => {
     const buffer = crypto.randomBytes(4);
-    const hexNumber = buffer.toString('hex').substring(0, 8);
+    const hexNumber = buffer.toString("hex").substring(0, 8);
     return parseInt(hexNumber, 16) / 0xffffffff;
   };
-  
+
   const checkStock = (prizeId: number): boolean => {
-    const prize = PRIZE_TABLE.find(p => p.id === prizeId);
+    const prize = PRIZE_TABLE.find((p) => p.id === prizeId);
     if (!prize?.stockRequired) return true;
     return (currentStock[prizeId] || 0) > 0;
   };
-  
-  const simulateDeterminePrize = (randomNumber: number, isCrypto: boolean = false) => {
+
+  const simulateDeterminePrize = (
+    randomNumber: number,
+    isCrypto: boolean = false
+  ) => {
     if (isCrypto) {
       let cumulativeProbability = 0;
       for (const prize of CRYPTO_PRIZE_TABLE) {
@@ -128,7 +139,9 @@ export function BoxSection({ boxName }: { boxName: string }) {
           return prize;
         }
       }
-      const fallbackPrize = PRIZE_TABLE.find(p => p.type === "sol" && !p.stockRequired);
+      const fallbackPrize = PRIZE_TABLE.find(
+        (p) => p.type === "sol" && !p.stockRequired
+      );
       if (fallbackPrize) return fallbackPrize;
       return PRIZE_TABLE[0];
     }
@@ -156,15 +169,18 @@ export function BoxSection({ boxName }: { boxName: string }) {
       }, 1500);
     }, 1000);
   };
-  
+
   const closeSimulationModal = () => {
     setSimulationModalOpen(false);
     setSimulationPrize(null);
   };
 
-  const boxImage = boxName === "cryptos" ? "/images/boxes/cripto.webp" : "/images/boxes/super-prize.webp";
-  const boxPrice = boxName === "cryptos" ? 17.50 : 45;
-  const tokenPrice = 0.002
+  const boxImage =
+    boxName === "cryptos"
+      ? "/images/boxes/cripto.webp"
+      : "/images/boxes/super-prize.webp";
+  const boxPrice = boxName === "cryptos" ? 17.5 : 45;
+  const tokenPrice = 0.002;
   const boxPriceInToken = boxPrice / tokenPrice;
 
   return (
@@ -292,33 +308,51 @@ export function BoxSection({ boxName }: { boxName: string }) {
                         {t("box.stats.limited")}
                       </span>
                     </div>
-                    {(!isCrypto && !statsLoading) && (
+                    {!isCrypto && !statsLoading && (
                       <div className="flex flex-col sm:flex-row gap-2 text-xs text-[#B4B4B4]">
                         <span>
-                          {t("box.stats.opened")}: <span className="text-white font-medium">{stats.totalSuperPrizeBoxesOpened}</span>
+                          {t("box.stats.opened")}:{" "}
+                          <span className="text-white font-medium">
+                            {stats.totalSuperPrizeBoxesOpened}
+                          </span>
                         </span>
                         <span className="hidden sm:inline">•</span>
                         <span>
-                          {t("box.stats.remaining")}: <span className="text-[#28D939] font-medium">{stats.remainingSuperPrizeBoxes}</span>
+                          {t("box.stats.remaining")}:{" "}
+                          <span className="text-[#28D939] font-medium">
+                            {stats.remainingSuperPrizeBoxes}
+                          </span>
                         </span>
                         <span className="hidden sm:inline">•</span>
                         <span>
-                          {t("box.stats.total")}: <span className="text-white font-medium">{stats.maxSuperPrizeBoxes}</span>
+                          {t("box.stats.total")}:{" "}
+                          <span className="text-white font-medium">
+                            {stats.maxSuperPrizeBoxes}
+                          </span>
                         </span>
                       </div>
                     )}
-                    {(isCrypto && !statsLoading) && (
+                    {isCrypto && !statsLoading && (
                       <div className="flex flex-col sm:flex-row gap-2 text-xs text-[#B4B4B4]">
                         <span>
-                          {t("box.stats.opened")}: <span className="text-white font-medium">{stats.totalCryptoBoxesOpened}</span>
+                          {t("box.stats.opened")}:{" "}
+                          <span className="text-white font-medium">
+                            {stats.totalCryptoBoxesOpened}
+                          </span>
                         </span>
                         <span className="hidden sm:inline">•</span>
                         <span>
-                          {t("box.stats.remaining")}: <span className="text-[#28D939] font-medium">{stats.remainingCryptoBoxes}</span>
+                          {t("box.stats.remaining")}:{" "}
+                          <span className="text-[#28D939] font-medium">
+                            {stats.remainingCryptoBoxes}
+                          </span>
                         </span>
                         <span className="hidden sm:inline">•</span>
                         <span>
-                          {t("box.stats.total")}: <span className="text-white font-medium">{stats.maxCryptoBoxes}</span>
+                          {t("box.stats.total")}:{" "}
+                          <span className="text-white font-medium">
+                            {stats.maxCryptoBoxes}
+                          </span>
                         </span>
                       </div>
                     )}
@@ -331,7 +365,12 @@ export function BoxSection({ boxName }: { boxName: string }) {
                   whileHover={{ scale: 1.05 }}
                 >
                   <LogoIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-                  <span className="font-bold text-xl sm:text-2xl">{boxPriceInToken.toFixed(2)}</span>
+                  <span className="font-bold text-xl sm:text-2xl">
+                    {boxPriceInToken.toLocaleString("en-US", {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
                 </motion.div>
                 <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                   <motion.div
@@ -357,14 +396,21 @@ export function BoxSection({ boxName }: { boxName: string }) {
                       className="w-full sm:w-[209px] h-[44px] sm:h-[52px]"
                       variant="primary"
                       onClick={handlePurchase}
-                      disabled={isCrypto ? stats.remainingCryptoBoxes <= 0 : stats.remainingSuperPrizeBoxes <= 0}
+                      disabled={
+                        isCrypto
+                          ? stats.remainingCryptoBoxes <= 0
+                          : stats.remainingSuperPrizeBoxes <= 0
+                      }
                     >
                       <PurchaseIcon className="w-5 h-5" />
                       <span className="ml-1 text-sm sm:text-base">
-                        {isCrypto ? 
-                          (stats.remainingCryptoBoxes <= 0 ? t("box.soldOut") : t("box.purchase")) : 
-                          (stats.remainingSuperPrizeBoxes <= 0 ? t("box.soldOut") : t("box.purchase"))
-                        }
+                        {isCrypto
+                          ? stats.remainingCryptoBoxes <= 0
+                            ? t("box.soldOut")
+                            : t("box.purchase")
+                          : stats.remainingSuperPrizeBoxes <= 0
+                          ? t("box.soldOut")
+                          : t("box.purchase")}
                       </span>
                     </Button>
                   </motion.div>
@@ -386,7 +432,11 @@ export function BoxSection({ boxName }: { boxName: string }) {
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <ItemCard key={box.id} item={box} />
+                  <ItemCard
+                    key={box.id}
+                    item={box}
+                    currentStock={currentStock}
+                  />
                 </motion.div>
               ))}
             </div>
@@ -403,8 +453,9 @@ export function BoxSection({ boxName }: { boxName: string }) {
         errorMessage={purchaseErrorMessage}
         transactionHash={transactionHash}
         prize={currentPrize}
+        onBuyAgain={handlePurchase}
       />
-      
+
       <TransactionPurchaseModal
         isOpen={simulationModalOpen}
         onClose={closeSimulationModal}
@@ -412,6 +463,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
         amount={boxPriceInToken.toString()}
         boxType={isCrypto ? t("box.cryptos") : t("box.superPrizes")}
         prize={simulationPrize}
+        onBuyAgain={handleSimulation}
       />
     </>
   );

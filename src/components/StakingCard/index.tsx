@@ -16,7 +16,6 @@ export function StakingCard() {
       className="bg-gradient-to-br from-[#FFD60A] to-[#0f0f0f00] to-70% rounded-xl p-[2px] w-full max-w-[624px] mx-auto"
     >
       <div className="flex flex-col bg-[#0F0F0F] rounded-xl p-4 sm:p-6 md:p-8 w-full h-full text-white">
-        {/* Tab Switcher */}
         <div className="bg-[#1A1A1A] p-1 rounded-lg mb-6 sm:mb-8 self-center w-full max-w-sm sm:max-w-md">
           <motion.div className="flex relative w-full">
             <motion.div

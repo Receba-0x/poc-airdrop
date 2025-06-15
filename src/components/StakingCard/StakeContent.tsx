@@ -65,7 +65,7 @@ export function StakeContent() {
               >
                 <div className="font-medium">{periodInfo.label}</div>
                 <div className="text-[10px] sm:text-[11px] opacity-75 mt-0.5">
-                  APY {periodInfo.apy}%
+                  APY ?%
                 </div>
               </motion.button>
             ))}
@@ -111,8 +111,8 @@ export function StakeContent() {
       {/* Stake Button */}
       <div className="flex justify-center sm:justify-end mt-4 sm:mt-6">
         <Button
-          onClick={staking.onStake}
-          disabled={!staking.isValid || staking.isLoading}
+         /*  onClick={staking.onStake} */
+          disabled={true}
           className="w-full sm:w-auto sm:min-w-[140px] h-[44px] sm:h-[48px] text-sm sm:text-base"
         >
           {staking.isLoading ? t("common.loading") : t("staking.stake")}
