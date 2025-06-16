@@ -17,27 +17,29 @@ export const translations = {
 
     // Roadmap Section
     "roadmap.title": "Roadmap",
-    "roadmap.phase1": "Phase 1",
-    "roadmap.phase2": "Phase 2",
-    "roadmap.phase3": "Phase 3",
-    "roadmap.phase4": "Phase 4",
-    "roadmap.phase1.item1": "Website Creation",
-    "roadmap.phase1.item2": "Social Media Creation",
-    "roadmap.phase1.item3": "Gacha System Implementation (Boxes)",
+    "roadmap.phase1": "Phase 1 – Foundation & Launch",
+    "roadmap.phase2": "Phase 2 – Community & Utility Layer",
+    "roadmap.phase3": "Phase 3 – Expansion & Ecosystem Growth",
+    "roadmap.phase4": "Phase 4 – Legacy Building",
+    "roadmap.phase1.item1": "Website Development",
+    "roadmap.phase1.item2": "Social Media Activation",
+    "roadmap.phase1.item3": "Gacha System (Mystery Boxes) Deployment",
     "roadmap.phase1.item4": "Token Launch",
-    "roadmap.phase1.item5": "Interactive Launch Live (with Adriano)",
-    "roadmap.phase2.item1": "NFT System Implementation",
-    "roadmap.phase2.item2": "Initial Community Events",
-    "roadmap.phase2.item3": "Donations Initiative (Charity System Role)",
-    "roadmap.phase2.item4": "Real-time Donations Dashboard",
-    "roadmap.phase3.item1": "Partnerships with Other Clubs and/or Athletes",
-    "roadmap.phase3.item2": "Partnerships with Sports Brands and Other Brands",
-    "roadmap.phase3.item3": "CEX Listings",
-    "roadmap.phase3.item4": "Development of New Token Utilities",
-    "roadmap.phase4.item1": "Expansion of Social Projects",
-    "roadmap.phase4.item2": "L1 Creation",
-    "roadmap.phase4.item3": "Launch of Adriano or Vila Cruzeiro Football Club",
-
+    "roadmap.phase1.item5": "Interactive Launch Livestream (Featuring Adriano)",
+    "roadmap.phase2.item1": "NFT System Integration",
+    "roadmap.phase2.item2": "First Community Events",
+    "roadmap.phase2.item3":
+      "Charity System Activation (Donation Role & Tracking)",
+    "roadmap.phase2.item4": "Real-Time Charity Dashboard Launch",
+    "roadmap.phase3.item1":
+      "Launch of Interoperability Layer (Cross-Chain Bridge & Multi-Chain Support)",
+    "roadmap.phase3.item2":
+      "Strategic Partnerships with Sports & Lifestyle Brands",
+    "roadmap.phase3.item3": "First Centralized Exchange (CEX) Listings",
+    "roadmap.phase3.item4": "Memorabilia Tokenization Protocol Launch",
+    "roadmap.phase4.item1": "Expansion of Social Impact Projects",
+    "roadmap.phase4.item2": "Talent Scouting Program Rollout",
+    "roadmap.phase4.item3": "Creation of Didico Football Club",
     // Features
     "features.title": "Why Choose $ADR Token?",
     "features.secure": "Secure",
@@ -445,28 +447,34 @@ export const translations = {
     "hero.learnMore": "Saiba Mais",
 
     // Roadmap Section
-    "roadmap.title": "Roadmap",
-    "roadmap.phase1": "Phase 1",
-    "roadmap.phase2": "Phase 2",
-    "roadmap.phase3": "Phase 3",
-    "roadmap.phase4": "Phase 4",
-    "roadmap.phase1.item1": "Criação Website",
-    "roadmap.phase1.item2": "Criação Rede Sociais",
-    "roadmap.phase1.item3": "Implementação Gacha System (Caixas)",
-    "roadmap.phase1.item4": "Token launch",
-    "roadmap.phase1.item5": "Live Interativa de Lançamento (com o Adriano)",
-    "roadmap.phase2.item1": "Implementação de sistema de NFT",
-    "roadmap.phase2.item2": "Eventos iniciais da Comunidade",
-    "roadmap.phase2.item3": "Início para Doações (Charity System Role)",
-    "roadmap.phase2.item4": "Dashboard para Doações em Tempo Real",
-    "roadmap.phase3.item1": "Parceria com outros Clubes e/ou Atletas",
-    "roadmap.phase3.item2": "Parceria com Marcas Esportivas e/ou Demais Marcas",
-    "roadmap.phase3.item3": "Listagens em CEX",
-    "roadmap.phase3.item4": "Desenvolvimento de Novas Utilidades para o Token",
-    "roadmap.phase4.item1": "Expansão dos Projetos Sociais",
-    "roadmap.phase4.item2": "Criação de L1",
-    "roadmap.phase4.item3":
-      "Lançamento do Adriano ou Vila Cruzeiro Futebol Clube",
+    "roadmap.title": "Roteiro",
+    "roadmap.phase1": "Fase 1 – Fundação e Lançamento",
+    "roadmap.phase2": "Fase 2 – Comunidade e Camada de Utilidade",
+    "roadmap.phase3": "Fase 3 – Expansão e Crescimento do Ecossistema",
+    "roadmap.phase4": "Fase 4 – Construção de Legado",
+    "roadmap.phase1.item1": "Desenvolvimento do Website",
+    "roadmap.phase1.item2": "Ativação das Redes Sociais",
+    "roadmap.phase1.item3":
+      "Implementação do Sistema Gacha (Caixas Misteriosas)",
+    "roadmap.phase1.item4": "Lançamento do Token",
+    "roadmap.phase1.item5":
+      "Live Interativa de Lançamento (com participação do Adriano)",
+    "roadmap.phase2.item1": "Integração do Sistema de NFTs",
+    "roadmap.phase2.item2": "Primeiros Eventos da Comunidade",
+    "roadmap.phase2.item3":
+      "Ativação do Sistema de Caridade (Função de Doação e Monitoramento)",
+    "roadmap.phase2.item4": "Lançamento do Painel de Doações em Tempo Real",
+    "roadmap.phase3.item1":
+      "Lançamento da Camada de Interoperabilidade (Bridge Cross-Chain e Suporte Multichain)",
+    "roadmap.phase3.item2":
+      "Parcerias Estratégicas com Marcas Esportivas e de Lifestyle",
+    "roadmap.phase3.item3":
+      "Primeiras Listagens em Exchanges Centralizadas (CEX)",
+    "roadmap.phase3.item4":
+      "Lançamento do Protocolo de Tokenização de Memorabilia",
+    "roadmap.phase4.item1": "Expansão dos Projetos de Impacto Social",
+    "roadmap.phase4.item2": "Implementação do Programa de Scouting de Talentos",
+    "roadmap.phase4.item3": "Criação do Didico Futebol Clube",
 
     // Features
     "features.title": "Por que Escolher o Token $ADR?",
