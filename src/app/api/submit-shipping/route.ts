@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { ethers } from "ethers";
 import { AdrAbi__factory } from "@/contracts";
-import { adrTokenAddress } from "@/constants";
+import { adrControllerAddress, adrTokenAddress } from "@/constants";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_KEY;
@@ -17,8 +17,10 @@ async function burnNFT(nftMint: string) {
     if (!privateKey) throw new Error("Private key is not configured");
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
     const wallet = new ethers.Wallet(privateKey, provider);
-    const adrContract = AdrAbi__factory.connect(adrTokenAddress, wallet);
-    const tx = await adrContract.burnNFTByOperator(nftMint);
+    const adrContract = AdrAbi__factory.connect(adrControllerAddress, wallet);
+    const tx = await adrContract.burnNFTByOperator(Number(nftMint), {
+      gasLimit: 1000000,
+    });
     await tx.wait();
     return tx.hash;
   } catch (error) {
@@ -163,7 +165,6 @@ export async function POST(request: NextRequest) {
       addressId,
       teamSelected,
     } = await request.json();
-
     if (!walletAddress || !transactionId || !itemName) {
       return NextResponse.json(
         { success: false, error: "Missing required fields" },

@@ -166,18 +166,18 @@ export async function POST(request: Request) {
       }
     }
 
-    let prizeDeliveryTx = null;
-    let nftMint = null;
-    let nftMetadata = null;
+    let prizeDeliveryTx = "";
+    let nftMint = "";
+    let nftMetadata = `https://imperadortoken.com/metadata/${wonPrize.metadata}.json`;
+    let nftTokenId = "";
 
     if (wonPrize.type === "sol") {
       prizeDeliveryTx = await deliverBnbPrize(userWalletAddress, wonPrize);
     } else if (NFT_PRIZES.includes(prizeId)) {
       try {
-        const txSignature = await mintNFT(userWalletAddress, wonPrize);
-        prizeDeliveryTx = txSignature;
-        nftMint = txSignature;
-        nftMetadata = `https://imperadortoken.com/metadata/${wonPrize.metadata}.json`;
+        const { txHash, tokenId } = await mintNFT(userWalletAddress, wonPrize);
+        prizeDeliveryTx = txHash;
+        nftMint = tokenId.toString();
       } catch (error) {
         console.error("Erro ao criar NFT:", error);
       }
@@ -212,7 +212,7 @@ export async function POST(request: Request) {
       userWalletAddress,
       nftMint,
       nftMetadata,
-      transactionSignature,
+      prizeDeliveryTx,
       prizeId,
       wonPrize.name,
       randomNumber,
@@ -233,6 +233,7 @@ export async function POST(request: Request) {
       txSignature: prizeDeliveryTx,
       nftMint,
       nftMetadata,
+      nftTokenId,
       randomData: {
         randomNumber,
         clientSeed,
@@ -256,12 +257,12 @@ async function deliverBnbPrize(recipient: string, prize: any) {
   try {
     if (!prize.amount || prize.amount <= 0) {
       console.error(`Invalid BNB prize amount: ${prize.amount}`);
-      return false;
+      return "";
     }
 
     if (!PRIVATE_KEY) {
       console.error("Server private key not found");
-      return false;
+      return "";
     }
 
     const provider = new ethers.JsonRpcProvider(RPC_URL);
@@ -289,7 +290,7 @@ async function deliverBnbPrize(recipient: string, prize: any) {
       error_message: error instanceof Error ? error.message : "Unknown error",
       timestamp: new Date().toISOString(),
     });
-    return false;
+    return "";
   }
 }
 
@@ -314,14 +315,6 @@ async function savePurchaseRecord(
   }
 
   try {
-    let finalTxSignature = transactionSignature;
-    if (!finalTxSignature || finalTxSignature.trim() === "") {
-      finalTxSignature = `internal_${Date.now()}_${wallet.substring(
-        0,
-        8
-      )}_${Math.floor(randomNumber * 1000000)}`;
-    }
-
     const { error } = await supabase
       .from("purchases")
       .insert([
@@ -331,7 +324,7 @@ async function savePurchaseRecord(
           nft_metadata: nftMetadata,
           amount_purchased: Number(tokenAmount / 1e9),
           token_amount_burned: Number(tokenAmount / 1e9),
-          transaction_signature: finalTxSignature,
+          transaction_signature: transactionSignature,
           prize_id: prizeId,
           prize_name: prizeName,
           random_number: randomNumber,
@@ -361,7 +354,10 @@ async function savePurchaseRecord(
   }
 }
 
-async function mintNFT(recipient: string, prize: any): Promise<string> {
+async function mintNFT(
+  recipient: string,
+  prize: any
+): Promise<{ txHash: string; tokenId: string }> {
   try {
     if (!PRIVATE_KEY) throw new Error("Server private key not found");
     const provider = new ethers.JsonRpcProvider(RPC_URL);
@@ -369,8 +365,28 @@ async function mintNFT(recipient: string, prize: any): Promise<string> {
     const adrContract = AdrAbi__factory.connect(adrControllerAddress, wallet);
     const uri = `https://imperadortoken.com/metadata/${prize.metadata}.json`;
     const tx = await adrContract.mintNFT(recipient, uri);
-    await tx.wait();
-    return tx.hash;
+    const receipt = await tx.wait();
+
+    let tokenId = "0";
+    if (receipt && receipt.logs) {
+      for (const log of receipt.logs) {
+        try {
+          const parsedLog = adrContract.interface.parseLog({
+            topics: log.topics,
+            data: log.data,
+          });
+
+          if (parsedLog && parsedLog.name === "NFTMinted") {
+            tokenId = parsedLog.args.tokenId.toString();
+            break;
+          }
+        } catch (error) {
+          continue;
+        }
+      }
+    }
+
+    return { txHash: tx.hash, tokenId };
   } catch (error) {
     console.error("Error minting NFT:", error);
     throw error;
