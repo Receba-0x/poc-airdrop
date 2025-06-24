@@ -1,8 +1,8 @@
 {
-  "name": "Adriano Imperador Mikasa Soccer Ball",
+  "name": "Adriano Imperador Soccer Ball",
   "symbol": "ADR-BALL",
-  "description": "Official Mikasa soccer ball signed by the legendary Adriano Imperador. A premium collectible that represents the spirit of Brazilian football and the power of Vila Cruzeiro. Part of the official $ADR collection.",
-  "image": "https://adr-token.vercel.app/images/itens/ball.webp",
+  "description": "Official soccer ball signed by the legendary Adriano Imperador. A premium collectible that represents the spirit of Brazilian football and the power of Vila Cruzeiro. Part of the official $ADR collection.",
+  "image": "https://adr-token.vercel.app/images/itens/ball.png",
   "external_url": "https://adr-token.vercel.app",
   "attributes": [
     {
@@ -49,10 +49,10 @@
   "properties": {
     "files": [
       {
-        "uri": "/images/itens/ball.webp",
+        "uri": "/images/itens/ball.png",
         "type": "image/png"
       }
     ],
     "category": "image"
   }
-} 
+}

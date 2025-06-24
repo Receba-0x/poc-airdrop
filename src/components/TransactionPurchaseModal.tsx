@@ -3,16 +3,19 @@ import { motion } from "framer-motion";
 import { LogoIcon } from "./Icons/LogoIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "./Button";
+import Image from "next/image";
 
 interface TransactionPurchaseModalProps {
   isOpen: boolean;
   onClose: () => void;
   status:
     | "initializing"
-    | "processing"
-    | "determining"
-    | "delivering"
-    | "saving"
+    | "paying_bnb_fee"
+    | "checking_balance"
+    | "approving_tokens"
+    | "burning_tokens"
+    | "determining_prize"
+    | "saving_transaction"
     | "success"
     | "error";
   amount?: string;
@@ -36,12 +39,56 @@ export function TransactionPurchaseModal({
 }: TransactionPurchaseModalProps) {
   const { t } = useLanguage();
 
+  const steps = [
+    {
+      key: "initializing",
+      label: t("purchase.initializing") || "Initializing",
+    },
+    {
+      key: "paying_bnb_fee",
+      label: t("purchase.payingBnbFee") || "Paying BNB Fee",
+    },
+    {
+      key: "checking_balance",
+      label: t("purchase.checkingBalance") || "Checking Balance",
+    },
+    {
+      key: "approving_tokens",
+      label: t("purchase.approvingTokens") || "Approving Tokens",
+    },
+    {
+      key: "burning_tokens",
+      label: t("purchase.burningTokens") || "Burning Tokens",
+    },
+    {
+      key: "determining_prize",
+      label: t("purchase.determiningPrize") || "Determining Prize",
+    },
+    {
+      key: "saving_transaction",
+      label: t("purchase.savingTransaction") || "Saving Transaction",
+    },
+  ];
+
+  const getCurrentStepIndex = () => {
+    const stepIndex = steps.findIndex((step) => step.key === status);
+    return stepIndex >= 0 ? stepIndex : 0;
+  };
+
+  const currentStepIndex = getCurrentStepIndex();
+  const progress =
+    status === "success"
+      ? 100
+      : status === "error"
+      ? 100
+      : ((currentStepIndex + 1) / steps.length) * 100;
+
   const getStatusIcon = () => {
     if (status === "success") {
       return (
-        <div className="w-16 h-16 rounded-full bg-green-100/10 flex items-center justify-center mb-4">
+        <div className="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center mb-4">
           <svg
-            className="w-8 h-8 text-green-500"
+            className="w-10 h-10 text-white"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -56,9 +103,9 @@ export function TransactionPurchaseModal({
       );
     } else if (status === "error") {
       return (
-        <div className="w-16 h-16 rounded-full bg-red-100/10 flex items-center justify-center mb-4">
+        <div className="w-20 h-20 rounded-full bg-red-500 flex items-center justify-center mb-4">
           <svg
-            className="w-8 h-8 text-red-500"
+            className="w-10 h-10 text-white"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -73,32 +120,20 @@ export function TransactionPurchaseModal({
       );
     } else {
       return (
-        <div className="w-16 h-16 rounded-full bg-[#1A1A1A] flex items-center justify-center mb-4">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-          >
-            <svg
-              className="w-8 h-8 text-[#FFD60A]"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-          </motion.div>
+        <div className="w-20 h-20 mx-auto relative mb-4">
+          <div className="w-full h-full border-4 border-[#FFD60A]/30 border-t-[#FFD60A] rounded-full animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center">
+              <Image
+                src="/images/logo_token.png"
+                alt="logo"
+                className="w-full h-full object-cover"
+                width={10000}
+                height={10000}
+                priority
+              />
+            </div>
+          </div>
         </div>
       );
     }
@@ -108,14 +143,18 @@ export function TransactionPurchaseModal({
     switch (status) {
       case "initializing":
         return t("purchase.initializing");
-      case "processing":
-        return t("purchase.processingPayment");
-      case "determining":
+      case "paying_bnb_fee":
+        return t("purchase.payingBnbFee");
+      case "checking_balance":
+        return t("purchase.checkingBalance");
+      case "approving_tokens":
+        return t("purchase.approvingTokens");
+      case "burning_tokens":
+        return t("purchase.burningTokens");
+      case "determining_prize":
         return t("purchase.determiningPrize");
-      case "delivering":
-        return t("purchase.deliveringPrize");
-      case "saving":
-        return t("purchase.savingData");
+      case "saving_transaction":
+        return t("purchase.savingTransaction");
       case "success":
         return prize ? t("box.congratulations") : t("purchase.complete");
       case "error":
@@ -129,14 +168,18 @@ export function TransactionPurchaseModal({
     switch (status) {
       case "initializing":
         return t("purchase.initializing");
-      case "processing":
-        return t("purchase.processingPaymentDetail");
-      case "determining":
+      case "paying_bnb_fee":
+        return t("purchase.payingBnbFeeDetail");
+      case "checking_balance":
+        return t("purchase.checkingBalanceDetail");
+      case "approving_tokens":
+        return t("purchase.approvingTokensDetail");
+      case "burning_tokens":
+        return t("purchase.burningTokensDetail");
+      case "determining_prize":
         return t("purchase.determiningPrizeDetail");
-      case "delivering":
-        return t("purchase.deliveringPrizeDetail");
-      case "saving":
-        return t("purchase.savingDataDetail");
+      case "saving_transaction":
+        return t("purchase.savingTransactionDetail");
       case "success":
         return prize ? t("box.awesome") : t("purchase.complete");
       case "error":
@@ -146,33 +189,14 @@ export function TransactionPurchaseModal({
     }
   };
 
-  const getProgressValue = () => {
-    switch (status) {
-      case "initializing":
-        return 10;
-      case "processing":
-        return 30;
-      case "determining":
-        return 50;
-      case "delivering":
-        return 70;
-      case "saving":
-        return 90;
-      case "success":
-        return 100;
-      case "error":
-        return 100;
-      default:
-        return 0;
-    }
-  };
-
   const showProgressBar = [
     "initializing",
-    "processing",
-    "determining",
-    "delivering",
-    "saving",
+    "paying_bnb_fee",
+    "checking_balance",
+    "approving_tokens",
+    "burning_tokens",
+    "determining_prize",
+    "saving_transaction",
   ].includes(status);
 
   return (
@@ -183,31 +207,56 @@ export function TransactionPurchaseModal({
       showCloseButton={status === "success" || status === "error"}
     >
       <div className="flex flex-col items-center py-2">
-        {getStatusIcon()}
-
-        <p
-          className={`text-center mb-4 ${
-            status === "error" ? "text-red-400" : "text-gray-300"
-          }`}
-        >
-          {getStatusMessage()}
-        </p>
-
+        {/* Progress Bar and Steps */}
         {showProgressBar && (
-          <div className="w-full bg-[#1A1A1A] rounded-full h-2.5 mb-6">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${getProgressValue()}%` }}
-              transition={{ duration: 0.5 }}
-              className="bg-[#FFD60A] h-2.5 rounded-full"
-            ></motion.div>
+          <div className="w-full mb-6">
+            <div className="relative">
+              <div className="w-full bg-[#1A1A1A] rounded-full h-2">
+                <motion.div
+                  className="bg-[#FFD60A] h-2 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+              <div className="flex justify-between mt-2 text-xs text-gray-400">
+                <span>
+                  Step {currentStepIndex + 1} of {steps.length}
+                </span>
+                <span>{Math.round(progress)}% Complete</span>
+              </div>
+            </div>
+
+            {/* Current Step Indicator */}
+            <div className="mt-4 text-center">
+              <h3 className="text-lg font-semibold text-white mb-1">
+                {steps[currentStepIndex]?.label}
+              </h3>
+              <p className="text-sm text-gray-400">{getStatusMessage()}</p>
+            </div>
           </div>
         )}
 
-        {/* Transaction Details */}
+        {getStatusIcon()}
+
+        {!showProgressBar && (
+          <div className="text-center mb-4">
+            <h3 className="text-xl font-bold text-white mb-2">{getTitle()}</h3>
+            <p
+              className={`text-center ${
+                status === "error" ? "text-red-400" : "text-gray-300"
+              }`}
+            >
+              {getStatusMessage()}
+            </p>
+          </div>
+        )}
+
         {status !== "error" && (
           <div className="w-full space-y-4 mt-2">
-            {(status === "success" || status === "processing") && (
+            {(status === "success" ||
+              status === "paying_bnb_fee" ||
+              status === "checking_balance") && (
               <div className="bg-[#1A1A1A] rounded-lg p-3 w-full">
                 <h3 className="text-sm text-gray-400 mb-2">
                   {t("staking.transactionDetails")}
@@ -258,7 +307,11 @@ export function TransactionPurchaseModal({
             )}
 
             {status === "success" && prize && (
-              <div className="bg-[#1A1A1A] rounded-lg p-4 w-full mt-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-[#1A1A1A] rounded-lg p-4 w-full mt-4 border border-green-400/20"
+              >
                 <h3 className="text-sm text-gray-400 mb-3">
                   {t("box.yourPrize")}
                 </h3>
@@ -286,9 +339,9 @@ export function TransactionPurchaseModal({
                 </div>
 
                 {prize.type === "sol" && (
-                  <div className="bg-gradient-to-r from-[#2A2A2A] to-[#1A1A1A] rounded-md p-3 mt-2 border border-[#3A3A3A]">
+                  <div className="bg-[#1A1A1A] rounded-md p-3 mt-2 border border-green-400/30">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 bg-green-400/10 rounded-full flex items-center justify-center mr-3">
+                      <div className="w-8 h-8 bg-green-400/20 rounded-full flex items-center justify-center mr-3">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           className="h-4 w-4 text-green-400"
@@ -315,12 +368,12 @@ export function TransactionPurchaseModal({
                 )}
 
                 {prize.type === "physical" && (
-                  <div className="bg-gradient-to-r from-[#2A2A2A] to-[#1A1A1A] rounded-md p-3 mt-2 border border-[#3A3A3A]">
+                  <div className="bg-[#1A1A1A] rounded-md p-3 mt-2 border border-blue-400/30">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 bg-yellow-400/10 rounded-full flex items-center justify-center mr-3">
+                      <div className="w-8 h-8 bg-blue-400/20 rounded-full flex items-center justify-center mr-3">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 text-yellow-400"
+                          className="h-4 w-4 text-blue-400"
                           viewBox="0 0 20 20"
                           fill="currentColor"
                         >
@@ -329,7 +382,7 @@ export function TransactionPurchaseModal({
                         </svg>
                       </div>
                       <div>
-                        <p className="text-yellow-400 text-sm font-medium">
+                        <p className="text-blue-400 text-sm font-medium">
                           {t("box.physicalPrize")}
                         </p>
                         <p className="text-gray-400 text-xs">
@@ -339,38 +392,41 @@ export function TransactionPurchaseModal({
                     </div>
                   </div>
                 )}
-              </div>
+              </motion.div>
             )}
 
-            {[
-              "initializing",
-              "processing",
-              "determining",
-              "delivering",
-              "saving",
-            ].includes(status) && (
-              <div className="flex justify-center">
-                <div className="bg-[#1A1A1A] px-3 py-1 rounded text-xs text-gray-400">
-                  {t("common.pleaseDoNotCloseWindow")}
-                </div>
+            {showProgressBar && (
+              <div className="flex justify-center mt-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="bg-[#1A1A1A] px-4 py-2 rounded-lg border border-[#333333]"
+                >
+                  <p className="text-xs text-gray-400 text-center">
+                    {t("common.pleaseDoNotCloseWindow")}
+                  </p>
+                </motion.div>
               </div>
             )}
           </div>
         )}
 
         {(status === "success" || status === "error") && (
-          <div className="flex gap-3 mt-6 w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex gap-3 mt-6 w-full"
+          >
             {status === "error" && (
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={onClose}
-                className="py-2 px-6 rounded bg-[#2A2A2A] text-white"
-              >
+              <Button variant="secondary" onClick={onClose} className="flex-1">
                 {t("purchase.cancel")}
-              </motion.button>
+              </Button>
             )}
-            <Button className="w-full" variant="secondary" onClick={onClose}>
+            <Button
+              className={status === "error" ? "flex-1" : "w-full"}
+              variant={status === "success" ? "secondary" : "primary"}
+              onClick={onClose}
+            >
               {status === "success" ? t("common.done") : t("purchase.tryAgain")}
             </Button>
             {status === "success" && (
@@ -378,7 +434,7 @@ export function TransactionPurchaseModal({
                 {t("common.buyAgain")}
               </Button>
             )}
-          </div>
+          </motion.div>
         )}
       </div>
     </Modal>

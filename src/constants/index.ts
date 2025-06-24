@@ -44,7 +44,7 @@ function getImageForPrize(prize: any, t: (key: string) => string) {
     case 5:
       return "/images/itens/camisa1.webp";
     case 6:
-      return "/images/itens/ball.webp";
+      return "/images/itens/ball.png";
     case 7:
       return "/images/itens/chuteira.webp";
     case 8:
@@ -107,7 +107,7 @@ export const PRIZE_TABLE = [
     id: 6,
     name: "Bolas oficiais",
     type: "physical",
-    metadata: "mikasa",
+    metadata: "ball",
     probability: 0.112,
     stockRequired: true,
     stock: 40,

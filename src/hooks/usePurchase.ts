@@ -27,10 +27,12 @@ export function usePurchase() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalStatus, setModalStatus] = useState<
     | "initializing"
-    | "processing"
-    | "determining"
-    | "delivering"
-    | "saving"
+    | "paying_bnb_fee"
+    | "checking_balance"
+    | "approving_tokens"
+    | "burning_tokens"
+    | "determining_prize"
+    | "saving_transaction"
     | "success"
     | "error"
   >("initializing");
@@ -73,13 +75,29 @@ export function usePurchase() {
       setCurrentPrize(null);
       setCurrentBoxType(isCrypto ? t("box.cryptos") : t("box.superPrizes"));
       setCurrentAmount(isCrypto ? "17.5" : "45");
-      setModalStatus("processing");
-      /* await sendBnbFeeTransaction(isCrypto); */
+      
+      // Step 1: Paying BNB fee
+      setModalStatus("paying_bnb_fee");
+      await sendBnbFeeTransaction(isCrypto);
+      
+      // Step 2: Get backend data and check balance
       const { tokenAmount, clientSeed } = await fetchBackendData(isCrypto);
+      
+      // Step 3: Checking balance
+      setModalStatus("checking_balance");
       await checkSufficientBalance(tokenAmount);
-      const txSig = await sendCryptoTransaction(tokenAmount);
+      
+      // Step 4: Approving tokens
+      setModalStatus("approving_tokens");
+      await approveTokens(tokenAmount);
+      
+      // Step 5: Burning tokens
+      setModalStatus("burning_tokens");
+      const txSig = await burnTokens(tokenAmount);
       setTransactionHash(txSig || "");
-      setModalStatus("determining");
+      
+      // Step 6: Determining prize
+      setModalStatus("determining_prize");
       const { data } = await axios.post("/api/mint-nft", {
         wallet: address,
         boxType: isCrypto ? 1 : 2,
@@ -92,6 +110,9 @@ export function usePurchase() {
         throw new Error(data.error || "Error processing purchase");
       }
 
+      // Step 7: Saving transaction data
+      setModalStatus("saving_transaction");
+      
       const prizeId = data.prizeId;
       let wonPrize = null;
 
@@ -102,8 +123,11 @@ export function usePurchase() {
       }
       setCurrentPrize(wonPrize);
       if (data.txSignature) setTransactionHash(data.txSignature);
+      
+      // Step 8: Success
       setModalStatus("success");
       await refreshBalance();
+      
       const result = {
         tx: txSig,
         prizeTx: data.txSignature,
@@ -172,19 +196,35 @@ export function usePurchase() {
     return { tokenAmount, clientSeed: serverClientSeed };
   }
 
-  async function sendCryptoTransaction(amount: number) {
-    const provider = await getProvider();
-    const signer = await provider.getSigner();
-    const tokens = ethers.parseUnits(amount.toString(), 9);
-    const tokenContract = ERC20__factory.connect(adrTokenAddress, signer);
-    const approveTx = await tokenContract.approve(adrControllerAddress, tokens);
-    await approveTx.wait();
-    console.log("approveTx", approveTx);
-    const adrContract = AdrAbi__factory.connect(adrControllerAddress, signer);
-    const tx = await adrContract.burnTokens(tokens, "Burn Tokens");
-    const txSig = await tx.wait();
-    console.log("txSig", txSig);
-    return txSig?.hash;
+  async function approveTokens(amount: number) {
+    try {
+      const provider = await getProvider();
+      const signer = await provider.getSigner();
+      const tokens = ethers.parseUnits(amount.toString(), 9);
+      const tokenContract = ERC20__factory.connect(adrTokenAddress, signer);
+      const approveTx = await tokenContract.approve(adrControllerAddress, tokens);
+      await approveTx.wait();
+      return approveTx;
+    } catch (error) {
+      console.error("Error approving tokens:", error);
+      throw new Error("Failed to approve token spending");
+    }
+  }
+
+  async function burnTokens(amount: number) {
+    try {
+      const provider = await getProvider();
+      const signer = await provider.getSigner();
+      const tokens = ethers.parseUnits(amount.toString(), 9);
+      const adrContract = AdrAbi__factory.connect(adrControllerAddress, signer);
+      const tx = await adrContract.burnTokens(tokens, "Burn Tokens");
+      const txSig = await tx.wait();
+      console.log("txSig", txSig);
+      return txSig?.hash;
+    } catch (error) {
+      console.error("Error burning tokens:", error);
+      throw new Error("Failed to burn tokens");
+    }
   }
 
   function handleMintError(error: any) {

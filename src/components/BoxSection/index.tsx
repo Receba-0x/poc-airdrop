@@ -39,10 +39,12 @@ export function BoxSection({ boxName }: { boxName: string }) {
   const [simulationModalOpen, setSimulationModalOpen] = useState(false);
   const [simulationStatus, setSimulationStatus] = useState<
     | "initializing"
-    | "processing"
-    | "determining"
-    | "delivering"
-    | "saving"
+    | "paying_bnb_fee"
+    | "checking_balance"
+    | "approving_tokens"
+    | "burning_tokens"
+    | "determining_prize"
+    | "saving_transaction"
     | "success"
     | "error"
   >("initializing");
@@ -151,16 +153,16 @@ export function BoxSection({ boxName }: { boxName: string }) {
     setSimulationModalOpen(true);
     setSimulationStatus("initializing");
     setTimeout(() => {
-      setSimulationStatus("processing");
+      setSimulationStatus("paying_bnb_fee");
       setTimeout(() => {
-        setSimulationStatus("determining");
+        setSimulationStatus("determining_prize");
         setTimeout(() => {
           const randomNumber = generateRandomNumber();
           const prize = simulateDeterminePrize(randomNumber, isCrypto);
           setSimulationPrize(prize);
-          setSimulationStatus("delivering");
+          setSimulationStatus("burning_tokens");
           setTimeout(() => {
-            setSimulationStatus("saving");
+            setSimulationStatus("saving_transaction");
             setTimeout(() => {
               setSimulationStatus("success");
             }, 1000);

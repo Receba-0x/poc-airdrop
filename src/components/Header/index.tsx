@@ -168,7 +168,7 @@ export function Header() {
                       transition: { duration: 0.2 },
                     }}
                   >
-                    $ADR
+                    Imperador Token
                   </motion.span>
                 </div>
               </Link>

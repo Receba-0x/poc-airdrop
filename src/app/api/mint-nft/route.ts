@@ -168,8 +168,7 @@ export async function POST(request: Request) {
 
     let prizeDeliveryTx = "";
     let nftMint = "";
-    let nftMetadata = `https://imperadortoken.com/metadata/${wonPrize.metadata}.json`;
-    let nftTokenId = "";
+    const nftMetadata = `https://imperadortoken.com/metadata/${wonPrize.metadata}.json`;
 
     if (wonPrize.type === "sol") {
       prizeDeliveryTx = await deliverBnbPrize(userWalletAddress, wonPrize);
@@ -233,7 +232,6 @@ export async function POST(request: Request) {
       txSignature: prizeDeliveryTx,
       nftMint,
       nftMetadata,
-      nftTokenId,
       randomData: {
         randomNumber,
         clientSeed,

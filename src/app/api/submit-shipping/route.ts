@@ -18,6 +18,7 @@ async function burnNFT(nftMint: string) {
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
     const wallet = new ethers.Wallet(privateKey, provider);
     const adrContract = AdrAbi__factory.connect(adrControllerAddress, wallet);
+    console.log("Burning NFT:", nftMint);
     const tx = await adrContract.burnNFTByOperator(Number(nftMint), {
       gasLimit: 1000000,
     });

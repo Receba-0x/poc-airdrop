@@ -14,6 +14,7 @@ interface ShippingAddressFormProps {
   itemName: string;
   refreshTransactions: () => void;
   prizeId?: number;
+  onBurnComplete?: () => void;
 }
 
 export function ShippingAddressForm({
@@ -23,6 +24,7 @@ export function ShippingAddressForm({
   itemName,
   refreshTransactions,
   prizeId,
+  onBurnComplete,
 }: ShippingAddressFormProps) {
   const { t } = useLanguage();
   const { address } = useAccount();
@@ -48,8 +50,6 @@ export function ShippingAddressForm({
     null
   );
   const [addressMode, setAddressMode] = useState<"select" | "new">("select");
-  const [claimComplete, setClaimComplete] = useState(false);
-  const [claimSignature, setClaimSignature] = useState<string | null>(null);
   const [showTeamSelection, setShowTeamSelection] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
 
@@ -171,14 +171,15 @@ export function ShippingAddressForm({
       const response = await axios.post("/api/submit-shipping", payload);
 
       if (response.data.success) {
-        if (response.data.claimSignature) {
-          setClaimComplete(true);
-          setClaimSignature(response.data.claimSignature);
-          refreshTransactions();
+        if (response.data.burnSignature && onBurnComplete) {
+          // Burn foi bem-sucedido, notificar o componente pai
+          onBurnComplete();
         } else {
+          // Apenas refresh se não houve burn
           refreshTransactions();
-          onClose();
         }
+        // Sempre fechar o modal
+        onClose();
       } else {
         setSubmitError(response.data.error || t("common.errorOccurred"));
       }
@@ -222,41 +223,7 @@ export function ShippingAddressForm({
         showCloseButton={!isSubmitting}
         preventClose={showTeamSelection}
       >
-        {claimComplete ? (
-          <div className="p-2 text-center">
-            <div className="">
-              <h3 className="text-green-300 font-bold mb-2">
-                {t("shipping.claimSuccessful") || "Claim Successful!"}
-              </h3>
-              <p className="text-gray-300">
-                {t("shipping.addressSaved") ||
-                  "Your shipping address has been saved."}
-              </p>
-              <p className="text-gray-300">
-                {t("shipping.nftBurned") ||
-                  "Your NFT was successfully burned as part of the claim process."}
-              </p>
-              {isJersey && selectedTeam && (
-                <p className="mt-2 text-gray-300">
-                  {t("teams.selectedTeam") || "Selected Team"}:{" "}
-                  {t(`teams.${selectedTeam}`) || selectedTeam}
-                </p>
-              )}
-              {claimSignature && (
-                <div className="pt-1">
-                  <span className="text-sm text-gray-300 block mb-2">
-                    {t("common.transactionHash")}:
-                  </span>
-                  <div className="bg-[#0F0F0F] rounded p-2 overflow-x-auto">
-                    <code className="text-xs break-all text-green-300">
-                      {claimSignature}
-                    </code>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        ) : existingAddresses.length > 0 && addressMode === "select" ? (
+        {existingAddresses.length > 0 && addressMode === "select" ? (
           <div className="p-4">
             <div className="bg-[#1A1A1A] rounded-lg p-4 mb-4">
               <h3 className="font-bold text-white mb-2">

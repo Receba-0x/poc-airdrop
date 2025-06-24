@@ -43,7 +43,7 @@ export const translations = {
     // Features
     "features.title": "Why Choose $ADR Token?",
     "features.secure": "Secure",
-    "features.secureDesc": "Built on Solana blockchain with advanced security",
+    "features.secureDesc": "Built on BSC blockchain with advanced security",
     "features.fast": "Fast",
     "features.fastDesc": "Lightning-fast transactions with low fees",
     "features.innovative": "Innovative",
@@ -121,13 +121,13 @@ export const translations = {
     "tokenomics.title": "Tokenomics",
     "tokenomics.distribution": "Token Distribution",
     "tokenomics.totalSupply": "Total Supply",
-    "tokenomics.presale": "Presale",
+    "tokenomics.presale": "Seed Round",
     "tokenomics.lp": "LP",
     "tokenomics.staking": "Staking",
     "tokenomics.community": "Community (Airdrop, Quests)",
     "tokenomics.treasury": "Treasury",
     "tokenomics.reserveFunds": "Reserve Funds",
-    "tokenomics.marketing": "Marketing & Costs",
+    "tokenomics.marketing": "Marketing",
     "tokenomics.team": "Team",
     "tokenomics.costs": "Costs",
 
@@ -198,13 +198,13 @@ export const translations = {
       "ADR Tokens can be used to purchase mystery boxes with chances to win exclusive items, access premium features, participate in community governance decisions, and receive special benefits within the platform ecosystem.",
     "faq.question3": "Is ADR Token available on multiple blockchains?",
     "faq.answer3":
-      "Currently, ADR Token is available on the Solana blockchain. We chose Solana for its fast transaction speeds, low fees, and environmental efficiency. We may explore cross-chain compatibility in the future based on community needs.",
+      "Currently, ADR Token is available on the BSC blockchain. We chose BSC for its fast transaction speeds, low fees, and environmental efficiency. We may explore cross-chain compatibility in the future based on community needs.",
     "faq.question4": "How do I get started with ADR Tokens?",
     "faq.answer4":
-      "To get started, connect your Solana wallet (like Phantom or Solflare), purchase ADR Tokens either directly through our platform or from supported exchanges, and then use them to access platform features like mystery boxes.",
+      "To get started, connect your BSC wallet (like Phantom or Solflare), purchase ADR Tokens either directly through our platform or from supported exchanges, and then use them to access platform features like mystery boxes.",
     "faq.question5": "Are there any fees for purchasing or using ADR Tokens?",
     "faq.answer5":
-      "When purchasing ADR Tokens, you'll only pay the standard Solana network transaction fees, which are typically less than $0.01. There are no additional platform fees for holding or using your tokens within our ecosystem.",
+      "When purchasing ADR Tokens, you'll only pay the standard BSC network transaction fees, which are typically less than $0.01. There are no additional platform fees for holding or using your tokens within our ecosystem.",
 
     // Footer
     "footer.rights": "All rights reserved",
@@ -237,7 +237,23 @@ export const translations = {
     "transactions.delivering": "Delivering",
     "transactions.delivered": "Delivered",
     "transactions.name": "Name",
-    "transactions.viewOnExplorer": "View on Solana Explorer",
+    "transactions.viewOnExplorer": "View on BSC Explorer",
+    "transactions.tab": "Transactions",
+
+    // NFTs
+    "nfts.title": "My NFTs",
+    "nfts.tab": "NFTs",
+    "nfts.owned": "Owned",
+    "nfts.viewDetails": "View Details",
+    "nfts.noNFTs": "No NFTs found",
+    "nfts.tokenId": "Token ID",
+    "nfts.description": "Description",
+    "nfts.collection": "Collection",
+    "nfts.attributes": "Attributes",
+    "nfts.claimAvailable": "Physical Item - Ready to Claim",
+    "nfts.claimDescription":
+      "Claim this NFT to receive the physical item. This will burn the NFT permanently.",
+    "nfts.claimItem": "Claim Physical Item",
 
     // Boxes
     "boxes.title": "All Boxes",
@@ -264,7 +280,7 @@ export const translations = {
     "box.type": "Box Type",
     "box.yourPrize": "Your Prize",
     "box.wonPrize": "Prize Won",
-    "box.solDelivered": "SOL Successfully Delivered",
+    "box.solDelivered": "BNB Successfully Delivered",
     "box.checkWallet": "Check your wallet balance",
     "box.physicalPrize": "Physical Prize",
     "box.claimInstructions":
@@ -272,22 +288,27 @@ export const translations = {
 
     // Purchase Process
     "purchase.initializing": "Initializing",
-    "purchase.processingPayment": "Processing Payment",
+    "purchase.payingBnbFee": "Paying BNB Fee",
+    "purchase.checkingBalance": "Checking Balance",
+    "purchase.approvingTokens": "Approving Tokens",
+    "purchase.burningTokens": "Burning Tokens",
     "purchase.determiningPrize": "Determining Prize",
-    "purchase.deliveringPrize": "Delivering Prize",
-    "purchase.savingData": "Saving Data",
+    "purchase.savingTransaction": "Saving Transaction",
     "purchase.complete": "Complete",
     "purchase.error": "Error",
-    "purchase.processingPaymentDetail":
-      "Processing your payment, please wait...",
+    "purchase.payingBnbFeeDetail": "Processing BNB fee payment, please wait...",
+    "purchase.checkingBalanceDetail": "Verifying your token balance...",
+    "purchase.approvingTokensDetail":
+      "Approving token spending, please confirm in your wallet...",
+    "purchase.burningTokensDetail":
+      "Burning tokens to process your purchase...",
     "purchase.determiningPrizeDetail":
       "Determining your prize, almost there...",
-    "purchase.deliveringPrizeDetail": "Delivering your prize to your wallet...",
-    "purchase.savingDataDetail": "Saving your transaction data...",
-    "purchase.genericError": "An error occurred while processing your purchase",
-    "purchase.errorTitle": "Transaction Failed",
-    "purchase.cancel": "Cancel",
-    "purchase.tryAgain": "Try Again",
+    "purchase.savingTransactionDetail": "Saving your transaction data...",
+    "purchase.genericError": "Ocorreu um erro ao processar sua compra",
+    "purchase.errorTitle": "Transação Falhou",
+    "purchase.cancel": "Cancelar",
+    "purchase.tryAgain": "Tentar Novamente",
 
     // Items
     "items.soccerJersey": "Soccer Jersey Autographed",
@@ -309,6 +330,7 @@ export const translations = {
     "common.confirm": "Confirm",
     "common.back": "Back",
     "common.next": "Next",
+    "common.continue": "Continue",
     "common.save": "Save",
     "common.delete": "Delete",
     "common.edit": "Edit",
@@ -431,6 +453,40 @@ export const translations = {
     "teams.selectedTeam": "Selected Team",
     "teams.selectTeam": "Select Team",
     "teams.teamSelected": "Team selected",
+
+    // Claim Flow
+    "claim.title": "Claim Physical Item",
+    "claim.physicalItemReady": "🎁 Physical Item Ready",
+    "claim.overviewDescription":
+      "This NFT can be exchanged for a physical item. Starting the claim process will permanently burn this NFT.",
+    "claim.startClaim": "Start Claim",
+    "claim.importantWarning": "Important Warning",
+    "claim.burnWarning":
+      "This NFT will be permanently burned (destroyed) and cannot be recovered.",
+    "claim.irreversibleWarning":
+      "This action is irreversible. Make sure you want to claim the physical item.",
+    "claim.shippingWarning":
+      "You will need to provide accurate shipping information for delivery.",
+    "claim.whatYouWillReceive": "What you will receive:",
+    "claim.iUnderstand": "I Understand, Continue",
+    "claim.shippingInformation": "Shipping Information",
+    "claim.shippingDescription":
+      "Provide your shipping details to receive the physical item.",
+    "claim.useExistingAddress": "Use Existing Address",
+    "claim.useNewAddress": "Enter New Address",
+    "claim.selectTeam": "Select Your Team",
+    "claim.teamDescription": "Choose the team for your jersey.",
+    "claim.processingClaim": "Processing Your Claim",
+    "claim.processingDescription":
+      "Please wait while we process your claim and burn the NFT...",
+    "claim.claimSuccessful": "Claim Successful!",
+    "claim.successDescription":
+      "Your NFT has been burned and your physical item is being processed for delivery.",
+    "claim.whatHappensNext": "What happens next?",
+    "claim.orderProcessing": "Your order is now being processed",
+    "claim.shippingNotification": "You'll receive shipping updates via email",
+    "claim.deliveryTime": "Expected delivery: 7-14 business days",
+    "claim.orderSummary": "Order Summary",
   },
   pt: {
     // Header
@@ -481,7 +537,7 @@ export const translations = {
     "features.title": "Por que Escolher o Token $ADR?",
     "features.secure": "Seguro",
     "features.secureDesc":
-      "Construído na blockchain Solana com segurança avançada",
+      "Construído na blockchain BSC com segurança avançada",
     "features.fast": "Rápido",
     "features.fastDesc": "Transações super rápidas com taxas baixas",
     "features.innovative": "Inovador",
@@ -558,13 +614,13 @@ export const translations = {
     "tokenomics.title": "Tokenomics",
     "tokenomics.distribution": "Distribuição de Tokens",
     "tokenomics.totalSupply": "Fornecimento Total",
-    "tokenomics.presale": "Pré-venda",
+    "tokenomics.presale": "Seed Round",
     "tokenomics.lp": "LP",
     "tokenomics.staking": "Staking",
     "tokenomics.community": "Comunidade (Airdrop, Quests)",
     "tokenomics.treasury": "Tesouro",
     "tokenomics.reserveFunds": "Fundos de Reserva",
-    "tokenomics.marketing": "Marketing & Custos",
+    "tokenomics.marketing": "Marketing",
     "tokenomics.team": "Equipe",
     "tokenomics.costs": "Custos",
 
@@ -635,13 +691,13 @@ export const translations = {
       "Os Tokens ADR podem ser usados para comprar caixas misteriosas com chances de ganhar itens exclusivos, acessar recursos premium, participar de decisões de governança da comunidade e receber benefícios especiais dentro do ecossistema da plataforma.",
     "faq.question3": "O Token ADR está disponível em múltiplas blockchains?",
     "faq.answer3":
-      "Atualmente, o Token ADR está disponível na blockchain Solana. Escolhemos a Solana por suas velocidades de transação rápidas, taxas baixas e eficiência ambiental. Podemos explorar compatibilidade cross-chain no futuro com base nas necessidades da comunidade.",
+      "Atualmente, o Token ADR está disponível na blockchain BSC. Escolhemos a BSC por suas velocidades de transação rápidas, taxas baixas e eficiência ambiental. Podemos explorar compatibilidade cross-chain no futuro com base nas necessidades da comunidade.",
     "faq.question4": "Como faço para começar com os Tokens ADR?",
     "faq.answer4":
-      "Para começar, conecte sua carteira Solana (como Phantom ou Solflare), compre Tokens ADR diretamente através da nossa plataforma ou de exchanges suportadas, e então use-os para acessar recursos da plataforma como caixas misteriosas.",
+      "Para começar, conecte sua carteira BSC (como MetaMask ou Trust Wallet), compre Tokens ADR diretamente através da nossa plataforma ou de exchanges suportadas, e então use-os para acessar recursos da plataforma como caixas misteriosas.",
     "faq.question5": "Há taxas para comprar ou usar Tokens ADR?",
     "faq.answer5":
-      "Ao comprar Tokens ADR, você pagará apenas as taxas padrão de transação da rede Solana, que tipicamente custam menos de $0,01. Não há taxas adicionais da plataforma para manter ou usar seus tokens dentro do nosso ecossistema.",
+      "Ao comprar Tokens ADR, você pagará apenas as taxas padrão de transação da rede BSC, que tipicamente custam menos de $0,01. Não há taxas adicionais da plataforma para manter ou usar seus tokens dentro do nosso ecossistema.",
 
     // Footer
     "footer.rights": "Todos os direitos reservados",
@@ -674,7 +730,23 @@ export const translations = {
     "transactions.delivering": "Entregando",
     "transactions.delivered": "Entregue",
     "transactions.name": "Nome",
-    "transactions.viewOnExplorer": "Visualizar no Solana Explorer",
+    "transactions.viewOnExplorer": "Visualizar no BSC Explorer",
+    "transactions.tab": "Transações",
+
+    // NFTs
+    "nfts.title": "Minhas NFTs",
+    "nfts.tab": "NFTs",
+    "nfts.owned": "Possui",
+    "nfts.viewDetails": "Ver Detalhes",
+    "nfts.noNFTs": "Nenhuma NFT encontrada",
+    "nfts.tokenId": "ID do Token",
+    "nfts.description": "Descrição",
+    "nfts.collection": "Coleção",
+    "nfts.attributes": "Atributos",
+    "nfts.claimAvailable": "Item Físico - Pronto para Resgatar",
+    "nfts.claimDescription":
+      "Resgatar esta NFT para receber o item físico. Isso irá queimar a NFT permanentemente.",
+    "nfts.claimItem": "Resgatar Item Físico",
 
     // Boxes
     "boxes.title": "Todas as Caixas",
@@ -702,7 +774,7 @@ export const translations = {
     "box.type": "Tipo de Caixa",
     "box.yourPrize": "Seu Prêmio",
     "box.wonPrize": "Prêmio Ganho",
-    "box.solDelivered": "SOL Entregue com Sucesso",
+    "box.solDelivered": "BNB Entregue com Sucesso",
     "box.checkWallet": "Verifique o saldo da sua carteira",
     "box.physicalPrize": "Prêmio Físico",
     "box.claimInstructions":
@@ -710,18 +782,23 @@ export const translations = {
 
     // Purchase Process
     "purchase.initializing": "Inicializando",
-    "purchase.processingPayment": "Processando Pagamento",
+    "purchase.payingBnbFee": "Pagando Taxa BNB",
+    "purchase.checkingBalance": "Verificando Saldo",
+    "purchase.approvingTokens": "Aprovando Tokens",
+    "purchase.burningTokens": "Queimando Tokens",
     "purchase.determiningPrize": "Determinando Prêmio",
-    "purchase.deliveringPrize": "Entregando Prêmio",
-    "purchase.savingData": "Salvando Dados",
+    "purchase.savingTransaction": "Salvando Transação",
     "purchase.complete": "Concluído",
     "purchase.error": "Erro",
-    "purchase.processingPaymentDetail":
-      "Processando seu pagamento, por favor aguarde...",
+    "purchase.payingBnbFeeDetail":
+      "Processando pagamento da taxa BNB, por favor aguarde...",
+    "purchase.checkingBalanceDetail": "Verificando seu saldo de tokens...",
+    "purchase.approvingTokensDetail":
+      "Aprovando gastos com tokens, por favor confirme em sua carteira...",
+    "purchase.burningTokensDetail":
+      "Queimando tokens para processar sua compra...",
     "purchase.determiningPrizeDetail": "Determinando seu prêmio, quase lá...",
-    "purchase.deliveringPrizeDetail":
-      "Entregando seu prêmio para sua carteira...",
-    "purchase.savingDataDetail": "Salvando os dados da sua transação...",
+    "purchase.savingTransactionDetail": "Salvando os dados da sua transação...",
     "purchase.genericError": "Ocorreu um erro ao processar sua compra",
     "purchase.errorTitle": "Transação Falhou",
     "purchase.cancel": "Cancelar",
@@ -747,6 +824,7 @@ export const translations = {
     "common.confirm": "Confirmar",
     "common.back": "Voltar",
     "common.next": "Próximo",
+    "common.continue": "Continuar",
     "common.save": "Salvar",
     "common.delete": "Excluir",
     "common.edit": "Editar",
@@ -873,5 +951,40 @@ export const translations = {
     "teams.selectedTeam": "Time Selecionado",
     "teams.selectTeam": "Selecionar Time",
     "teams.teamSelected": "Time selecionado",
+
+    // Claim Flow
+    "claim.title": "Reivindicar Item Físico",
+    "claim.physicalItemReady": "🎁 Item Físico Pronto",
+    "claim.overviewDescription":
+      "Este NFT pode ser trocado por um item físico. Iniciar o processo de reivindicação irá queimar permanentemente este NFT.",
+    "claim.startClaim": "Iniciar Reivindicação",
+    "claim.importantWarning": "Aviso Importante",
+    "claim.burnWarning":
+      "Este NFT será permanentemente queimado (destruído) e não poderá ser recuperado.",
+    "claim.irreversibleWarning":
+      "Esta ação é irreversível. Certifique-se de que deseja reivindicar o item físico.",
+    "claim.shippingWarning":
+      "Você precisará fornecer informações precisas de entrega.",
+    "claim.whatYouWillReceive": "O que você receberá:",
+    "claim.iUnderstand": "Eu Entendo, Continuar",
+    "claim.shippingInformation": "Informações de Entrega",
+    "claim.shippingDescription":
+      "Forneça seus detalhes de entrega para receber o item físico.",
+    "claim.useExistingAddress": "Usar Endereço Existente",
+    "claim.useNewAddress": "Inserir Novo Endereço",
+    "claim.selectTeam": "Selecione Seu Time",
+    "claim.teamDescription": "Escolha o time para sua camisa.",
+    "claim.processingClaim": "Processando Sua Reivindicação",
+    "claim.processingDescription":
+      "Aguarde enquanto processamos sua reivindicação e queimamos o NFT...",
+    "claim.claimSuccessful": "Reivindicação Bem-sucedida!",
+    "claim.successDescription":
+      "Seu NFT foi queimado e seu item físico está sendo processado para entrega.",
+    "claim.whatHappensNext": "O que acontece agora?",
+    "claim.orderProcessing": "Seu pedido está sendo processado",
+    "claim.shippingNotification":
+      "Você receberá atualizações de entrega por email",
+    "claim.deliveryTime": "Entrega esperada: 7-14 dias úteis",
+    "claim.orderSummary": "Resumo do Pedido",
   },
 };
