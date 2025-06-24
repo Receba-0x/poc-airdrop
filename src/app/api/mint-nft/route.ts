@@ -1,37 +1,13 @@
 import { NextResponse } from "next/server";
 import {
-  PublicKey,
-  SystemProgram,
-  Connection,
-  Keypair,
-  Transaction,
-  LAMPORTS_PER_SOL,
-  SYSVAR_RENT_PUBKEY,
-} from "@solana/web3.js";
-import * as anchor from "@coral-xyz/anchor";
-import { AnchorProvider, BN, web3 } from "@coral-xyz/anchor";
-import {
-  TOKEN_PROGRAM_ID,
-  getAssociatedTokenAddress,
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  createAssociatedTokenAccountInstruction,
-} from "@solana/spl-token";
-import {
-  COLLECTION_METADATA,
-  COLLECTION_NAME,
-  COLLECTION_SYMBOL,
-  COLLECTION_URI,
-  CONFIG_ACCOUNT,
-  PROGRAM_ID,
   PRIZE_TABLE,
   CRYPTO_PRIZE_TABLE,
-  METAPLEX_PROGRAM_ID,
-  PAYMENT_TOKEN_MINT,
+  adrControllerAddress,
 } from "@/constants";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
-import bs58 from "bs58";
-import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
+import { ethers } from "ethers";
+import { AdrAbi__factory } from "@/contracts";
 
 export const runtime = "nodejs";
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -45,10 +21,8 @@ const supabase = isSupabaseConfigured
 const PHYSICAL_PRIZES = [5, 6, 7, 8, 9, 10];
 const NFT_PRIZES = [5, 6, 7, 8, 9, 10];
 
-const ADMIN_PRIVATE_KEY = process.env.PRIVATE_KEY;
-const ADMIN_PRIVATE_KEY_ARRAY = process.env.PRIVATE_KEY_ARRAY;
-const RPC_URL =
-  process.env.NEXT_PUBLIC_RPC_URL || "https://api.devnet.solana.com";
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const RPC_URL = process.env.RPC_URL;
 
 function generateProvablyFairNumber(
   clientSeed: string,
@@ -197,16 +171,13 @@ export async function POST(request: Request) {
     let nftMetadata = null;
 
     if (wonPrize.type === "sol") {
-      prizeDeliveryTx = await deliverSolPrize(userWalletAddress, wonPrize);
+      prizeDeliveryTx = await deliverBnbPrize(userWalletAddress, wonPrize);
     } else if (NFT_PRIZES.includes(prizeId)) {
       try {
-        const { txSignature, mintAddress, metadataAddress } = await mintNFT(
-          userWalletAddress,
-          wonPrize
-        );
+        const txSignature = await mintNFT(userWalletAddress, wonPrize);
         prizeDeliveryTx = txSignature;
-        nftMint = mintAddress;
-        nftMetadata = metadataAddress;
+        nftMint = txSignature;
+        nftMetadata = `https://imperadortoken.com/metadata/${wonPrize.metadata}.json`;
       } catch (error) {
         console.error("Erro ao criar NFT:", error);
       }
@@ -281,81 +252,43 @@ export async function POST(request: Request) {
   }
 }
 
-async function deliverSolPrize(recipient: string, prize: any) {
+async function deliverBnbPrize(recipient: string, prize: any) {
   try {
     if (!prize.amount || prize.amount <= 0) {
-      console.error(`Invalid SOL prize amount: ${prize.amount}`);
+      console.error(`Invalid BNB prize amount: ${prize.amount}`);
       return false;
     }
 
-    if (!ADMIN_PRIVATE_KEY && !ADMIN_PRIVATE_KEY_ARRAY) {
+    if (!PRIVATE_KEY) {
       console.error("Server private key not found");
       return false;
     }
 
-    const recipientPubkey = new PublicKey(recipient);
-    const connection = new Connection(RPC_URL, "confirmed");
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+    const value = ethers.parseEther(prize.amount.toString());
+    const tx = await wallet.sendTransaction({ to: recipient, value });
+    await tx.wait();
 
-    const adminKeypair = getAdminKeypair();
-
-    const lamportsToSend = Math.floor(prize.amount * LAMPORTS_PER_SOL);
-    const transaction = new Transaction().add(
-      SystemProgram.transfer({
-        fromPubkey: adminKeypair.publicKey,
-        toPubkey: recipientPubkey,
-        lamports: lamportsToSend,
-      })
-    );
-
-    const { blockhash } = await connection.getLatestBlockhash("confirmed");
-    transaction.recentBlockhash = blockhash;
-    transaction.feePayer = adminKeypair.publicKey;
-    transaction.sign(adminKeypair);
-
-    const txSignature = await connection.sendRawTransaction(
-      transaction.serialize(),
-      {
-        skipPreflight: false,
-        preflightCommitment: "confirmed",
-      }
-    );
-
-    await connection.confirmTransaction({
-      signature: txSignature,
-      blockhash,
-      lastValidBlockHeight: (await connection.getBlockHeight()) + 150,
+    if (!supabase) throw new Error("Supabase not configured");
+    await supabase.from("bnb_prizes_delivered").insert({
+      wallet: recipient,
+      amount: prize.amount,
+      transaction_signature: tx.hash,
+      prize_id: prize.id,
+      prize_name: prize.name,
     });
-
-    if (isSupabaseConfigured && supabase) {
-      await supabase.from("sol_prizes_delivered").insert([
-        {
-          wallet: recipient,
-          amount: prize.amount,
-          transaction_signature: txSignature,
-          prize_id: prize.id,
-          prize_name: prize.name,
-          timestamp: new Date().toISOString(),
-        },
-      ]);
-    }
-
-    return txSignature;
+    return tx.hash;
   } catch (error) {
-    console.error("❌ Erro ao entregar prêmio em SOL:", error);
-
-    if (isSupabaseConfigured && supabase) {
-      await supabase.from("delivery_errors").insert([
-        {
-          wallet: recipient,
-          prize_id: prize.id,
-          prize_name: prize.name,
-          error_message:
-            error instanceof Error ? error.message : "Unknown error",
-          timestamp: new Date().toISOString(),
-        },
-      ]);
-    }
-
+    console.error("❌ Erro ao entregar prêmio em BNB:", error);
+    if (!supabase) throw new Error("Supabase not configured");
+    await supabase.from("delivery_errors").insert({
+      wallet: recipient,
+      prize_id: prize.id,
+      prize_name: prize.name,
+      error_message: error instanceof Error ? error.message : "Unknown error",
+      timestamp: new Date().toISOString(),
+    });
     return false;
   }
 }
@@ -428,158 +361,18 @@ async function savePurchaseRecord(
   }
 }
 
-async function mintNFT(
-  recipient: string,
-  prize: any
-): Promise<{
-  txSignature: string;
-  mintAddress: string;
-  metadataAddress: string;
-}> {
+async function mintNFT(recipient: string, prize: any): Promise<string> {
   try {
-    if (!ADMIN_PRIVATE_KEY && !ADMIN_PRIVATE_KEY_ARRAY)
-      throw new Error("Server private key not found");
-
-    const connection = new web3.Connection(RPC_URL, "confirmed");
-    const adminKeypair = getAdminKeypair();
-    const wallet = new NodeWallet(adminKeypair);
-    const provider = new AnchorProvider(connection, wallet, {
-      commitment: "confirmed",
-    });
-
-    const {
-      program,
-      nftCounter,
-      nftMint,
-      nftMetadata,
-      collectionMetadata,
-      config,
-      metaplexMetadata,
-    } = await prepareNftAccounts(provider);
-
-    const recipientPubkey = new PublicKey(recipient);
-    const recipientTokenAccount = await getAssociatedTokenAddress(
-      nftMint,
-      recipientPubkey
-    );
-
-    console.log(adminKeypair.publicKey.toString());
-
-    const tx = await program.methods
-      .mintNftByAuthority(
-        COLLECTION_NAME,
-        COLLECTION_SYMBOL,
-        `${COLLECTION_URI}/${prize.metadata}.json`,
-        recipientPubkey
-      )
-      .accounts({
-        authority: adminKeypair.publicKey,
-        nftCounter,
-        nftMint,
-        nftMetadata,
-        metaplexMetadata,
-        recipientTokenAccount,
-        recipient,
-        collectionMetadata,
-        config,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-        systemProgram: SystemProgram.programId,
-        rent: SYSVAR_RENT_PUBKEY,
-        tokenMetadataProgram: METAPLEX_PROGRAM_ID,
-      })
-      .rpc();
-
-    await connection.confirmTransaction(tx);
-
-    return {
-      txSignature: tx,
-      mintAddress: nftMint.toString(),
-      metadataAddress: nftMetadata.toString(),
-    };
+    if (!PRIVATE_KEY) throw new Error("Server private key not found");
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+    const adrContract = AdrAbi__factory.connect(adrControllerAddress, wallet);
+    const uri = `https://imperadortoken.com/metadata/${prize.metadata}.json`;
+    const tx = await adrContract.mintNFT(recipient, uri);
+    await tx.wait();
+    return tx.hash;
   } catch (error) {
     console.error("Error minting NFT:", error);
     throw error;
-  }
-}
-
-async function prepareNftAccounts(provider: AnchorProvider) {
-  const idl = await anchor.Program.fetchIdl(PROGRAM_ID, provider);
-  const program = new anchor.Program(idl, provider);
-
-  if (!program || !program.account) {
-    throw new Error("Programa não carregado corretamente");
-  }
-
-  const [nftCounter] = PublicKey.findProgramAddressSync(
-    [Buffer.from("nft_counter")],
-    program.programId
-  );
-  const counterAccount = await (program.account as any).nftCounter.fetch(
-    nftCounter
-  );
-  const currentCount = counterAccount.count;
-
-  const collectionMetadata = new PublicKey(COLLECTION_METADATA);
-  const [nftMint] = PublicKey.findProgramAddressSync(
-    [
-      Buffer.from("nft_mint"),
-      collectionMetadata.toBuffer(),
-      new BN(currentCount.toString()).toArrayLike(Buffer, "le", 8),
-    ],
-    program.programId
-  );
-
-  const [nftMetadata] = PublicKey.findProgramAddressSync(
-    [Buffer.from("nft_metadata"), nftMint.toBuffer()],
-    program.programId
-  );
-
-  const payerPaymentTokenAccount = await getAssociatedTokenAddress(
-    new PublicKey(PAYMENT_TOKEN_MINT),
-    provider.wallet.publicKey,
-    false
-  );
-
-  const config = new PublicKey(CONFIG_ACCOUNT);
-  const metaplexProgramId = new PublicKey(METAPLEX_PROGRAM_ID);
-  const [metaplexMetadata] = PublicKey.findProgramAddressSync(
-    [Buffer.from("metadata"), metaplexProgramId.toBuffer(), nftMint.toBuffer()],
-    metaplexProgramId
-  );
-
-  const nftTokenAccount = await getAssociatedTokenAddress(
-    nftMint,
-    provider.wallet.publicKey
-  );
-
-  return {
-    program,
-    nftMint,
-    nftMetadata,
-    nftTokenAccount,
-    payerPaymentTokenAccount,
-    nftCounter,
-    collectionMetadata,
-    config,
-    metaplexMetadata,
-  };
-}
-
-function getAdminKeypair(): web3.Keypair {
-  try {
-    const privateKeyArray = JSON.parse(ADMIN_PRIVATE_KEY_ARRAY as any);
-    if (Array.isArray(privateKeyArray) && privateKeyArray.length > 0) {
-      const privateKeyUint8 = Uint8Array.from(privateKeyArray);
-      if (privateKeyUint8.length === 32) {
-        return web3.Keypair.fromSeed(privateKeyUint8);
-      } else {
-        return web3.Keypair.fromSecretKey(privateKeyUint8);
-      }
-    }
-    throw new Error("Nenhuma chave privada válida encontrada");
-  } catch (error) {
-    console.error("Erro ao criar keypair do admin:", error);
-    throw new Error("Falha ao inicializar keypair do admin");
   }
 }

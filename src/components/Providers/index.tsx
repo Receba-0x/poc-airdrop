@@ -1,6 +1,6 @@
 "use client";
 import type { PropsWithChildren } from "react";
-import SolanaProvider from "./SolanaProvider";
+import Web3ModalProvider from "./Web3ModalProvider";
 import { FloatingTransactionButton } from "../FloatingTransactionButton";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider } from "@/contexts/UserContext";
@@ -8,12 +8,12 @@ import { UserProvider } from "@/contexts/UserContext";
 const Providers = ({ children }: PropsWithChildren) => {
   return (
     <LanguageProvider>
-      <SolanaProvider>
+      <Web3ModalProvider>
         <UserProvider>
           {children}
           <FloatingTransactionButton />
         </UserProvider>
-      </SolanaProvider>
+      </Web3ModalProvider>
     </LanguageProvider>
   );
 };

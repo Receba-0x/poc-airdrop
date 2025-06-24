@@ -20,8 +20,6 @@ export function TransactionHistory() {
     prizeId?: number;
   } | null>(null);
 
-  console.log(transactions);
-
   const getStatusTranslation = (status: string) => {
     switch (status) {
       case "Completed":

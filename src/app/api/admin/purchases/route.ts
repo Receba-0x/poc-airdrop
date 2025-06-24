@@ -2,33 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { isAuthenticated } from '@/utils/auth';
 
-// Configuração de runtime para garantir execução no servidor
 export const runtime = 'nodejs';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_KEY;
-const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
 const isSupabaseConfigured = supabaseUrl && supabaseServiceKey;
 const supabase = isSupabaseConfigured ? createClient(supabaseUrl, supabaseServiceKey) : null;
 
-const checkAdminAuth = (request: NextRequest) => {
-  const referer = request.headers.get('referer') || '';
-  if (!referer.includes('/admin')) return false;
-  return true;
-};
 
 export async function GET(request: NextRequest) {
   try {
-    // Verificar autenticação
     const authHeader = request.headers.get('authorization');
     const isAuthorized = await isAuthenticated(authHeader);
     
     if (!isAuthorized) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
-
-    // Verificar se o Supabase está configurado
     if (!isSupabaseConfigured || !supabase) {
       return NextResponse.json({ 
         success: false, 
@@ -36,15 +26,12 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Obter parâmetros de paginação da URL
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '1');
     const pageSize = parseInt(url.searchParams.get('pageSize') || '10');
     
-    // Calcular o offset para a paginação
     const offset = (page - 1) * pageSize;
 
-    // Buscar as compras com paginação
     const { data, error, count } = await supabase
       .from('purchases')
       .select('*', { count: 'exact' })

@@ -9,31 +9,23 @@ import {
 } from "framer-motion";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import "@solana/wallet-adapter-react-ui/styles.css";
-import { usePurchase } from "@/hooks/usePurchase";
 import { BoxIcon } from "../Icons/BoxIcon";
 import { HistoricIcon } from "../Icons/HistoricIcon";
 import { BurnTicker } from "../BurnTicker";
 import { StakingIcon } from "../Icons/StakingIcon";
 import { LanguageToggle } from "../LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { WalletConnectButton } from "../WalletConnectButton";
+import { useAccount, useBalance } from "wagmi";
 import { useUser } from "@/contexts/UserContext";
-const WalletMultiButton = dynamic(
-  () =>
-    import("@solana/wallet-adapter-react-ui").then(
-      (mod) => mod.WalletMultiButton
-    ),
-  { ssr: false }
-);
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { scrollY } = useScroll();
   const headerOpacity = useTransform(scrollY, [0, 50], [0.8, 1]);
-  const { isLoading, connected } = usePurchase();
   const { t } = useLanguage();
+  const { address, isConnected } = useAccount();
   const { balance } = useUser();
 
   useEffect(() => {
@@ -121,23 +113,19 @@ export function Header() {
   };
 
   const BalanceDisplay = ({ className }: { className?: string }) => {
-    if (!connected) return null;
+    if (!isConnected || !balance) return null;
 
     return (
       <div className={`flex items-center gap-2 text-sm mr-2 ${className}`}>
-        {isLoading ? (
-          <span className="w-8 h-4 bg-gray-600 animate-pulse rounded-sm"></span>
-        ) : (
-          <div className="flex items-center text-white">
-            <LogoIcon className="w-4 h-4 mr-2" />
-            <span>
-              {balance.toLocaleString("en-US", {
-                maximumFractionDigits: 2,
-                minimumFractionDigits: 2,
-              })}
-            </span>
-          </div>
-        )}
+        <div className="flex items-center text-white">
+          <span>
+            {balance.toLocaleString("en-US", {
+              maximumFractionDigits: 4,
+              minimumFractionDigits: 2,
+            })}
+            {balance}
+          </span>
+        </div>
       </div>
     );
   };
@@ -145,8 +133,9 @@ export function Header() {
   return (
     <>
       <motion.header
-        className={`w-full fixed top-0 left-0 z-50 h-[56px] md:h-[64px] transition-all duration-300 flex items-center justify-center ${scrolled ? "shadow-md" : ""
-          }`}
+        className={`w-full fixed top-0 left-0 z-[99999] h-[56px] md:h-[64px] transition-all duration-300 flex items-center justify-center ${
+          scrolled ? "shadow-md" : ""
+        }`}
         style={{
           backgroundColor: scrolled ? "rgba(15, 15, 15, 0.7)" : "transparent",
           backdropFilter: scrolled ? "blur(8px)" : "blur(0px)",
@@ -244,27 +233,25 @@ export function Header() {
               variants={buttonVariants}
               className="flex items-center gap-2"
             >
-              {connected && <BalanceDisplay />}
-              <div className="mobile-wallet-button w-full">
-                <WalletMultiButton
-                  style={{
-                    width: "100%",
-                    height: "40px",
-                    background: "linear-gradient(135deg, #0B3B10 0%, #24682B 100%)",
-                    color: "#ADF0B4",
-                    fontWeight: "bold",
-                    fontSize: "14px",
-                    border: "1.5px solid #28D939",
-                    borderRadius: "6px",
-                    padding: "8px 24px",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px"
-                  }}
-                />
-              </div>
+              <WalletConnectButton
+                style={{
+                  width: "100%",
+                  height: "40px",
+                  background:
+                    "linear-gradient(135deg, #0B3B10 0%, #24682B 100%)",
+                  color: "#ADF0B4",
+                  fontWeight: "bold",
+                  fontSize: "14px",
+                  border: "1.5px solid #28D939",
+                  borderRadius: "6px",
+                  padding: "8px 24px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                }}
+              />
             </motion.div>
             <motion.div
               initial="hidden"
@@ -283,8 +270,9 @@ export function Header() {
             variants={buttonVariants}
           >
             <motion.button
-              className={`flex flex-col items-center justify-center w-10 h-10 rounded-full relative transition-colors ${mobileMenuOpen ? "bg-[#28D939]/20" : "hover:bg-[#222222]/50"
-                }`}
+              className={`flex flex-col items-center justify-center w-10 h-10 rounded-full relative transition-colors ${
+                mobileMenuOpen ? "bg-[#28D939]/20" : "hover:bg-[#222222]/50"
+              }`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               animate={mobileMenuOpen ? "open" : "closed"}
               variants={burgerVariants}
@@ -294,25 +282,28 @@ export function Header() {
             >
               <div className="w-8 h-8 flex items-center justify-center relative">
                 <motion.span
-                  className={`absolute h-[2px] rounded-full ${mobileMenuOpen
-                    ? "bg-[#28D939]"
-                    : "bg-gradient-to-r from-[#FFF7A8] to-[#FFEB28]"
-                    }`}
+                  className={`absolute h-[2px] rounded-full ${
+                    mobileMenuOpen
+                      ? "bg-[#28D939]"
+                      : "bg-gradient-to-r from-[#FFF7A8] to-[#FFEB28]"
+                  }`}
                   variants={topLineVariants}
                   transition={{ duration: 0.4, ease: [0.6, 0.05, -0.01, 0.9] }}
                   style={{ originX: 0.5 }}
                 />
                 <motion.span
-                  className={`absolute h-[2px] rounded-full ${mobileMenuOpen ? "bg-[#28D939]" : "bg-white"
-                    }`}
+                  className={`absolute h-[2px] rounded-full ${
+                    mobileMenuOpen ? "bg-[#28D939]" : "bg-white"
+                  }`}
                   variants={middleLineVariants}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                 />
                 <motion.span
-                  className={`absolute h-[2px] rounded-full ${mobileMenuOpen
-                    ? "bg-[#28D939]"
-                    : "bg-gradient-to-r from-[#FFEB28] to-[#FFF7A8]"
-                    }`}
+                  className={`absolute h-[2px] rounded-full ${
+                    mobileMenuOpen
+                      ? "bg-[#28D939]"
+                      : "bg-gradient-to-r from-[#FFEB28] to-[#FFF7A8]"
+                  }`}
                   variants={bottomLineVariants}
                   transition={{ duration: 0.4, ease: [0.6, 0.05, -0.01, 0.9] }}
                   style={{ originX: 0.5 }}
@@ -405,12 +396,13 @@ export function Header() {
                       </span>
                       <LanguageToggle />
                     </div>
-                    {connected && <BalanceDisplay className="mb-4" />}
-                    <WalletMultiButton
+                    {isConnected && <BalanceDisplay className="mb-4" />}
+                    <WalletConnectButton
                       style={{
                         width: "100%",
                         height: "40px",
-                        background: "linear-gradient(135deg, #0B3B10 0%, #24682B 100%)",
+                        background:
+                          "linear-gradient(135deg, #0B3B10 0%, #24682B 100%)",
                         color: "#ADF0B4",
                         fontWeight: "bold",
                         fontSize: "14px",
@@ -421,7 +413,7 @@ export function Header() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        gap: "8px"
+                        gap: "8px",
                       }}
                     />
                   </motion.div>

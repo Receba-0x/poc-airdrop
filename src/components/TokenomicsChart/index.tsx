@@ -18,7 +18,7 @@ export const TokenomicsChart = () => {
   const tokenDistribution = [
     { label: t("tokenomics.presale"), percentage: 11, color: "#009C3B" },
     { label: t("tokenomics.lp"), percentage: 7.5, color: "#FFDF00" },
-    { label: t("tokenomics.staking"), percentage: 25, color: "#002776" },
+    { label: t("tokenomics.staking"), percentage: 25, color: "#4169E1" },
     { label: t("tokenomics.community"), percentage: 5, color: "#00A651" },
     { label: t("tokenomics.treasury"), percentage: 7, color: "#FFD700" },
     { label: t("tokenomics.reserveFunds"), percentage: 3, color: "#1E90FF" },

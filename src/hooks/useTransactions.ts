@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
 import axios from "axios";
+import { useAccount } from "wagmi";
 
 export type Transaction = {
   id: string;
@@ -22,18 +22,18 @@ export type Transaction = {
 };
 
 export function useTransactions() {
-  const { publicKey, connected } = useWallet();
+  const { address, isConnected } = useAccount();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchTransactions = async () => {
-    if (!publicKey) return;
+    if (!address) return;
     setIsLoading(true);
     setError(null);
     try {
       const { data } = await axios.get("/api/get-transactions", {
-        params: { wallet: publicKey.toString() },
+        params: { wallet: address },
       });
       if (data.success && Array.isArray(data.transactions)) {
         if (data.transactions.length === 0) {
@@ -116,12 +116,12 @@ export function useTransactions() {
   };
 
   useEffect(() => {
-    if (connected && publicKey) {
+    if (isConnected && address) {
       fetchTransactions();
     } else {
       setTransactions([]);
     }
-  }, [connected, publicKey]);
+  }, [isConnected, address]);
 
   return {
     transactions,

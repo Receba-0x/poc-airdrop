@@ -35,7 +35,7 @@ export const translations = {
       "Launch of Interoperability Layer (Cross-Chain Bridge & Multi-Chain Support)",
     "roadmap.phase3.item2":
       "Strategic Partnerships with Sports & Lifestyle Brands",
-    "roadmap.phase3.item3": "First Centralized Exchange (CEX) Listings",
+    "roadmap.phase3.item3": "CEX Listings",
     "roadmap.phase3.item4": "Memorabilia Tokenization Protocol Launch",
     "roadmap.phase4.item1": "Expansion of Social Impact Projects",
     "roadmap.phase4.item2": "Talent Scouting Program Rollout",
@@ -395,6 +395,8 @@ export const translations = {
     "shipping.enterNewAddress": "Enter New Address",
     "shipping.nftBurnWarning":
       "Note: Claiming this item will burn (destroy) the NFT associated with it.",
+    "shipping.claimWarning":
+      "Note: Claiming this item will process your physical prize request.",
     "shipping.claimSuccessful": "Claim Successful!",
     "shipping.addressSaved": "Your shipping address has been saved.",
     "shipping.nftBurned":
@@ -468,8 +470,7 @@ export const translations = {
       "Lançamento da Camada de Interoperabilidade (Bridge Cross-Chain e Suporte Multichain)",
     "roadmap.phase3.item2":
       "Parcerias Estratégicas com Marcas Esportivas e de Lifestyle",
-    "roadmap.phase3.item3":
-      "Primeiras Listagens em Exchanges Centralizadas (CEX)",
+    "roadmap.phase3.item3": "Listagens em CEX",
     "roadmap.phase3.item4":
       "Lançamento do Protocolo de Tokenização de Memorabilia",
     "roadmap.phase4.item1": "Expansão dos Projetos de Impacto Social",
@@ -835,6 +836,8 @@ export const translations = {
     "shipping.enterNewAddress": "Inserir Novo Endereço",
     "shipping.nftBurnWarning":
       "Observação: Reivindicar este item irá queimar (destruir) a NFT associada a ele.",
+    "shipping.claimWarning":
+      "Observação: Reivindicar este item irá processar sua solicitação de prêmio físico.",
     "shipping.claimSuccessful": "Reivindicação Bem-sucedida!",
     "shipping.addressSaved": "Seu endereço de entrega foi salvo.",
     "shipping.nftBurned":
