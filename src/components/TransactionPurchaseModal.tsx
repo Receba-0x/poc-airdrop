@@ -14,6 +14,7 @@ interface TransactionPurchaseModalProps {
     | "checking_balance"
     | "approving_tokens"
     | "burning_tokens"
+    | "validating_transaction"
     | "determining_prize"
     | "saving_transaction"
     | "success"
@@ -59,6 +60,10 @@ export function TransactionPurchaseModal({
     {
       key: "burning_tokens",
       label: t("purchase.burningTokens") || "Burning Tokens",
+    },
+    {
+      key: "validating_transaction",
+      label: t("purchase.validatingTransaction") || "Validating Transaction",
     },
     {
       key: "determining_prize",
@@ -151,6 +156,8 @@ export function TransactionPurchaseModal({
         return t("purchase.approvingTokens");
       case "burning_tokens":
         return t("purchase.burningTokens");
+      case "validating_transaction":
+        return t("purchase.validatingTransaction");
       case "determining_prize":
         return t("purchase.determiningPrize");
       case "saving_transaction":
@@ -176,6 +183,8 @@ export function TransactionPurchaseModal({
         return t("purchase.approvingTokensDetail");
       case "burning_tokens":
         return t("purchase.burningTokensDetail");
+      case "validating_transaction":
+        return t("purchase.validatingTransactionDetail");
       case "determining_prize":
         return t("purchase.determiningPrizeDetail");
       case "saving_transaction":
@@ -195,6 +204,7 @@ export function TransactionPurchaseModal({
     "checking_balance",
     "approving_tokens",
     "burning_tokens",
+    "validating_transaction",
     "determining_prize",
     "saving_transaction",
   ].includes(status);
@@ -203,7 +213,7 @@ export function TransactionPurchaseModal({
     <Modal
       isOpen={isOpen}
       onClose={() => undefined}
-      title={getTitle()}
+      title={""}
       showCloseButton={status === "success" || status === "error"}
     >
       <div className="flex flex-col items-center py-2">

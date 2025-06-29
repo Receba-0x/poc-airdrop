@@ -1,7 +1,7 @@
 export const adrControllerAddress =
-  "0x22F632eda054dCbF743308d868ede982D6C14256";
-export const adrNftAddress = "0x010e036E0aD980E81e106CEa27ae6A53b2a37623";
-export const adrTokenAddress = "0x57211B0903B97FE0C6882165C7226E067b3438D8";
+  "0x7d85FB6172F71F4d0C3F6A24dA9D736f7627ba0D";
+export const adrNftAddress = "0x130a8C1deFeD74C4Dc0A57577B5b44341e3C61B6";
+export const adrTokenAddress = "0xE588C2F75145954F01571E9EABFB1A01bA544857";
 
 export const getItensData = (t: (key: string) => string) => {
   return PRIZE_TABLE.map((prize) => {

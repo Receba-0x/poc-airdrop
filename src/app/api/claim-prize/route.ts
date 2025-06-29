@@ -3,7 +3,6 @@ import {
   PRIZE_TABLE,
   CRYPTO_PRIZE_TABLE,
   adrControllerAddress,
-  adrTokenAddress,
 } from "@/constants";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
@@ -37,10 +36,51 @@ interface TransactionValidation {
   error?: string;
 }
 
-async function validateBurnTransaction(
+async function validateServerSignature(
+  wallet: string,
+  amount: number,
+  timestamp: number,
+  signature: string
+): Promise<boolean> {
+  try {
+    if (!PRIVATE_KEY) {
+      console.error("Server private key not configured");
+      return false;
+    }
+
+    // Recriar o hash da mensagem
+    const messageHash = ethers.solidityPackedKeccak256(
+      ["address", "uint256", "uint256"],
+      [wallet, amount, timestamp]
+    );
+
+    // Verificar a assinatura
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const signer = new ethers.Wallet(PRIVATE_KEY, provider);
+    const recoveredAddress = ethers.verifyMessage(
+      ethers.getBytes(messageHash),
+      signature
+    );
+
+    console.log("🔐 Signature validation:", {
+      expectedSigner: signer.address,
+      recoveredAddress,
+      messageHash,
+      isValid: recoveredAddress.toLowerCase() === signer.address.toLowerCase(),
+    });
+
+    return recoveredAddress.toLowerCase() === signer.address.toLowerCase();
+  } catch (error) {
+    console.error("Error validating server signature:", error);
+    return false;
+  }
+}
+
+async function validateVerifiedBurnTransaction(
   txHash: string,
   expectedSender: string,
-  expectedAmount: number
+  expectedAmount: number,
+  expectedTimestamp: number
 ): Promise<TransactionValidation> {
   try {
     const provider = new ethers.JsonRpcProvider(RPC_URL);
@@ -130,24 +170,28 @@ async function validateBurnTransaction(
       };
     }
 
-    // 8. Verificar o evento TokensBurned nos logs
+    // 8. Verificar o evento VerifiedTokensBurned nos logs
     const adrContract = AdrAbi__factory.connect(adrControllerAddress, provider);
-    const tokensBurnedTopic = ethers.id("TokensBurned(address,uint256,string)");
+    const verifiedBurnTopic = ethers.id(
+      "VerifiedTokensBurned(address,uint256,uint256)"
+    );
 
     let burnAmount = "0";
+    let burnTimestamp = 0;
     let eventFound = false;
 
     for (const log of receipt.logs) {
-      if (log.topics[0] === tokensBurnedTopic) {
+      if (log.topics[0] === verifiedBurnTopic) {
         try {
           const parsedLog = adrContract.interface.parseLog({
             topics: log.topics,
             data: log.data,
           });
 
-          if (parsedLog && parsedLog.name === "TokensBurned") {
+          if (parsedLog && parsedLog.name === "VerifiedTokensBurned") {
             eventFound = true;
             burnAmount = parsedLog.args.amount.toString();
+            burnTimestamp = Number(parsedLog.args.timestamp);
 
             // Verificar se o payer no evento é o esperado
             if (
@@ -158,7 +202,7 @@ async function validateBurnTransaction(
                 isValid: false,
                 sender: tx.from || "",
                 amount: burnAmount,
-                timestamp: block.timestamp,
+                timestamp: burnTimestamp,
                 error: "Event payer doesn't match expected sender",
               };
             }
@@ -178,29 +222,29 @@ async function validateBurnTransaction(
         sender: tx.from || "",
         amount: "0",
         timestamp: block.timestamp,
-        error: "TokensBurned event not found",
+        error: "VerifiedTokensBurned event not found",
       };
     }
 
     // 9. Verificar se o amount está correto
-    const expectedAmountWei = expectedAmount.toString();
-
-    console.log("🔍 Amount validation:", {
-      expectedAmount,
-      expectedAmountWei,
-      burnAmount,
-      burnAmountBigInt: BigInt(burnAmount).toString(),
-      expectedAmountBigInt: BigInt(expectedAmount).toString(),
-    });
-
-    // Comparar como BigInt para evitar problemas de precisão
     if (BigInt(burnAmount) !== BigInt(expectedAmount)) {
       return {
         isValid: false,
         sender: tx.from || "",
         amount: burnAmount,
-        timestamp: block.timestamp,
-        error: `Amount mismatch. Expected: ${expectedAmountWei}, Got: ${burnAmount}`,
+        timestamp: burnTimestamp,
+        error: `Amount mismatch. Expected: ${expectedAmount}, Got: ${burnAmount}`,
+      };
+    }
+
+    // 10. Verificar se o timestamp está correto
+    if (burnTimestamp !== expectedTimestamp) {
+      return {
+        isValid: false,
+        sender: tx.from || "",
+        amount: burnAmount,
+        timestamp: burnTimestamp,
+        error: `Timestamp mismatch. Expected: ${expectedTimestamp}, Got: ${burnTimestamp}`,
       };
     }
 
@@ -208,10 +252,10 @@ async function validateBurnTransaction(
       isValid: true,
       sender: tx.from || "",
       amount: burnAmount,
-      timestamp: block.timestamp,
+      timestamp: burnTimestamp,
     };
   } catch (error) {
-    console.error("Error validating burn transaction:", error);
+    console.error("Error validating verified burn transaction:", error);
     return {
       isValid: false,
       sender: "",
@@ -223,103 +267,7 @@ async function validateBurnTransaction(
   }
 }
 
-async function checkTransactionReplay(txHash: string): Promise<boolean> {
-  if (!isSupabaseConfigured || !supabase) {
-    console.warn("Supabase not configured, skipping replay check");
-    return false; // Assumir que não é replay se não puder verificar
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from("purchases")
-      .select("id")
-      .eq("transaction_signature", txHash)
-      .limit(1);
-
-    if (error) {
-      console.error("Error checking transaction replay:", error);
-      return false; // Em caso de erro, assumir que não é replay
-    }
-
-    return data && data.length > 0; // True se já existe
-  } catch (error) {
-    console.error("Error in replay check:", error);
-    return false;
-  }
-}
-
-function generateProvablyFairNumber(
-  clientSeed: string,
-  serverSeed: string,
-  nonce: number
-): number {
-  const combined = `${clientSeed}:${serverSeed}:${nonce}`;
-  const hash = crypto.createHash("sha256").update(combined).digest("hex");
-  const hexNumber = parseInt(hash.substring(0, 8), 16);
-  return hexNumber / 0xffffffff;
-}
-
-async function determinePrize(
-  randomNumber: number,
-  isCrypto: boolean = false
-): Promise<{ prizeId: number; wonPrize: any }> {
-  const stock: { [key: number]: number } = {};
-
-  if (isSupabaseConfigured && supabase) {
-    const { data: stockData, error } = await supabase
-      .from("prize_stock")
-      .select("prize_id, current_stock");
-
-    if (!error && stockData) {
-      stockData.forEach((item) => {
-        stock[item.prize_id] = item.current_stock;
-      });
-    } else {
-      console.error("Error fetching stock:", error);
-      throw new Error("Error fetching stock");
-    }
-  } else {
-    throw new Error("Error supabase not configured");
-  }
-
-  const checkStock = (prizeId: number): boolean => {
-    if (!PHYSICAL_PRIZES.includes(prizeId)) return true;
-    const currentStock = stock[prizeId] || 0;
-    return currentStock > 0;
-  };
-
-  if (isCrypto) {
-    let cumulativeProbability = 0;
-    for (const prize of CRYPTO_PRIZE_TABLE) {
-      cumulativeProbability += prize.probability;
-      if (randomNumber < cumulativeProbability) {
-        return { prizeId: prize.id, wonPrize: prize };
-      }
-    }
-    return {
-      prizeId: CRYPTO_PRIZE_TABLE[0].id,
-      wonPrize: CRYPTO_PRIZE_TABLE[0],
-    };
-  } else {
-    let cumulativeProbability = 0;
-    for (const prize of PRIZE_TABLE) {
-      cumulativeProbability += prize.probability;
-      if (randomNumber < cumulativeProbability) {
-        if (PHYSICAL_PRIZES.includes(prize.id) && !checkStock(prize.id))
-          continue;
-        return { prizeId: prize.id, wonPrize: prize };
-      }
-    }
-    const fallbackPrize = PRIZE_TABLE.find(
-      (p) => p.type === "sol" && !PHYSICAL_PRIZES.includes(p.id)
-    );
-    if (fallbackPrize)
-      return { prizeId: fallbackPrize.id, wonPrize: fallbackPrize };
-    return { prizeId: 1, wonPrize: PRIZE_TABLE[0] };
-  }
-}
-
-// Validação de transação de taxa BNB
+// Validação da taxa BNB (mantida do sistema anterior)
 async function validateBnbFeeTransaction(
   txHash: string,
   expectedSender: string,
@@ -467,20 +415,125 @@ async function validateBnbFeeTransaction(
   }
 }
 
+async function checkTransactionReplay(txHash: string): Promise<boolean> {
+  if (!isSupabaseConfigured || !supabase) {
+    console.warn("Supabase not configured, skipping replay check");
+    return false; // Assumir que não é replay se não puder verificar
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("purchases")
+      .select("id")
+      .eq("transaction_signature", txHash)
+      .limit(1);
+
+    if (error) {
+      console.error("Error checking transaction replay:", error);
+      return false; // Em caso de erro, assumir que não é replay
+    }
+
+    return data && data.length > 0; // True se já existe
+  } catch (error) {
+    console.error("Error in replay check:", error);
+    return false;
+  }
+}
+
+function generateProvablyFairNumber(
+  clientSeed: string,
+  serverSeed: string,
+  nonce: number
+): number {
+  const combined = `${clientSeed}:${serverSeed}:${nonce}`;
+  const hash = crypto.createHash("sha256").update(combined).digest("hex");
+  const hexNumber = parseInt(hash.substring(0, 8), 16);
+  return hexNumber / 0xffffffff;
+}
+
+async function determinePrize(
+  randomNumber: number,
+  isCrypto: boolean = false
+): Promise<{ prizeId: number; wonPrize: any }> {
+  const stock: { [key: number]: number } = {};
+
+  if (isSupabaseConfigured && supabase) {
+    const { data: stockData, error } = await supabase
+      .from("prize_stock")
+      .select("prize_id, current_stock");
+
+    if (!error && stockData) {
+      stockData.forEach((item) => {
+        stock[item.prize_id] = item.current_stock;
+      });
+    } else {
+      console.error("Error fetching stock:", error);
+      throw new Error("Error fetching stock");
+    }
+  } else {
+    throw new Error("Error supabase not configured");
+  }
+
+  const checkStock = (prizeId: number): boolean => {
+    if (!PHYSICAL_PRIZES.includes(prizeId)) return true;
+    const currentStock = stock[prizeId] || 0;
+    return currentStock > 0;
+  };
+
+  if (isCrypto) {
+    let cumulativeProbability = 0;
+    for (const prize of CRYPTO_PRIZE_TABLE) {
+      cumulativeProbability += prize.probability;
+      if (randomNumber < cumulativeProbability) {
+        return { prizeId: prize.id, wonPrize: prize };
+      }
+    }
+    return {
+      prizeId: CRYPTO_PRIZE_TABLE[0].id,
+      wonPrize: CRYPTO_PRIZE_TABLE[0],
+    };
+  } else {
+    let cumulativeProbability = 0;
+    for (const prize of PRIZE_TABLE) {
+      cumulativeProbability += prize.probability;
+      if (randomNumber < cumulativeProbability) {
+        if (PHYSICAL_PRIZES.includes(prize.id) && !checkStock(prize.id))
+          continue;
+        return { prizeId: prize.id, wonPrize: prize };
+      }
+    }
+    const fallbackPrize = PRIZE_TABLE.find(
+      (p) => p.type === "sol" && !PHYSICAL_PRIZES.includes(p.id)
+    );
+    if (fallbackPrize)
+      return { prizeId: fallbackPrize.id, wonPrize: fallbackPrize };
+    return { prizeId: 1, wonPrize: PRIZE_TABLE[0] };
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
       wallet: userWalletAddress,
-      boxType,
+      amount,
+      timestamp,
+      txHash,
+      signature,
       clientSeed,
-      transactionSignature = "",
-      bnbFeeTransactionHash = "",
-      tokenAmount,
+      bnbFeeTransactionHash,
       bnbPrice,
+      boxType,
     } = body;
 
-    if (!userWalletAddress || !clientSeed || !boxType) {
+    if (
+      !userWalletAddress ||
+      !amount ||
+      !timestamp ||
+      !txHash ||
+      !signature ||
+      !clientSeed
+    ) {
       return NextResponse.json(
         {
           success: false,
@@ -491,46 +544,38 @@ export async function POST(request: Request) {
     }
 
     // VALIDAÇÕES DE SEGURANÇA DAS TRANSAÇÕES
-    if (!transactionSignature) {
+
+    // 1. Validar assinatura do servidor
+    console.log("🔐 Validating server signature...");
+    const isSignatureValid = await validateServerSignature(
+      userWalletAddress,
+      amount,
+      timestamp,
+      signature
+    );
+
+    if (!isSignatureValid) {
+      console.error("❌ Invalid server signature");
       return NextResponse.json(
         {
           success: false,
-          error: "Transaction signature is required",
+          error: "Invalid server signature",
         },
         { status: 400 }
       );
     }
 
-    if (!bnbFeeTransactionHash) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "BNB fee transaction hash is required",
-        },
-        { status: 400 }
-      );
-    }
+    console.log("✅ Server signature validation successful");
 
-    if (!bnbPrice || bnbPrice <= 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Valid BNB price is required",
-        },
-        { status: 400 }
-      );
-    }
-
-    // 1. Verificar se são replay attacks
+    // 2. Verificar se são replay attacks
     console.log("🔍 Checking for replay attacks...");
-    const isBurnReplay = await checkTransactionReplay(transactionSignature);
-    const isFeeReplay = await checkTransactionReplay(bnbFeeTransactionHash);
+    const isBurnReplay = await checkTransactionReplay(txHash);
+    const isFeeReplay = bnbFeeTransactionHash
+      ? await checkTransactionReplay(bnbFeeTransactionHash)
+      : false;
 
     if (isBurnReplay) {
-      console.error(
-        "⚠️  Burn transaction replay attack detected:",
-        transactionSignature
-      );
+      console.error("⚠️  Burn transaction replay attack detected:", txHash);
       return NextResponse.json(
         {
           success: false,
@@ -554,79 +599,82 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Validar a transação de taxa BNB na blockchain
-    const isCrypto = boxType === 1;
-    const expectedFeeUSD = isCrypto ? 1.65 : 7.65;
-    const treasuryWallet = process.env.NEXT_PUBLIC_TREASURY_WALLET;
+    // 3. Validar a transação de taxa BNB na blockchain (se fornecida)
+    if (bnbFeeTransactionHash && bnbPrice) {
+      const isCrypto = boxType === 1;
+      const expectedFeeUSD = isCrypto ? 1.65 : 7.65;
+      const treasuryWallet = process.env.NEXT_PUBLIC_TREASURY_WALLET;
 
-    if (!treasuryWallet) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Treasury wallet not configured",
-        },
-        { status: 500 }
+      if (!treasuryWallet) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Treasury wallet not configured",
+          },
+          { status: 500 }
+        );
+      }
+
+      console.log("🔍 Validating BNB fee transaction on blockchain...");
+      const feeValidation = await validateBnbFeeTransaction(
+        bnbFeeTransactionHash,
+        userWalletAddress,
+        treasuryWallet,
+        expectedFeeUSD,
+        bnbPrice
       );
+
+      if (!feeValidation.isValid) {
+        console.error(
+          "❌ BNB fee transaction validation failed:",
+          feeValidation.error
+        );
+        return NextResponse.json(
+          {
+            success: false,
+            error: `BNB fee validation failed: ${feeValidation.error}`,
+          },
+          { status: 400 }
+        );
+      }
+
+      console.log("✅ BNB fee transaction validation successful:", {
+        sender: feeValidation.sender,
+        amount: feeValidation.amount,
+        timestamp: new Date(feeValidation.timestamp * 1000).toISOString(),
+      });
     }
 
-    console.log("🔍 Validating BNB fee transaction on blockchain...");
-    const feeValidation = await validateBnbFeeTransaction(
-      bnbFeeTransactionHash,
+    // 4. Validar a transação de queima verificada na blockchain
+    console.log("🔍 Validating verified burn transaction on blockchain...");
+    const burnValidation = await validateVerifiedBurnTransaction(
+      txHash,
       userWalletAddress,
-      treasuryWallet,
-      expectedFeeUSD,
-      bnbPrice
-    );
-
-    if (!feeValidation.isValid) {
-      console.error(
-        "❌ BNB fee transaction validation failed:",
-        feeValidation.error
-      );
-      return NextResponse.json(
-        {
-          success: false,
-          error: `BNB fee validation failed: ${feeValidation.error}`,
-        },
-        { status: 400 }
-      );
-    }
-
-    console.log("✅ BNB fee transaction validation successful:", {
-      sender: feeValidation.sender,
-      amount: feeValidation.amount,
-      timestamp: new Date(feeValidation.timestamp * 1000).toISOString(),
-    });
-
-    // 3. Validar a transação de burn tokens na blockchain
-    console.log("🔍 Validating burn transaction on blockchain...");
-    const burnValidation = await validateBurnTransaction(
-      transactionSignature,
-      userWalletAddress,
-      tokenAmount
+      amount,
+      timestamp
     );
 
     if (!burnValidation.isValid) {
       console.error(
-        "❌ Burn transaction validation failed:",
+        "❌ Verified burn transaction validation failed:",
         burnValidation.error
       );
       return NextResponse.json(
         {
           success: false,
-          error: `Burn transaction validation failed: ${burnValidation.error}`,
+          error: `Verified burn validation failed: ${burnValidation.error}`,
         },
         { status: 400 }
       );
     }
 
-    console.log("✅ Burn transaction validation successful:", {
+    console.log("✅ Verified burn transaction validation successful:", {
       sender: burnValidation.sender,
       amount: burnValidation.amount,
       timestamp: new Date(burnValidation.timestamp * 1000).toISOString(),
     });
 
-    // Continuar com o processamento normal...
+    // Continuar com o processamento do prêmio...
     const serverSeed = crypto.randomBytes(32).toString("hex");
     let nonce = 0;
     if (isSupabaseConfigured && supabase) {
@@ -650,8 +698,12 @@ export async function POST(request: Request) {
       serverSeed,
       nonce
     );
+
+    // Determinar se é crypto baseado no amount
+    const isCrypto = amount <= 8750 * 1e9; // 8750 tokens = crypto box
     const { prizeId, wonPrize } = await determinePrize(randomNumber, isCrypto);
 
+    // Atualizar estoque de caixas
     if (isSupabaseConfigured && supabase) {
       const { data: boxStockData, error: boxStockError } = await supabase
         .from("box_stock")
@@ -717,23 +769,24 @@ export async function POST(request: Request) {
       }
     }
 
+    // Salvar registro da compra
     await savePurchaseRecord(
       userWalletAddress,
       nftMint,
       nftMetadata,
-      transactionSignature,
+      txHash,
       prizeId,
       wonPrize.name,
       randomNumber,
       clientSeed,
       serverSeed,
       nonce,
-      boxType,
+      boxType || (isCrypto ? 1 : 2),
       isCrypto,
-      tokenAmount,
+      amount,
       burnValidation,
-      bnbFeeTransactionHash,
-      feeValidation
+      bnbFeeTransactionHash || "",
+      signature
     );
 
     return NextResponse.json({
@@ -753,7 +806,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Error processing purchase:", error);
+    console.error("Error processing prize claim:", error);
     return NextResponse.json(
       {
         success: false,
@@ -821,7 +874,7 @@ async function savePurchaseRecord(
   tokenAmount: number,
   burnValidation: TransactionValidation,
   bnbFeeTransactionHash: string,
-  feeValidation: TransactionValidation
+  signature: string
 ) {
   if (!isSupabaseConfigured || !supabase) {
     console.log("Supabase not configured, skipping database save");
@@ -854,7 +907,7 @@ async function savePurchaseRecord(
           status: "completed",
           validation_amount: burnValidation.amount,
           bnb_fee_transaction_hash: bnbFeeTransactionHash,
-          bnb_fee_validation_amount: feeValidation.amount,
+          server_signature: signature,
         },
       ])
       .select();

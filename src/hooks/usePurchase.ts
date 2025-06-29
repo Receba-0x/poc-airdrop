@@ -6,14 +6,13 @@ import {
   CRYPTO_PRIZE_TABLE,
   PRIZE_TABLE,
 } from "@/constants";
-import { toast } from "react-hot-toast";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useUser } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAccount } from "wagmi";
 import { getProvider } from "@/libs";
-import { AdrAbi__factory, AdrNFT__factory, ERC20__factory } from "@/contracts";
+import { AdrAbi__factory, ERC20__factory } from "@/contracts";
 import { ethers } from "ethers";
 
 export function usePurchase() {
@@ -31,6 +30,7 @@ export function usePurchase() {
     | "checking_balance"
     | "approving_tokens"
     | "burning_tokens"
+    | "validating_transaction"
     | "determining_prize"
     | "saving_transaction"
     | "success"
@@ -74,45 +74,108 @@ export function usePurchase() {
       setTransactionHash("");
       setCurrentPrize(null);
       setCurrentBoxType(isCrypto ? t("box.cryptos") : t("box.superPrizes"));
-      setCurrentAmount(isCrypto ? "17.5" : "45");
-      
-      // Step 1: Paying BNB fee
+      setCurrentAmount(
+        isCrypto
+          ? (17.5 / 0.002).toLocaleString("en-US")
+          : (45 / 0.002).toLocaleString("en-US")
+      );
+
       setModalStatus("paying_bnb_fee");
-      await sendBnbFeeTransaction(isCrypto);
-      
-      // Step 2: Get backend data and check balance
-      const { tokenAmount, clientSeed } = await fetchBackendData(isCrypto);
-      
-      // Step 3: Checking balance
-      setModalStatus("checking_balance");
-      await checkSufficientBalance(tokenAmount);
-      
-      // Step 4: Approving tokens
-      setModalStatus("approving_tokens");
-      await approveTokens(tokenAmount);
-      
-      // Step 5: Burning tokens
-      setModalStatus("burning_tokens");
-      const txSig = await burnTokens(tokenAmount);
-      setTransactionHash(txSig || "");
-      
-      // Step 6: Determining prize
-      setModalStatus("determining_prize");
-      const { data } = await axios.post("/api/mint-nft", {
-        wallet: address,
+      const bnbFeeTx = await sendBnbFeeTransaction(isCrypto);
+      const bnbFeeTransactionHash = bnbFeeTx.hash;
+
+      const { data: purchaseData } = await axios.post("/api/purchase", {
         boxType: isCrypto ? 1 : 2,
+        wallet: address,
+        clientSeed: address + "_" + Date.now(),
+      });
+
+      if (!purchaseData.success) {
+        throw new Error(purchaseData.error || "Failed to get purchase data");
+      }
+
+      const { amountToBurn, timestamp, signature, clientSeed } = purchaseData;
+
+      setModalStatus("checking_balance");
+      await checkSufficientBalance(amountToBurn);
+
+      setModalStatus("approving_tokens");
+      await approveTokens(amountToBurn);
+
+      setModalStatus("burning_tokens");
+      const txSig = await verifiedBurnTokens(
+        amountToBurn,
+        timestamp,
+        signature
+      );
+      setTransactionHash(txSig || "");
+
+      setModalStatus("validating_transaction");
+
+      setModalStatus("determining_prize");
+
+      const { data } = await axios.post("/api/claim-prize", {
+        wallet: address,
+        amount: amountToBurn,
+        timestamp,
+        txHash: txSig,
+        signature,
         clientSeed,
-        transactionSignature: txSig,
-        tokenAmount,
+        bnbFeeTransactionHash,
+        bnbPrice,
+        boxType: isCrypto ? 1 : 2,
       });
 
       if (!data.success) {
+        console.error("❌ Claim-prize API error:", data.error);
+
+        if (data.error?.includes("replay attack")) {
+          throw new Error(
+            "Esta transação já foi utilizada. Cada transação só pode ser usada uma vez."
+          );
+        } else if (data.error?.includes("Invalid server signature")) {
+          throw new Error("Assinatura do servidor inválida. Tente novamente.");
+        } else if (data.error?.includes("BNB fee validation failed")) {
+          throw new Error(
+            "Falha na validação da taxa BNB. Verifique se a taxa foi paga corretamente."
+          );
+        } else if (data.error?.includes("Verified burn validation failed")) {
+          throw new Error(
+            "Falha na validação da queima verificada. Verifique se a transação foi confirmada."
+          );
+        } else if (
+          data.error?.includes("VerifiedTokensBurned event not found")
+        ) {
+          throw new Error(
+            "Evento de queima verificada não encontrado. Verifique se o contrato foi chamado corretamente."
+          );
+        } else if (data.error?.includes("Treasury wallet not configured")) {
+          throw new Error(
+            "Configuração do sistema incompleta. Tente novamente mais tarde."
+          );
+        } else if (data.error?.includes("too old")) {
+          throw new Error(
+            "Transação muito antiga. Por favor, tente novamente."
+          );
+        } else if (data.error?.includes("Amount mismatch")) {
+          throw new Error(
+            "Valor da transação não confere. Verifique o valor enviado."
+          );
+        } else if (data.error?.includes("Timestamp mismatch")) {
+          throw new Error(
+            "Timestamp da transação não confere. Tente novamente."
+          );
+        } else if (data.error?.includes("Invalid sender")) {
+          throw new Error(
+            "Remetente da transação inválido. A transação deve ser enviada da sua carteira."
+          );
+        }
+
         throw new Error(data.error || "Error processing purchase");
       }
 
-      // Step 7: Saving transaction data
       setModalStatus("saving_transaction");
-      
+
       const prizeId = data.prizeId;
       let wonPrize = null;
 
@@ -123,11 +186,10 @@ export function usePurchase() {
       }
       setCurrentPrize(wonPrize);
       if (data.txSignature) setTransactionHash(data.txSignature);
-      
-      // Step 8: Success
+
       setModalStatus("success");
       await refreshBalance();
-      
+
       const result = {
         tx: txSig,
         prizeTx: data.txSignature,
@@ -150,12 +212,16 @@ export function usePurchase() {
     }
   }
 
-  async function checkSufficientBalance(amount: number) {
+  async function checkSufficientBalance(amount: string | number) {
     try {
       const provider = await getProvider();
       const contractToken = ERC20__factory.connect(adrTokenAddress, provider);
       const balance = await contractToken.balanceOf(address!);
-      if (Number(balance) < amount) throw new Error("Insuficient balance");
+      const amountBigInt =
+        typeof amount === "string"
+          ? BigInt(amount)
+          : ethers.parseUnits(amount.toString(), 18);
+      if (balance < amountBigInt) throw new Error("Insuficient balance");
     } catch (error) {
       console.error("Erro ao verificar saldo:", error);
       throw error;
@@ -180,50 +246,53 @@ export function usePurchase() {
     }
   }
 
-  async function fetchBackendData(isCrypto: boolean) {
-    const clientSeed = address + "_" + Date.now();
-    const boxType = isCrypto ? 1 : 2;
-    const payload = { boxType, wallet: address, clientSeed };
-    const { data } = await axios.post("/api/purchase", payload);
-    const { tokenAmount, clientSeed: serverClientSeed } = data;
-    const provider = await getProvider();
-    const signer = await provider.getSigner();
-    const adrTokenContract = ERC20__factory.connect(adrTokenAddress, signer);
-    const balance = await adrTokenContract.balanceOf(address!);
-    if (Number(balance) < tokenAmount) {
-      throw new Error("Insuficient balance of tokens");
-    }
-    return { tokenAmount, clientSeed: serverClientSeed };
-  }
-
-  async function approveTokens(amount: number) {
+  async function approveTokens(amount: string | number) {
     try {
       const provider = await getProvider();
       const signer = await provider.getSigner();
-      const tokens = ethers.parseUnits(amount.toString(), 9);
+      console.log(Number(amount))
+      const tokens = typeof amount === "string" ? BigInt(amount) : ethers.parseUnits(amount.toString(), 18);
       const tokenContract = ERC20__factory.connect(adrTokenAddress, signer);
-      const approveTx = await tokenContract.approve(adrControllerAddress, tokens);
+      const approveTx = await tokenContract.approve(
+        adrControllerAddress,
+        tokens
+      );
       await approveTx.wait();
       return approveTx;
     } catch (error) {
-      console.error("Error approving tokens:", error);
+      console.error(error);
       throw new Error("Failed to approve token spending");
     }
   }
 
-  async function burnTokens(amount: number) {
+  async function verifiedBurnTokens(
+    amount: string | number,
+    timestamp: number,
+    signature: string
+  ) {
     try {
       const provider = await getProvider();
       const signer = await provider.getSigner();
-      const tokens = ethers.parseUnits(amount.toString(), 9);
       const adrContract = AdrAbi__factory.connect(adrControllerAddress, signer);
-      const tx = await adrContract.burnTokens(tokens, "Burn Tokens");
+      const tx = await adrContract.verifiedBurn(amount, timestamp, signature, {
+        gasLimit: 1000000,
+      });
       const txSig = await tx.wait();
-      console.log("txSig", txSig);
       return txSig?.hash;
-    } catch (error) {
-      console.error("Error burning tokens:", error);
-      throw new Error("Failed to burn tokens");
+    } catch (error: any) {
+      console.error("Error in verified burn:", error);
+
+      if (error.reason) {
+        console.error("Revert reason:", error.reason);
+      }
+      if (error.data) {
+        console.error("Error data:", error.data);
+      }
+      if (error.transaction) {
+        console.error("Failed transaction:", error.transaction);
+      }
+
+      throw new Error("Failed to execute verified burn");
     }
   }
 

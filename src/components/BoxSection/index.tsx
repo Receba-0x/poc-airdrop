@@ -43,6 +43,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
     | "checking_balance"
     | "approving_tokens"
     | "burning_tokens"
+    | "validating_transaction"
     | "determining_prize"
     | "saving_transaction"
     | "success"
@@ -155,19 +156,22 @@ export function BoxSection({ boxName }: { boxName: string }) {
     setTimeout(() => {
       setSimulationStatus("paying_bnb_fee");
       setTimeout(() => {
-        setSimulationStatus("determining_prize");
+        setSimulationStatus("burning_tokens");
         setTimeout(() => {
-          const randomNumber = generateRandomNumber();
-          const prize = simulateDeterminePrize(randomNumber, isCrypto);
-          setSimulationPrize(prize);
-          setSimulationStatus("burning_tokens");
+          setSimulationStatus("validating_transaction");
           setTimeout(() => {
-            setSimulationStatus("saving_transaction");
+            setSimulationStatus("determining_prize");
             setTimeout(() => {
-              setSimulationStatus("success");
-            }, 1000);
+              const randomNumber = generateRandomNumber();
+              const prize = simulateDeterminePrize(randomNumber, isCrypto);
+              setSimulationPrize(prize);
+              setSimulationStatus("saving_transaction");
+              setTimeout(() => {
+                setSimulationStatus("success");
+              }, 1000);
+            }, 2000);
           }, 1500);
-        }, 2000);
+        }, 1500);
       }, 1500);
     }, 1000);
   };

@@ -34,11 +34,15 @@ export interface AdrAbiInterface extends Interface {
       | "nftContract"
       | "operators"
       | "paymentToken"
-      | "purchaseAndMintNFT"
       | "setEmergencyPause"
       | "setNFTContract"
       | "setPaymentToken"
+      | "setSigner"
+      | "signer"
       | "updateOperator"
+      | "usedSignatures"
+      | "verifiedBurn"
+      | "verifySignature"
   ): FunctionFragment;
 
   getEvent(
@@ -47,7 +51,9 @@ export interface AdrAbiInterface extends Interface {
       | "NFTBurned"
       | "NFTMinted"
       | "OperatorUpdated"
+      | "SignerUpdated"
       | "TokensBurned"
+      | "VerifiedTokensBurned"
   ): EventFragment;
 
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
@@ -80,10 +86,6 @@ export interface AdrAbiInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "purchaseAndMintNFT",
-    values: [string, BigNumberish, string]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setEmergencyPause",
     values: [boolean, string]
   ): string;
@@ -96,8 +98,25 @@ export interface AdrAbiInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "setSigner",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(functionFragment: "signer", values?: undefined): string;
+  encodeFunctionData(
     functionFragment: "updateOperator",
     values: [AddressLike, boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "usedSignatures",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "verifiedBurn",
+    values: [BigNumberish, BigNumberish, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "verifySignature",
+    values: [AddressLike, BigNumberish, BigNumberish, BytesLike]
   ): string;
 
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
@@ -121,10 +140,6 @@ export interface AdrAbiInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "purchaseAndMintNFT",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setEmergencyPause",
     data: BytesLike
   ): Result;
@@ -136,8 +151,22 @@ export interface AdrAbiInterface extends Interface {
     functionFragment: "setPaymentToken",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setSigner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "signer", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "updateOperator",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "usedSignatures",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "verifiedBurn",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "verifySignature",
     data: BytesLike
   ): Result;
 }
@@ -198,6 +227,19 @@ export namespace OperatorUpdatedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace SignerUpdatedEvent {
+  export type InputTuple = [oldSigner: AddressLike, newSigner: AddressLike];
+  export type OutputTuple = [oldSigner: string, newSigner: string];
+  export interface OutputObject {
+    oldSigner: string;
+    newSigner: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace TokensBurnedEvent {
   export type InputTuple = [
     payer: AddressLike,
@@ -213,6 +255,24 @@ export namespace TokensBurnedEvent {
     payer: string;
     amount: bigint;
     description: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace VerifiedTokensBurnedEvent {
+  export type InputTuple = [
+    payer: AddressLike,
+    amount: BigNumberish,
+    timestamp: BigNumberish
+  ];
+  export type OutputTuple = [payer: string, amount: bigint, timestamp: bigint];
+  export interface OutputObject {
+    payer: string;
+    amount: bigint;
+    timestamp: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -291,12 +351,6 @@ export interface AdrAbi extends BaseContract {
 
   paymentToken: TypedContractMethod<[], [string], "view">;
 
-  purchaseAndMintNFT: TypedContractMethod<
-    [uri: string, price: BigNumberish, description: string],
-    [bigint],
-    "nonpayable"
-  >;
-
   setEmergencyPause: TypedContractMethod<
     [paused: boolean, reason: string],
     [void],
@@ -315,10 +369,31 @@ export interface AdrAbi extends BaseContract {
     "nonpayable"
   >;
 
+  setSigner: TypedContractMethod<[_signer: AddressLike], [void], "nonpayable">;
+
   updateOperator: TypedContractMethod<
     [operator: AddressLike, isAdded: boolean],
     [void],
     "nonpayable"
+  >;
+
+  usedSignatures: TypedContractMethod<[arg0: BytesLike], [boolean], "view">;
+
+  verifiedBurn: TypedContractMethod<
+    [amount: BigNumberish, timestamp: BigNumberish, signature: BytesLike],
+    [void],
+    "nonpayable"
+  >;
+
+  verifySignature: TypedContractMethod<
+    [
+      wallet: AddressLike,
+      amount: BigNumberish,
+      timestamp: BigNumberish,
+      signature: BytesLike
+    ],
+    [boolean],
+    "view"
   >;
 
   getFunction<T extends ContractMethod = ContractMethod>(
@@ -358,13 +433,6 @@ export interface AdrAbi extends BaseContract {
     nameOrSignature: "paymentToken"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "purchaseAndMintNFT"
-  ): TypedContractMethod<
-    [uri: string, price: BigNumberish, description: string],
-    [bigint],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "setEmergencyPause"
   ): TypedContractMethod<
     [paused: boolean, reason: string],
@@ -378,11 +446,39 @@ export interface AdrAbi extends BaseContract {
     nameOrSignature: "setPaymentToken"
   ): TypedContractMethod<[_paymentToken: AddressLike], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "setSigner"
+  ): TypedContractMethod<[_signer: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "signer"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "updateOperator"
   ): TypedContractMethod<
     [operator: AddressLike, isAdded: boolean],
     [void],
     "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "usedSignatures"
+  ): TypedContractMethod<[arg0: BytesLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "verifiedBurn"
+  ): TypedContractMethod<
+    [amount: BigNumberish, timestamp: BigNumberish, signature: BytesLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "verifySignature"
+  ): TypedContractMethod<
+    [
+      wallet: AddressLike,
+      amount: BigNumberish,
+      timestamp: BigNumberish,
+      signature: BytesLike
+    ],
+    [boolean],
+    "view"
   >;
 
   getEvent(
@@ -414,11 +510,25 @@ export interface AdrAbi extends BaseContract {
     OperatorUpdatedEvent.OutputObject
   >;
   getEvent(
+    key: "SignerUpdated"
+  ): TypedContractEvent<
+    SignerUpdatedEvent.InputTuple,
+    SignerUpdatedEvent.OutputTuple,
+    SignerUpdatedEvent.OutputObject
+  >;
+  getEvent(
     key: "TokensBurned"
   ): TypedContractEvent<
     TokensBurnedEvent.InputTuple,
     TokensBurnedEvent.OutputTuple,
     TokensBurnedEvent.OutputObject
+  >;
+  getEvent(
+    key: "VerifiedTokensBurned"
+  ): TypedContractEvent<
+    VerifiedTokensBurnedEvent.InputTuple,
+    VerifiedTokensBurnedEvent.OutputTuple,
+    VerifiedTokensBurnedEvent.OutputObject
   >;
 
   filters: {
@@ -466,6 +576,17 @@ export interface AdrAbi extends BaseContract {
       OperatorUpdatedEvent.OutputObject
     >;
 
+    "SignerUpdated(address,address)": TypedContractEvent<
+      SignerUpdatedEvent.InputTuple,
+      SignerUpdatedEvent.OutputTuple,
+      SignerUpdatedEvent.OutputObject
+    >;
+    SignerUpdated: TypedContractEvent<
+      SignerUpdatedEvent.InputTuple,
+      SignerUpdatedEvent.OutputTuple,
+      SignerUpdatedEvent.OutputObject
+    >;
+
     "TokensBurned(address,uint256,string)": TypedContractEvent<
       TokensBurnedEvent.InputTuple,
       TokensBurnedEvent.OutputTuple,
@@ -475,6 +596,17 @@ export interface AdrAbi extends BaseContract {
       TokensBurnedEvent.InputTuple,
       TokensBurnedEvent.OutputTuple,
       TokensBurnedEvent.OutputObject
+    >;
+
+    "VerifiedTokensBurned(address,uint256,uint256)": TypedContractEvent<
+      VerifiedTokensBurnedEvent.InputTuple,
+      VerifiedTokensBurnedEvent.OutputTuple,
+      VerifiedTokensBurnedEvent.OutputObject
+    >;
+    VerifiedTokensBurned: TypedContractEvent<
+      VerifiedTokensBurnedEvent.InputTuple,
+      VerifiedTokensBurnedEvent.OutputTuple,
+      VerifiedTokensBurnedEvent.OutputObject
     >;
   };
 }

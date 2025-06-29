@@ -46,7 +46,7 @@
     "files": [
       {
         "uri": "/images/itens/iphone.webp",
-        "type": "image/png"
+        "type": "image/webp"
       }
     ],
     "category": "image"
