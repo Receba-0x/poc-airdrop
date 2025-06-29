@@ -120,14 +120,14 @@ async function updatePurchaseStatus(
   }
 
   if (burnSignature) {
-    updateData.burn_signature = burnSignature;
+    updateData.burn_nft_signature = burnSignature;
   }
 
   try {
     const { error: updateError } = await supabase
       .from("purchases")
       .update(updateData)
-      .eq("nft_mint", transactionId)
+      .eq("nft_token_id", transactionId)
       .eq("wallet_address", wallet);
 
     if (updateError) {
@@ -138,7 +138,7 @@ async function updatePurchaseStatus(
     const { data: updatedRecord, error: fetchError } = await supabase
       .from("purchases")
       .select("*")
-      .eq("nft_mint", transactionId)
+      .eq("nft_token_id", transactionId)
       .eq("wallet_address", wallet)
       .order("updated_at", { ascending: false })
       .limit(1)
@@ -254,7 +254,7 @@ export async function POST(request: NextRequest) {
             await supabase
               .from("purchases")
               .update({ team_selected: teamSelected })
-              .eq("nft_mint", transactionId)
+              .eq("nft_token_id", transactionId)
               .eq("wallet_address", walletAddress);
           } catch (teamError) {
             console.error("Erro ao salvar time selecionado:", teamError);

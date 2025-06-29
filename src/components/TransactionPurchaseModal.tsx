@@ -264,57 +264,53 @@ export function TransactionPurchaseModal({
 
         {status !== "error" && (
           <div className="w-full space-y-4 mt-2">
-            {(status === "success" ||
-              status === "paying_bnb_fee" ||
-              status === "checking_balance") && (
-              <div className="bg-[#1A1A1A] rounded-lg p-3 w-full">
-                <h3 className="text-sm text-gray-400 mb-2">
-                  {t("staking.transactionDetails")}
-                </h3>
+            <div className="bg-[#1A1A1A] rounded-lg p-3 w-full">
+              <h3 className="text-sm text-gray-400 mb-2">
+                {t("staking.transactionDetails")}
+              </h3>
 
-                <div className="space-y-2">
-                  {amount && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-300">
-                        {t("transactions.amount")}:
+              <div className="space-y-2">
+                {amount && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-300">
+                      {t("transactions.amount")}:
+                    </span>
+                    <div className="flex items-center">
+                      <LogoIcon className="w-3 h-3 mr-1" />
+                      <span className="font-medium">
+                        {Number(amount).toLocaleString("en-US", {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        $ADR
                       </span>
-                      <div className="flex items-center">
-                        <LogoIcon className="w-3 h-3 mr-1" />
-                        <span className="font-medium">
-                          {Number(amount).toLocaleString("en-US", {
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 2,
-                          })}{" "}
-                          $ADR
-                        </span>
-                      </div>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {boxType && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-300">
-                        {t("box.type")}:
-                      </span>
-                      <span className="font-medium">{boxType}</span>
-                    </div>
-                  )}
+                {boxType && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-300">
+                      {t("box.type")}:
+                    </span>
+                    <span className="font-medium">{boxType}</span>
+                  </div>
+                )}
 
-                  {status === "success" && transactionHash && (
-                    <div className="pt-1">
-                      <span className="text-sm text-gray-300 block mb-1">
-                        {t("common.transactionHash")}:
-                      </span>
-                      <div className="bg-[#0F0F0F] rounded p-2 overflow-x-auto">
-                        <code className="text-xs break-all text-green-300">
-                          {transactionHash}
-                        </code>
-                      </div>
+                {status === "success" && transactionHash && (
+                  <div className="pt-1">
+                    <span className="text-sm text-gray-300 block mb-1">
+                      {t("common.transactionHash")}:
+                    </span>
+                    <div className="bg-[#0F0F0F] rounded p-2 overflow-x-auto">
+                      <code className="text-xs break-all text-green-300">
+                        {transactionHash}
+                      </code>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
             {status === "success" && prize && (
               <motion.div

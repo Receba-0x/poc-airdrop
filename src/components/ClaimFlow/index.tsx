@@ -727,12 +727,10 @@ const TeamStep = ({
   t,
 }: any) => {
   const teams = [
-    { id: "arsenal", name: "Arsenal", logo: "⚽" },
-    { id: "manchester-united", name: "Manchester United", logo: "🔴" },
-    { id: "liverpool", name: "Liverpool", logo: "🔴" },
-    { id: "chelsea", name: "Chelsea", logo: "🔵" },
-    { id: "manchester-city", name: "Manchester City", logo: "🩵" },
-    { id: "tottenham", name: "Tottenham", logo: "⚪" },
+    { id: "corinthians", name: "Corinthians" },
+    { id: "inter", name: "Inter" },
+    { id: "flamengo", name: "Flamengo" },
+    { id: "brasil", name: "Brasil" },
   ];
 
   return (
@@ -763,7 +761,6 @@ const TeamStep = ({
             }`}
           >
             <div className="flex items-center gap-3">
-              <span className="text-2xl">{team.logo}</span>
               <span className="font-medium">{team.name}</span>
             </div>
           </button>

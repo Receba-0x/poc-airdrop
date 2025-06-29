@@ -6,7 +6,6 @@ import { adrNftAddress } from "@/constants";
 import { ethers } from "ethers";
 
 import chuteiraMetadata from "../../public/metadata/chuteira.json";
-import defaultMetadata from "../../public/metadata/default.json";
 import iphoneMetadata from "../../public/metadata/iphone.json";
 import macbookMetadata from "../../public/metadata/macbook.json";
 import ballMetadata from "../../public/metadata/ball.json";
@@ -65,7 +64,6 @@ export function useNFTs() {
 
   const metadataMap: Record<string, any> = {
     "chuteira.json": chuteiraMetadata,
-    "default.json": defaultMetadata,
     "iphone.json": iphoneMetadata,
     "macbook.json": macbookMetadata,
     "ball.json": ballMetadata,
