@@ -11,14 +11,6 @@ import { ContactSection } from "@/components/ContactSection";
 export default function DisclaimerPage() {
   const { t, language } = useLanguage();
 
-  const handleDownload = (filename: string) => {
-    const link = document.createElement("a");
-    link.href = `/documents/${filename}`;
-    link.download = filename;
-    link.click();
-  };
-
-  // Get the appropriate document content
   const documentKey =
     language === "pt"
       ? "disclaimer_legal_-_em_português"

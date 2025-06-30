@@ -29,7 +29,6 @@ export function BoxSection({ boxName }: { boxName: string }) {
     transactionHash,
     currentPrize,
     currentBoxType,
-    currentAmount,
     closeModal,
     currentStock,
   } = usePurchase();
@@ -52,7 +51,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
   const [simulationPrize, setSimulationPrize] = useState<any>(null);
 
   const isCrypto = boxName === "cryptos";
-  const itens = isCrypto ? CRYPTO_PRIZE_TABLE : getItensData(t);
+  const itens = isCrypto ? CRYPTO_PRIZE_TABLE : getItensData(t).slice(3, 10);
 
   const carouselItems = [];
   for (let i = 0; i < 30; i++) {
@@ -432,19 +431,20 @@ export function BoxSection({ boxName }: { boxName: string }) {
             duration={0.7}
           >
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-10">
-              {itens.map((box, index) => (
-                <motion.div
-                  key={Number(box.id) + index}
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <ItemCard
-                    key={box.id}
-                    item={box}
-                    currentStock={currentStock}
-                  />
-                </motion.div>
-              ))}
+              {!isCrypto &&
+                itens.map((box, index) => (
+                  <motion.div
+                    key={Number(box.id) + index}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ItemCard
+                      key={box.id}
+                      item={box}
+                      currentStock={currentStock}
+                    />
+                  </motion.div>
+                ))}
             </div>
           </ScrollAnimation>
         </div>

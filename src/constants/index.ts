@@ -64,7 +64,7 @@ function getImageForPrize(prize: any, t: (key: string) => string) {
 export const PRIZE_TABLE = [
   {
     id: 1,
-    name: "0.002538 BNB",
+    name: "BNB",
     type: "sol",
     amount: 0.002538,
     probability: 0.175379,
@@ -72,7 +72,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 2,
-    name: "0.012692 BNB",
+    name: "BNB",
     type: "sol",
     amount: 0.012692,
     probability: 0.315682,
@@ -80,7 +80,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 3,
-    name: "0.025385 BNB",
+    name: "BNB",
     type: "sol",
     amount: 0.025385,
     probability: 0.175379,
@@ -88,7 +88,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 4,
-    name: "0.076154 BNB",
+    name: "BNB",
     type: "sol",
     amount: 0.076154,
     probability: 0.035076,
