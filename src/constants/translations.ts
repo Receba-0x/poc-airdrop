@@ -8,10 +8,9 @@ export const translations = {
 
     // Hero
     "hero.title": "The official",
-    "hero.adriano": "Adriano Imperador",
+    "hero.adriano": "Didico",
     "hero.token": "token",
-    "hero.subtitle":
-      "Own a piece of Adriano Imperador legacy. Be a part of the $ADR movement—where holders play, win, and unlock exclusive rewards.",
+    "hero.subtitle": "Where legends meet blockchain. Shape tomorrow's finance.",
     "hero.cta": "Buy token $ADR",
     "hero.learnMore": "Learn More",
 
@@ -305,7 +304,8 @@ export const translations = {
       "Burning tokens to process your purchase...",
     "purchase.validatingTransactionDetail":
       "Validating both BNB fee and token burn transactions on blockchain...",
-    "purchase.determiningPrizeDetail": "Determining your prize using provably fair algorithm...",
+    "purchase.determiningPrizeDetail":
+      "Determining your prize using provably fair algorithm...",
     "purchase.savingTransactionDetail": "Saving transaction data...",
     "purchase.genericError": "Ocorreu um erro ao processar sua compra",
     "purchase.errorTitle": "Transação Falhou",
@@ -492,14 +492,21 @@ export const translations = {
 
     // Validation Messages
     "validation.bnbFeeRequired": "BNB fee payment is required",
-    "validation.bnbFeeFailed": "BNB fee validation failed. Please verify the fee was paid correctly.",
-    "validation.burnTransactionFailed": "Token burn validation failed. Please verify tokens were burned correctly.",
-    "validation.invalidServerSignature": "Invalid server signature. Please try again.",
-    "validation.replayAttack": "This transaction has already been used. Each transaction can only be used once.",
+    "validation.bnbFeeFailed":
+      "BNB fee validation failed. Please verify the fee was paid correctly.",
+    "validation.burnTransactionFailed":
+      "Token burn validation failed. Please verify tokens were burned correctly.",
+    "validation.invalidServerSignature":
+      "Invalid server signature. Please try again.",
+    "validation.replayAttack":
+      "This transaction has already been used. Each transaction can only be used once.",
     "validation.transactionTooOld": "Transaction is too old. Please try again.",
-    "validation.amountMismatch": "Transaction amount doesn't match. Please verify the amount sent.",
-    "validation.invalidSender": "Invalid transaction sender. Transaction must be sent from your wallet.",
-    "validation.treasuryNotConfigured": "System configuration incomplete. Please try again later.",
+    "validation.amountMismatch":
+      "Transaction amount doesn't match. Please verify the amount sent.",
+    "validation.invalidSender":
+      "Invalid transaction sender. Transaction must be sent from your wallet.",
+    "validation.treasuryNotConfigured":
+      "System configuration incomplete. Please try again later.",
   },
   pt: {
     // Header
@@ -510,19 +517,19 @@ export const translations = {
 
     // Hero
     "hero.title": "O token oficial do",
-    "hero.adriano": "Adriano Imperador",
+    "hero.adriano": "Didico",
     "hero.token": "token",
     "hero.subtitle":
-      "Possua um pedaço do legado do Adriano Imperador. Faça parte do movimento $ADR—onde os holders jogam, vencem e desbloqueiam recompensas exclusivas.",
+      "Faça parte do Império. Unindo ídolos e a próxima geração na WEB3.",
     "hero.cta": "Comprar token $ADR",
     "hero.learnMore": "Saiba Mais",
 
     // Roadmap Section
     "roadmap.title": "Roteiro",
-    "roadmap.phase1": "Fase 1 – Fundação e Lançamento",
-    "roadmap.phase2": "Fase 2 – Comunidade e Camada de Utilidade",
-    "roadmap.phase3": "Fase 3 – Expansão e Crescimento do Ecossistema",
-    "roadmap.phase4": "Fase 4 – Construção de Legado",
+    "roadmap.phase1": "Fase 1 - Fundação e Lançamento",
+    "roadmap.phase2": "Fase 2 - Comunidade e Camada de Utilidade",
+    "roadmap.phase3": "Fase 3 - Expansão e Crescimento do Ecossistema",
+    "roadmap.phase4": "Fase 4 - Construção de Legado",
     "roadmap.phase1.item1": "Desenvolvimento do Website",
     "roadmap.phase1.item2": "Ativação das Redes Sociais",
     "roadmap.phase1.item3":
@@ -813,7 +820,8 @@ export const translations = {
       "Queimando tokens para processar sua compra...",
     "purchase.validatingTransactionDetail":
       "Validando taxa BNB e queima de tokens na blockchain...",
-    "purchase.determiningPrizeDetail": "Determinando seu prêmio usando algoritmo provably fair...",
+    "purchase.determiningPrizeDetail":
+      "Determinando seu prêmio usando algoritmo provably fair...",
     "purchase.savingTransactionDetail": "Salvando dados da transação...",
     "purchase.genericError": "Ocorreu um erro ao processar sua compra",
     "purchase.errorTitle": "Transação Falhou",
@@ -1005,13 +1013,20 @@ export const translations = {
 
     // Validation Messages
     "validation.bnbFeeRequired": "Pagamento da taxa BNB é obrigatório",
-    "validation.bnbFeeFailed": "Falha na validação da taxa BNB. Verifique se a taxa foi paga corretamente.",
-    "validation.burnTransactionFailed": "Falha na validação da queima de tokens. Verifique se os tokens foram queimados corretamente.",
-    "validation.invalidServerSignature": "Assinatura do servidor inválida. Por favor, tente novamente mais tarde.",
-    "validation.replayAttack": "Esta transação já foi utilizada. Cada transação só pode ser usada uma vez.",
+    "validation.bnbFeeFailed":
+      "Falha na validação da taxa BNB. Verifique se a taxa foi paga corretamente.",
+    "validation.burnTransactionFailed":
+      "Falha na validação da queima de tokens. Verifique se os tokens foram queimados corretamente.",
+    "validation.invalidServerSignature":
+      "Assinatura do servidor inválida. Por favor, tente novamente mais tarde.",
+    "validation.replayAttack":
+      "Esta transação já foi utilizada. Cada transação só pode ser usada uma vez.",
     "validation.transactionTooOld": "Transação muito antiga. Tente novamente.",
-    "validation.amountMismatch": "Valor da transação não confere. Verifique o valor enviado.",
-    "validation.invalidSender": "Remetente da transação inválido. A transação deve ser enviada da sua carteira.",
-    "validation.treasuryNotConfigured": "Configuração do sistema incompleta. Tente novamente mais tarde.",
+    "validation.amountMismatch":
+      "Valor da transação não confere. Verifique o valor enviado.",
+    "validation.invalidSender":
+      "Remetente da transação inválido. A transação deve ser enviada da sua carteira.",
+    "validation.treasuryNotConfigured":
+      "Configuração do sistema incompleta. Tente novamente mais tarde.",
   },
 };

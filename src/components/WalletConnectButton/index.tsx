@@ -53,7 +53,6 @@ export function WalletConnectButton({
     setShowDropdown(!showDropdown);
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -95,7 +94,7 @@ export function WalletConnectButton({
       ref={dropdownRef}
       style={{
         position: "fixed",
-        top: dropdownPosition.top,
+        top: 64,
         right: dropdownPosition.right - 20,
         width: "256px",
         backgroundColor: "#1A1A1A",
