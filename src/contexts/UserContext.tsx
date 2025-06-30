@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useAccount } from "wagmi";
-import { useEthersSigner } from "@/libs";
+import { getProvider } from "@/libs";
 import { ERC20__factory } from "@/contracts";
 import { adrTokenAddress } from "@/constants";
 import { ethers } from "ethers";
@@ -28,7 +28,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const { address, isConnected } = useAccount();
   const [refreshTransactions, setRefreshTransactions] =
     useState<boolean>(false);
-  const signer = useEthersSigner();
 
   const handleSetBalance = (balance: number) => {
     setBalance(balance);
@@ -74,17 +73,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }
 
   const getBalance = async () => {
-    if (!isConnected || !address || !signer) return;
+    if (!isConnected || !address) return;
     try {
-      console.log("signer", signer);
-      console.log("address", address);
-      console.log("adrTokenAddress", adrTokenAddress);
+      const provider = await getProvider();
+      const signer = await provider.getSigner();
       const tokenContract = ERC20__factory.connect(adrTokenAddress, signer);
       const balance = await tokenContract.balanceOf(address);
       const balanceFormatted = ethers.formatEther(balance);
       setBalance(Number(balanceFormatted));
     } catch (error) {
-      console.error("Error fetching balance:", error);
+      console.error("Invalid token mint address:", error);
       setBalance(0);
     }
   };
@@ -99,7 +97,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         console.error("Erro ao inicializar preço da BNB:", err)
       );
     }
-  }, [isConnected, address, signer]);
+  }, [isConnected, address]);
 
   return (
     <UserContext.Provider

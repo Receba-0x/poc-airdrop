@@ -42,6 +42,18 @@ export function WalletConnectButton({
     setShowDropdown(false);
   };
 
+  const handleClearCache = () => {
+    import("@/libs").then(({ clearWalletCache }) => {
+      const success = clearWalletCache();
+      if (success) {
+        window.location.reload();
+      } else {
+        alert("❌ Erro ao limpar cache. Tente manualmente.");
+      }
+    });
+    setShowDropdown(false);
+  };
+
   const toggleDropdown = () => {
     if (!showDropdown && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
@@ -195,6 +207,31 @@ export function WalletConnectButton({
           }}
         >
           Switch Network
+        </button>
+        <button
+          onClick={handleClearCache}
+          style={{
+            width: "100%",
+            textAlign: "left",
+            padding: "8px 12px",
+            color: "#F59E0B",
+            backgroundColor: "transparent",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "14px",
+            cursor: "pointer",
+            transition: "background-color 0.2s",
+            opacity: 1,
+            fontFamily: "inherit",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "#333";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+          }}
+        >
+          Clean Cache
         </button>
         <button
           onClick={handleDisconnect}

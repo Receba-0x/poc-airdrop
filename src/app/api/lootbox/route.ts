@@ -122,7 +122,6 @@ async function handlePurchase(params: any) {
   });
 }
 
-// Handle prize claiming after blockchain transaction
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
@@ -138,7 +137,6 @@ export async function PUT(req: NextRequest) {
       boxType,
     } = body;
 
-    // Validate blockchain transaction
     const burnValidation = await validateVerifiedBurnTransaction(
       txHash,
       wallet,
@@ -156,17 +154,14 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Determine prize
     const serverSeed = crypto.randomBytes(32).toString("hex");
     const randomNumber = generateProvablyFairNumber(clientSeed, serverSeed, 0);
     const isCrypto = boxType === 1;
     const { prizeId, wonPrize } = await determinePrize(randomNumber, isCrypto);
 
-    // Update stock and deliver prize
     await updateBoxStock(isCrypto);
     const prizeDeliveryResult = await deliverPrize(wallet, wonPrize);
 
-    // Save purchase record
     await savePurchaseRecord({
       wallet,
       txHash,
@@ -175,7 +170,7 @@ export async function PUT(req: NextRequest) {
       randomNumber,
       clientSeed,
       serverSeed,
-      nonce: 0, // First nonce used for prize determination
+      nonce: 0,
       amount,
       isCrypto,
       boxType,

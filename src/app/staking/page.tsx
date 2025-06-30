@@ -3,8 +3,10 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { StakingCard } from "@/components/StakingCard";
+import { notFound } from "next/navigation";
 
 export default function StakingPage() {
+  return notFound();
   return (
     <section className="w-full min-h-screen">
       <Header />

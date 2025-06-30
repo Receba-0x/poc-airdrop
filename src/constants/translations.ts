@@ -155,7 +155,27 @@ export const translations = {
       "Unlike disconnected initiatives, the Adriano Token is built around a true and living relationship with Vila Cruzeiro. It's not just about honoring history.",
 
     // Terms
-    "terms.title": "Jurisdiction Notice",
+    "terms.title": "Legal Documentation",
+    "terms.subtitle": "Complete collection of legal documents and policies",
+    "terms.downloadSection": "Available Documents",
+    "terms.downloadDescription": "Download our complete legal documentation in your preferred language",
+    
+    // Document Categories
+    "docs.termsOfUse": "Terms of Use",
+    "docs.privacyPolicy": "Privacy Policy", 
+    "docs.legalDisclaimer": "Legal Disclaimer",
+    "docs.jurisdictionNotice": "Jurisdiction Notice",
+    "docs.intellectualProperty": "Intellectual Property Policy",
+    
+    // Document Actions
+    "docs.download": "Download",
+    "docs.viewOnline": "View Online",
+    "docs.lastUpdated": "Last Updated",
+    "docs.language.english": "English",
+    "docs.language.portuguese": "Portuguese",
+    "docs.fileSize": "File Size",
+    
+    // Online Content Sections
     "terms.dataCollection.title": "Data Collection and Usage",
     "terms.dataCollection.description":
       "Like other websites, we collect and use information contained in advertisements. The information contained in advertisements includes:",
@@ -173,17 +193,17 @@ export const translations = {
       "With the DART cookie, Google can display ads based on visits the reader has made to other websites on the Internet",
     "terms.externalLinks.title": "Privacy Policy for External Links",
     "terms.externalLinks.description":
-      "The SK Sports website has links to other sites that, in our view, may contain information or tools useful to our visitors. Our privacy policy does not apply to third-party sites. Therefore, if you visit another site from ours, we recommend that you read its privacy policy",
+      "The ADR Token website has links to other sites that, in our view, may contain information or tools useful to our visitors. Our privacy policy does not apply to third-party sites. Therefore, if you visit another site from ours, we recommend that you read its privacy policy",
     "terms.confidentiality.title":
       "Confidentiality and Use of Personal Information",
     "terms.confidentiality.description1":
       "We are not responsible for the privacy policy or content present on those same sites. All your personal information collected will be used to help you make your visit to our site as productive and enjoyable as possible.",
     "terms.confidentiality.description2":
-      "Guaranteeing the confidentiality of data from users of our site is important to the store. All personal information relating to members, subscribers, customers or visitors who use the store site will be treated in accordance with the Personal Data Protection Law of October 26, 1998 (Law No. 67/98).",
+      "Guaranteeing the confidentiality of data from users of our site is important to ADR Token. All personal information relating to members, subscribers, customers or visitors who use the ADR Token site will be treated in accordance with applicable data protection laws.",
     "terms.confidentiality.description3":
       "The personal information collected may include your name, email, phone and/or mobile number, address, date of birth and/or others.",
     "terms.confidentiality.description4":
-      "Use of the SK Sports site assumes acceptance of this Privacy Agreement. The store team reserves the right to change this agreement without prior notice. Therefore, we recommend that you consult our privacy policy regularly to stay updated",
+      "Use of the ADR Token site assumes acceptance of this Privacy Agreement. The ADR Token team reserves the right to change this agreement without prior notice. Therefore, we recommend that you consult our privacy policy regularly to stay updated",
 
     // FAQ
     "faq.title": "FAQ",
@@ -214,6 +234,10 @@ export const translations = {
     "footer.telegram": "Join our Telegram",
     "footer.whitepaper": "Whitepaper",
     "footer.terms": "Terms of use",
+    "footer.privacy": "Privacy Policy",
+    "footer.disclaimer": "Legal Disclaimer", 
+    "footer.jurisdiction": "Jurisdiction Notice",
+    "footer.intellectualProperty": "Intellectual Property",
 
     // Wallet
     "wallet.connect": "Connect Wallet",
@@ -669,7 +693,27 @@ export const translations = {
       "Diferente de iniciativas desconectadas, o Adriano Token é construído em torno de uma relação verdadeira e viva com a Vila Cruzeiro. Não se trata apenas de homenagear a história.",
 
     // Terms
-    "terms.title": "Aviso de Jurisdição",
+    "terms.title": "Documentação Legal",
+    "terms.subtitle": "Coleção completa de documentos legais e políticas",
+    "terms.downloadSection": "Documentos Disponíveis",
+    "terms.downloadDescription": "Baixe nossa documentação legal completa no idioma de sua preferência",
+    
+    // Document Categories
+    "docs.termsOfUse": "Termos de Uso",
+    "docs.privacyPolicy": "Política de Privacidade", 
+    "docs.legalDisclaimer": "Aviso Legal",
+    "docs.jurisdictionNotice": "Aviso de Jurisdição",
+    "docs.intellectualProperty": "Política de Propriedade Intelectual",
+    
+    // Document Actions
+    "docs.download": "Baixar",
+    "docs.viewOnline": "Visualizar Online",
+    "docs.lastUpdated": "Última Atualização",
+    "docs.language.english": "Inglês",
+    "docs.language.portuguese": "Português",
+    "docs.fileSize": "Tamanho do Arquivo",
+    
+    // Online Content Sections
     "terms.dataCollection.title": "Coleta e Uso de Informações",
     "terms.dataCollection.description":
       "Tal como outros websites, coletamos e utilizamos informações contidas nos anúncios. A informação contida nos anúncios inclui:",
@@ -687,17 +731,17 @@ export const translations = {
       "Com o cookie DART, o Google pode exibir anúncios com base nas visitas que o leitor fez a outros websites na Internet",
     "terms.externalLinks.title": "Política de Privacidade para Links Externos",
     "terms.externalLinks.description":
-      "O site da SK Sports possui ligações para outros sites que, a nosso ver, podem conter informações ou ferramentas úteis para os nossos visitantes. A nossa política de privacidade não é aplicada a sites de terceiros. Assim, caso visite outro site a partir do nosso, recomendamos que leia a política de privacidade do mesmo",
+      "O site do ADR Token possui ligações para outros sites que, a nosso ver, podem conter informações ou ferramentas úteis para os nossos visitantes. A nossa política de privacidade não é aplicada a sites de terceiros. Assim, caso visite outro site a partir do nosso, recomendamos que leia a política de privacidade do mesmo",
     "terms.confidentiality.title":
       "Confidencialidade e Uso de Informações Pessoais",
     "terms.confidentiality.description1":
       "Não nos responsabilizamos pela política de privacidade ou conteúdo presente nesses mesmos sites. Todas as suas informações pessoais recolhidas serão usadas para ajudá-lo a tornar a sua visita ao nosso site o mais produtiva e agradável possível.",
     "terms.confidentiality.description2":
-      "A garantia da confidencialidade dos dados dos utilizadores do nosso site é importante para a loja. Todas as informações pessoais relativas a membros, assinantes, clientes ou visitantes que usem o site da loja serão tratadas em concordância com a Lei da Proteção de Dados Pessoais de 26 de outubro de 1998 (Lei n.° 67/98).",
+      "A garantia da confidencialidade dos dados dos utilizadores do nosso site é importante para o ADR Token. Todas as informações pessoais relativas a membros, assinantes, clientes ou visitantes que usem o site do ADR Token serão tratadas em concordância com as leis de proteção de dados aplicáveis.",
     "terms.confidentiality.description3":
       "A informação pessoal recolhida pode incluir o seu nome, e-mail, número de telefone e/ou telemóvel, morada, data de nascimento e/ou outros.",
     "terms.confidentiality.description4":
-      "O uso do site da SK Sports pressupõe a aceitação deste Acordo de Privacidade. A equipe da loja reserva-se ao direito de alterar este acordo sem aviso prévio. Deste modo, recomendamos que consulte a nossa política de privacidade regularmente para estar sempre atualizado",
+      "O uso do site do ADR Token pressupõe a aceitação deste Acordo de Privacidade. A equipe do ADR Token reserva-se ao direito de alterar este acordo sem aviso prévio. Deste modo, recomendamos que consulte a nossa política de privacidade regularmente para estar sempre atualizado",
 
     // FAQ
     "faq.title": "FAQ",
@@ -728,6 +772,10 @@ export const translations = {
     "footer.telegram": "Junte-se ao nosso Telegram",
     "footer.whitepaper": "Whitepaper",
     "footer.terms": "Termos de uso",
+    "footer.privacy": "Política de Privacidade",
+    "footer.disclaimer": "Aviso Legal", 
+    "footer.jurisdiction": "Aviso de Jurisdição",
+    "footer.intellectualProperty": "Política de Propriedade Intelectual",
 
     // Wallet
     "wallet.connect": "Conectar Carteira",
@@ -745,8 +793,8 @@ export const translations = {
     "transactions.completed": "Concluído",
     "transactions.error": "Erro",
     "transactions.processing": "Processando...",
-    "transactions.claimed": "Reclamado",
-    "transactions.claim": "Reclamar",
+    "transactions.claimed": "Reinvidicado",
+    "transactions.claim": "Reinvidicar",
     "transactions.delivering": "Entregando",
     "transactions.delivered": "Entregue",
     "transactions.name": "Nome",

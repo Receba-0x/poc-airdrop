@@ -78,7 +78,43 @@ export function Footer() {
 
         <div className="flex w-full items-center justify-between bg-[#3A3A3A] h-[1px] mb-6 sm:mb-8" />
 
-        {/* Social Media Links */}
+        <div className="w-full mb-6 sm:mb-8">
+          <div className="flex items-center w-full justify-center gap-4 text-center">
+            <Link
+              href="/terms-of-use"
+              className="text-[#BDBDBD] hover:text-[#28D939] transition-colors duration-200 text-sm font-medium"
+            >
+              {t("footer.terms")}
+            </Link>
+            <Link
+              href="/privacy"
+              className="text-[#BDBDBD] hover:text-[#28D939] transition-colors duration-200 text-sm font-medium"
+            >
+              {t("footer.privacy")}
+            </Link>
+            <Link
+              href="/disclaimer"
+              className="text-[#BDBDBD] hover:text-[#28D939] transition-colors duration-200 text-sm font-medium"
+            >
+              {t("footer.disclaimer")}
+            </Link>
+            <Link
+              href="/jurisdiction"
+              className="text-[#BDBDBD] hover:text-[#28D939] transition-colors duration-200 text-sm font-medium"
+            >
+              {t("footer.jurisdiction")}
+            </Link>
+            <Link
+              href="/intellectual-property"
+              className="text-[#BDBDBD] hover:text-[#28D939] transition-colors duration-200 text-sm font-medium"
+            >
+              {t("footer.intellectualProperty")}
+            </Link>
+          </div>
+        </div>
+
+        <div className="flex w-full items-center justify-between bg-[#3A3A3A] h-[1px] mb-6 sm:mb-8" />
+
         <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-6 sm:mb-8">
           <motion.a
             href="https://x.com/imperadortoken"
@@ -107,13 +143,7 @@ export function Footer() {
 
         <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-[#BDBDBD] text-xs sm:text-sm text-center sm:text-left">
-            © 2025 ADR Token. {t("footer.rights")}{" "}
-            <Link
-              href="/terms"
-              className="text-[#28D939] hover:text-[#28D939] transition-colors duration-200"
-            >
-              {t("footer.terms")}
-            </Link>
+            © 2025 ADR Token. {t("footer.rights")}
           </div>
 
           <Button className="w-full sm:w-auto py-3 px-4 sm:px-6 text-sm sm:text-base">
