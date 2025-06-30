@@ -11,7 +11,7 @@ import axios from "axios";
 import { useUser } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAccount } from "wagmi";
-import { getProvider } from "@/libs";
+import { useEthersSigner } from "@/libs";
 import { AdrAbi__factory, ERC20__factory } from "@/contracts";
 import { ethers } from "ethers";
 import {
@@ -71,6 +71,7 @@ export function usePurchase() {
   const { address, isConnected } = useAccount();
   const { balance, refreshBalance, bnbPrice } = useUser();
   const { t } = useLanguage();
+  const signer = useEthersSigner();
 
   const [currentStock, setCurrentStock] = useState<{ [key: number]: number }>(
     {}
@@ -86,19 +87,10 @@ export function usePurchase() {
     amount: "",
   });
 
-  const providerRef = useRef<any>(null);
   const contractsRef = useRef<{ token?: any; adr?: any }>({});
 
-  const getCachedProvider = useCallback(async () => {
-    if (!providerRef.current) {
-      providerRef.current = await getProvider();
-    }
-    return providerRef.current;
-  }, []);
-
   const getCachedContracts = useCallback(async () => {
-    const provider = await getCachedProvider();
-    const signer = await provider.getSigner();
+    if (!signer) throw new Error("Signer not available");
 
     if (!contractsRef.current.token) {
       contractsRef.current.token = ERC20__factory.connect(
@@ -114,7 +106,7 @@ export function usePurchase() {
     }
 
     return contractsRef.current;
-  }, []);
+  }, [signer]);
 
   const updateState = useCallback((updates: Partial<PurchaseState>) => {
     setPurchaseState((prev) => ({ ...prev, ...updates }));
@@ -150,6 +142,7 @@ export function usePurchase() {
 
   const executeParallelBlockchainOps = useCallback(
     async (amountToBurn: string, isCrypto: boolean) => {
+      if (!signer) throw new Error("Signer not available");
       const contracts = await getCachedContracts();
 
       const [, bnbFeeTx] = await Promise.all([
@@ -160,8 +153,6 @@ export function usePurchase() {
         })(),
         (async () => {
           updateState({ status: "paying_bnb_fee" });
-          const provider = await getCachedProvider();
-          const signer = await provider.getSigner();
           const feeUSD = calculateBnbFee(isCrypto);
           const valueInBnb = feeUSD / bnbPrice;
           const value = ethers.parseEther(valueInBnb.toFixed(18));
@@ -178,12 +169,13 @@ export function usePurchase() {
 
       return bnbFeeTx;
     },
-    [address, bnbPrice, getCachedContracts, getCachedProvider, updateState]
+    [address, bnbPrice, getCachedContracts, signer, updateState]
   );
 
   const onMint = useCallback(
     async (isCrypto: boolean) => {
       if (!address) throw new Error("Wallet not connected");
+      if (!signer) throw new Error("Signer not available");
 
       const boxType = getBoxTypeString(isCrypto, t);
       const tokenAmount = calculateTokenAmount(isCrypto);
@@ -306,6 +298,7 @@ export function usePurchase() {
       executeParallelBlockchainOps,
       getCachedContracts,
       refreshBalance,
+      signer,
     ]
   );
 
