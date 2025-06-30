@@ -14,7 +14,7 @@ export const HeroSection = () => {
           <span className="bg-gradient-to-r from-[#FFF7A8] to-[#FFEB28] font-black bg-clip-text text-transparent">
             {t("hero.adriano")}
           </span>{" "}
-          {language === "pt" ? null : t("hero.token")}
+         {/*  {language === "pt" ? null : t("hero.token")} */}
         </h1>
       </ScrollAnimation>
 

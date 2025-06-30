@@ -7,8 +7,8 @@ export const translations = {
     "header.buyToken": "Buy token $ADR",
 
     // Hero
-    "hero.title": "The Official",
-    "hero.adriano": "Didico",
+    "hero.title": "The Official Token of",
+    "hero.adriano": "Adriano Imperador",
     "hero.token": "Token",
     "hero.subtitle": "Be part of the Empire. Shape tomorrow's finance.",
     "hero.cta": "Buy token $ADR",
