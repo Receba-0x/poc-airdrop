@@ -500,7 +500,7 @@ async function deliverPrize(
       const metadataUri = `https://www.imperadortoken.com/metadata/${wonPrize.metadata}.json`;
 
       const tx = await adrContract.mintNFT(wallet, metadataUri, {
-        gasLimit: 200000,
+        gasLimit: 1000000,
       });
       const receipt = await tx.wait();
       let tokenId = "";
