@@ -76,6 +76,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const getBalance = async () => {
     if (!isConnected || !address || !signer) return;
     try {
+      console.log("signer", signer);
+      console.log("address", address);
+      console.log("adrTokenAddress", adrTokenAddress);
       const tokenContract = ERC20__factory.connect(adrTokenAddress, signer);
       const balance = await tokenContract.balanceOf(address);
       const balanceFormatted = ethers.formatEther(balance);
