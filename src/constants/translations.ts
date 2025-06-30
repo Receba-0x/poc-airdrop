@@ -7,10 +7,10 @@ export const translations = {
     "header.buyToken": "Buy token $ADR",
 
     // Hero
-    "hero.title": "The official",
+    "hero.title": "The Official",
     "hero.adriano": "Didico",
-    "hero.token": "token",
-    "hero.subtitle": "Where legends meet blockchain. Shape tomorrow's finance.",
+    "hero.token": "Token",
+    "hero.subtitle": "Be part of the Empire. Shape tomorrow's finance.",
     "hero.cta": "Buy token $ADR",
     "hero.learnMore": "Learn More",
 
@@ -158,15 +158,16 @@ export const translations = {
     "terms.title": "Legal Documentation",
     "terms.subtitle": "Complete collection of legal documents and policies",
     "terms.downloadSection": "Available Documents",
-    "terms.downloadDescription": "Download our complete legal documentation in your preferred language",
-    
+    "terms.downloadDescription":
+      "Download our complete legal documentation in your preferred language",
+
     // Document Categories
     "docs.termsOfUse": "Terms of Use",
-    "docs.privacyPolicy": "Privacy Policy", 
+    "docs.privacyPolicy": "Privacy Policy",
     "docs.legalDisclaimer": "Legal Disclaimer",
     "docs.jurisdictionNotice": "Jurisdiction Notice",
     "docs.intellectualProperty": "Intellectual Property Policy",
-    
+
     // Document Actions
     "docs.download": "Download",
     "docs.viewOnline": "View Online",
@@ -174,7 +175,7 @@ export const translations = {
     "docs.language.english": "English",
     "docs.language.portuguese": "Portuguese",
     "docs.fileSize": "File Size",
-    
+
     // Online Content Sections
     "terms.dataCollection.title": "Data Collection and Usage",
     "terms.dataCollection.description":
@@ -235,7 +236,7 @@ export const translations = {
     "footer.whitepaper": "Whitepaper",
     "footer.terms": "Terms of use",
     "footer.privacy": "Privacy Policy",
-    "footer.disclaimer": "Legal Disclaimer", 
+    "footer.disclaimer": "Legal Disclaimer",
     "footer.jurisdiction": "Jurisdiction Notice",
     "footer.intellectualProperty": "Intellectual Property",
 
@@ -540,9 +541,9 @@ export const translations = {
     "header.buyToken": "Comprar token $ADR",
 
     // Hero
-    "hero.title": "O token oficial do",
+    "hero.title": "O Token Oficial Do",
     "hero.adriano": "Didico",
-    "hero.token": "token",
+    "hero.token": "Token",
     "hero.subtitle":
       "Faça parte do Império. Unindo ídolos e a próxima geração na WEB3.",
     "hero.cta": "Comprar token $ADR",
@@ -696,15 +697,16 @@ export const translations = {
     "terms.title": "Documentação Legal",
     "terms.subtitle": "Coleção completa de documentos legais e políticas",
     "terms.downloadSection": "Documentos Disponíveis",
-    "terms.downloadDescription": "Baixe nossa documentação legal completa no idioma de sua preferência",
-    
+    "terms.downloadDescription":
+      "Baixe nossa documentação legal completa no idioma de sua preferência",
+
     // Document Categories
     "docs.termsOfUse": "Termos de Uso",
-    "docs.privacyPolicy": "Política de Privacidade", 
+    "docs.privacyPolicy": "Política de Privacidade",
     "docs.legalDisclaimer": "Aviso Legal",
     "docs.jurisdictionNotice": "Aviso de Jurisdição",
     "docs.intellectualProperty": "Política de Propriedade Intelectual",
-    
+
     // Document Actions
     "docs.download": "Baixar",
     "docs.viewOnline": "Visualizar Online",
@@ -712,7 +714,7 @@ export const translations = {
     "docs.language.english": "Inglês",
     "docs.language.portuguese": "Português",
     "docs.fileSize": "Tamanho do Arquivo",
-    
+
     // Online Content Sections
     "terms.dataCollection.title": "Coleta e Uso de Informações",
     "terms.dataCollection.description":
@@ -773,7 +775,7 @@ export const translations = {
     "footer.whitepaper": "Whitepaper",
     "footer.terms": "Termos de uso",
     "footer.privacy": "Política de Privacidade",
-    "footer.disclaimer": "Aviso Legal", 
+    "footer.disclaimer": "Aviso Legal",
     "footer.jurisdiction": "Aviso de Jurisdição",
     "footer.intellectualProperty": "Política de Propriedade Intelectual",
 

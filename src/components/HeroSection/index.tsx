@@ -4,7 +4,7 @@ import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export const HeroSection = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-start md:pt-[80px] pt-[80px] md:mt-10 bg-[url('/images/home_bg.webp')] max-w-[1440px] bg-cover bg-center bg-no-repeat">
@@ -14,7 +14,7 @@ export const HeroSection = () => {
           <span className="bg-gradient-to-r from-[#FFF7A8] to-[#FFEB28] font-black bg-clip-text text-transparent">
             {t("hero.adriano")}
           </span>{" "}
-          {/*  {t("hero.token")} */}
+          {language === "pt" ? null : t("hero.token")}
         </h1>
       </ScrollAnimation>
 

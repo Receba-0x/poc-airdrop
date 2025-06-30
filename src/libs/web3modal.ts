@@ -10,7 +10,8 @@ export const projectId = "4ebbf2eddb8738c4c84cd8082b5e9756";
 
 const metadata = {
   name: "Imperador Token",
-  description: "Imperador Token - Decentralized Mystery Boxes",
+  description:
+    "Imperador Token - Be part of the Empire. Shape tomorrow's finance.",
   url: "https://imperadortoken.com",
   icons: ["https://imperadortoken.com/images/logo_token.png"],
 };

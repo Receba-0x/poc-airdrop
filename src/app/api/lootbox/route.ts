@@ -70,7 +70,6 @@ async function handlePurchase(params: any) {
     );
   }
 
-  // Step 1: Generate signature
   const isCrypto = boxType === 1;
   const priceUSD = isCrypto ? 17.5 : 45;
   const tokenPrice = 0.002;
@@ -89,7 +88,6 @@ async function handlePurchase(params: any) {
   const arrayifiedHash = ethers.getBytes(messageHash);
   const signature = await signer.signMessage(arrayifiedHash);
 
-  // Step 2: Validate signature locally
   try {
     const ethSignedMessageHash = ethers.hashMessage(arrayifiedHash);
     const recoveredAddress = ethers.recoverAddress(
