@@ -75,7 +75,7 @@ export function RoadMapSection() {
         </ScrollAnimation>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-between w-full max-w-[1280px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 md:px-0 items-center justify-between w-full max-w-[1280px]">
         {roadMap.map((item, index) => (
           <div key={index} className="flex flex-col items-center justify-start rounded-lg overflow-hidden bg-[#191919] h-full">
             <h2 className="text-[#EEE] text-lg xl:text-[24px] bg-[#222222] w-full font-bold text-center flex items-center justify-center gap-2 py-4">

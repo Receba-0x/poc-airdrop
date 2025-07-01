@@ -10,11 +10,18 @@ export const HeroSection = () => {
     <div className="w-full min-h-screen flex flex-col items-center justify-start md:pt-[80px] pt-[80px] md:mt-10 bg-[url('/images/home_bg.webp')] max-w-[1440px] bg-cover bg-center bg-no-repeat">
       <ScrollAnimation type="fade" direction="down" duration={0.8} delay={0.2}>
         <h1 className="text-[#EEE] text-[36px] xl:text-[56px] font-semibold w-full text-center leading-[40px] md:leading-[61.6px]">
-          {t("hero.title")}{" "}
+          {t("hero.title")
+            .split("\n")
+            .map((line, index) => (
+              <span key={index}>
+                {line}
+                {index < t("hero.title").split("\n").length - 1 && <br />}
+              </span>
+            ))}
           <span className="bg-gradient-to-r from-[#FFF7A8] to-[#FFEB28] font-black bg-clip-text text-transparent">
             {t("hero.adriano")}
           </span>{" "}
-         {/*  {language === "pt" ? null : t("hero.token")} */}
+          {/*  {language === "pt" ? null : t("hero.token")} */}
         </h1>
       </ScrollAnimation>
 
@@ -26,7 +33,7 @@ export const HeroSection = () => {
 
       <ScrollAnimation type="scale" duration={0.6} delay={0.8}>
         <Button className="mt-[20px] md:mt-[40px] w-[287px] h-[56px]">
-          {t("hero.cta")}
+          {t("hero.joinCommunity")}
         </Button>
       </ScrollAnimation>
     </div>

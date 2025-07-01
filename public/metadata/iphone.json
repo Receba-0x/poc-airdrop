@@ -1,9 +1,9 @@
 {
-  "name": "ADR iPhone Gift Card",
-  "symbol": "ADR-IPHONE",
-  "description": "Exclusive Amazon gift card for iPhone purchase, sponsored by the $ADR community. A digital prize that brings technology and innovation to Vila Cruzeiro. Part of the official $ADR collection.",
-  "image": "https://adr-token.vercel.app/images/itens/iphone.webp",
-  "external_url": "https://adr-token.vercel.app",
+  "name": "Imperador iPhone Gift Card",
+  "symbol": "IMPERADOR-IPHONE",
+  "description": "Exclusive Amazon gift card for iPhone purchase. A digital prize that brings technology and innovation to Vila Cruzeiro. Part of the official Imperador Token collection.",
+  "image": "https://imperadortoken.com/images/itens/iphone.webp",
+  "external_url": "https://imperadortoken.com",
   "attributes": [
     {
       "trait_type": "Category",
@@ -39,7 +39,7 @@
     }
   ],
   "collection": {
-    "name": "ADR Collection",
+    "name": "Imperador Collection",
     "family": "Adriano Imperador"
   },
   "properties": {
@@ -51,4 +51,4 @@
     ],
     "category": "image"
   }
-} 
+}

@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { Button } from "../Button";
 import { ScrollAnimation } from "../ScrollAnimation";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -24,9 +25,12 @@ export function JoinSection() {
                 {t("join.description")}
               </p>
             </div>
-            <Button className="w-full sm:w-[290px] py-3 sm:h-[56px] text-sm sm:text-base">
-              {t("header.buyToken")}
-            </Button>
+
+            <Link href="https://t.me/imperadorcoin" target="_blank">
+              <Button className="w-full sm:w-[290px] py-3 sm:h-[56px] text-sm sm:text-base">
+                {t("hero.joinCommunity")}
+              </Button>
+            </Link>
           </div>
 
           <div className="h-[180px] sm:h-[236px] w-full rounded-lg bg-[url('/images/join-bg.png')] bg-cover bg-center bg-no-repeat border border-[#3A3A3A]" />

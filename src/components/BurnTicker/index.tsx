@@ -74,7 +74,7 @@ export function BurnTicker() {
   const itemWidth = `${100 / itemCount}%`;
 
   return (
-    <div className="w-full bg-[#0F0F0F] overflow-hidden fixed top-[64px] left-0 right-0 z-50 drop-shadow-2xl shadow-2xl shadow-black">
+    <div className="w-full bg-[#0F0F0F] overflow-hidden fixed top-[56px] md:top-[64px] left-0 right-0 z-50 drop-shadow-2xl shadow-2xl shadow-black">
       <div className="relative h-[36px] w-full">
         <motion.div
           className="flex h-full w-full"

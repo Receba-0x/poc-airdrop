@@ -18,7 +18,6 @@ const boxData = [
 ];
 
 export default function BoxesPage() {
-  const [searchQuery, setSearchQuery] = useState("");
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
   const { t } = useLanguage();
@@ -70,48 +69,6 @@ export default function BoxesPage() {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <h2 className="text-2xl font-bold">{t("boxes.title")}</h2>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
-            <div className="text-sm text-[#B4B4B4] flex items-center bg-[#191919] rounded-lg px-4 py-2 w-full sm:w-auto">
-              <span>{t("common.filter")}</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 ml-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
-            <div className="relative w-full sm:w-auto">
-              <input
-                type="text"
-                placeholder={t("common.search")}
-                className="bg-[#191919] rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 pl-8 w-full"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-[#B4B4B4]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
-          </div>
         </motion.div>
 
         <motion.div

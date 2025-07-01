@@ -12,14 +12,61 @@ export const FeaturesGrid = () => {
       type="slide"
       direction="up"
     >
-            <div className="hidden md:flex items-center justify-between h-[317px] w-full gap-3">                <Card1          title={t('features.card1.title')}          description={t('features.card1.description')}          width="lg:min-w-[733px] w-[733px]"        />        <Card2          title={t('features.card2.title')}          description={t('features.card2.description')}          width="w-full"        />      </div>
+      <div className="hidden md:flex items-center justify-between h-[317px] w-full gap-3">
+        <Card1
+          title={t("features.card1.title")}
+          description={t("features.card1.description")}
+          width="lg:min-w-[733px] w-[733px]"
+        />
+        <Card2
+          title={t("features.card2.title")}
+          description={t("features.card2.description")}
+          width="w-full"
+        />
+      </div>
 
       <div className="hidden md:flex items-center justify-between h-[317px] w-full gap-3 mt-3">
-                                 <Card3          title={t('features.card3.title')}          description={t('features.card3.description')}          width="lg:min-w-[843px] w-[843px]"        />        <Card4 buttonText={t('header.buyToken')} width="w-full" />
+        <Card3
+          title={t("features.card3.title")}
+          description={t("features.card3.description")}
+          width="lg:min-w-[843px] w-[843px]"
+        />
+        <Card4
+          href={"https://t.me/imperadorcoin"}
+          buttonText={t("hero.joinCommunity")}
+          width="w-full"
+        />
       </div>
 
       <div className="flex flex-col md:hidden w-full gap-6">
-                <div className="h-[280px] w-full">          <Card1            title={t('features.card1.title')}            description={t('features.card1.description')}            width="w-full"          />        </div>        <div className="h-[280px] w-full">          <Card2            title={t('features.card2.title')}            description={t('features.card2.description')}            width="w-full"          />        </div>        <div className="h-[280px] w-full">          <Card3            title={t('features.card3.title')}            description={t('features.card3.description')}            width="w-full"          />        </div>        <div className="h-[140px] w-full">          <Card4 buttonText={t('header.buyToken')} width="w-full" />        </div>
+        <div className="h-[280px] w-full">
+          <Card1
+            title={t("features.card1.title")}
+            description={t("features.card1.description")}
+            width="w-full"
+          />
+        </div>
+        <div className="h-[280px] w-full">
+          <Card2
+            title={t("features.card2.title")}
+            description={t("features.card2.description")}
+            width="w-full"
+          />
+        </div>
+        <div className="h-[280px] w-full">
+          <Card3
+            title={t("features.card3.title")}
+            description={t("features.card3.description")}
+            width="w-full"
+          />
+        </div>
+        <div className="h-[140px] w-full">
+          <Card4
+            href={"https://t.me/imperadorcoin"}
+            buttonText={t("hero.joinCommunity")}
+            width="w-full"
+          />
+        </div>
       </div>
     </StaggeredContainer>
   );

@@ -11,12 +11,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { BoxIcon } from "../Icons/BoxIcon";
 import { HistoricIcon } from "../Icons/HistoricIcon";
+import { WhitepaperIcon } from "../Icons/WhitepaperIcon";
 import { BurnTicker } from "../BurnTicker";
 import { StakingIcon } from "../Icons/StakingIcon";
 import { LanguageToggle } from "../LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WalletConnectButton } from "../WalletConnectButton";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount } from "wagmi";
 import { useUser } from "@/contexts/UserContext";
 
 export function Header() {
@@ -24,8 +25,8 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { scrollY } = useScroll();
   const headerOpacity = useTransform(scrollY, [0, 50], [0.8, 1]);
-  const { t } = useLanguage();
-  const { address, isConnected } = useAccount();
+  const { t, language } = useLanguage();
+  const { isConnected } = useAccount();
   const { balance } = useUser();
 
   useEffect(() => {
@@ -122,8 +123,8 @@ export function Header() {
             {balance.toLocaleString("en-US", {
               maximumFractionDigits: 4,
               minimumFractionDigits: 2,
-            })}
-            {balance}
+            })}{" "}
+            Tokens
           </span>
         </div>
       </div>
@@ -153,7 +154,7 @@ export function Header() {
               whileTap={{ scale: 0.95 }}
             >
               <Link href="/">
-                <div className="flex items-center gap-1 md:gap-2">
+                <div className="md:flex items-center gap-1 md:gap-2 hidden">
                   <motion.div
                     className="w-8 h-8 md:w-auto md:h-auto"
                     whileHover={{ rotate: [0, -10, 10, -10, 0] }}
@@ -210,10 +211,13 @@ export function Header() {
                 variants={buttonVariants}
               >
                 <Link
-                  href="/staking"
+                  href={`https://adriano-imperador.gitbook.io/${
+                    language === "en" ? "en" : "pt-br"
+                  }`}
+                  target="_blank"
                   className="text-white hover:text-[#28D939] transition-colors flex items-center gap-2"
                 >
-                  <StakingIcon /> {t("header.staking")}
+                  <WhitepaperIcon /> {t("header.whitepaper")}
                 </Link>
               </motion.nav>
             </div>
@@ -253,7 +257,7 @@ export function Header() {
                 }}
               />
             </motion.div>
-            <motion.div
+            {/* <motion.div
               initial="hidden"
               animate="visible"
               variants={buttonVariants}
@@ -261,7 +265,7 @@ export function Header() {
               <Button className="text-sm sm:text-base py-2 px-3 sm:px-4 md:py-2 md:px-6">
                 {t("header.buyToken")}
               </Button>
-            </motion.div>
+            </motion.div> */}
           </div>
           <motion.div
             className="md:hidden flex items-center z-50"
@@ -326,7 +330,7 @@ export function Header() {
               onClick={() => setMobileMenuOpen(false)}
             />
             <motion.div
-              className="fixed inset-y-0 right-0 z-40 w-[85%] max-w-[360px] bg-gradient-to-l from-[#0F0F0F] to-[#0F0F0F]/95 pt-20 px-6 backdrop-blur-md shadow-xl border-l border-[#222222]"
+              className="fixed inset-y-0 right-0 z-40 w-[85%] max-w-[360px] bg-gradient-to-l from-[#0F0F0F] to-[#0F0F0F] pt-20 px-6 shadow-xl border-l border-[#222222]"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
@@ -379,11 +383,14 @@ export function Header() {
 
                   <motion.div variants={menuItemVariants}>
                     <Link
-                      href="/staking"
+                      href={`https://adriano-imperador.gitbook.io/${
+                        language === "en" ? "en" : "pt-br"
+                      }`}
+                      target="_blank"
                       className="text-white hover:text-[#28D939] transition-colors text-xl py-3 border-b border-[#222222] flex items-center gap-4"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <StakingIcon /> {t("header.staking")}
+                      <WhitepaperIcon /> {t("header.whitepaper")}
                     </Link>
                   </motion.div>
                 </motion.div>
@@ -422,7 +429,7 @@ export function Header() {
                       className="w-full py-3 flex items-center justify-center gap-2 h-[40px]"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      {t("header.buyToken")}
+                      {t("hero.joinCommunity")}
                     </Button>
                   </motion.div>
                 </motion.div>

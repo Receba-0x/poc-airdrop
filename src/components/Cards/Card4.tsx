@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { Button } from "@/components/Button";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 interface Card4Props {
   buttonText: string;
@@ -11,14 +12,16 @@ interface Card4Props {
   buttonHeight?: string;
   delay?: number;
   width?: string;
+  href: string;
 }
 
 export const Card4 = ({
   buttonText,
-  buttonWidth = "w-[288px]",
+  buttonWidth = "w-[300px]",
   buttonHeight = "h-[56px]",
   delay = 0.35,
   width = "w-full",
+  href,
 }: Card4Props) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -53,7 +56,6 @@ export const Card4 = ({
         }}
       />
 
-      {/* Versão desktop do botão */}
       <div className="hidden md:block z-10">
         <motion.div
           animate={{
@@ -62,16 +64,17 @@ export const Card4 = ({
             transition: { duration: 0.4, ease: "easeInOut" },
           }}
         >
-          <Button
-            className={`${buttonWidth} ${buttonHeight} rounded-lg text-lg font-medium`}
-            variant="primary"
-          >
-            {buttonText}
-          </Button>
+          <Link href={href} target="_blank">
+            <Button
+              className={`${buttonWidth} ${buttonHeight} rounded-lg text-lg font-medium`}
+              variant="primary"
+            >
+              {buttonText}
+            </Button>
+          </Link>
         </motion.div>
       </div>
 
-      {/* Versão mobile do botão */}
       <div className="md:hidden z-10">
         <motion.div
           animate={{
@@ -80,12 +83,14 @@ export const Card4 = ({
             transition: { duration: 0.4, ease: "easeInOut" },
           }}
         >
-          <Button
-            className="w-[220px] h-[48px] rounded-lg text-base font-medium"
-            variant="primary"
-          >
-            {buttonText}
-          </Button>
+          <Link href={href} target="_blank">
+            <Button
+              className="w-full h-[48px] rounded-lg text-base font-medium"
+              variant="primary"
+            >
+              {buttonText}
+            </Button>
+          </Link>
         </motion.div>
       </div>
     </ScrollAnimation>

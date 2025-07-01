@@ -7,10 +7,12 @@ import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { TwitterIcon } from "../Icons/TwitterIcon";
 import { TelegramIcon } from "../Icons/TelegramIcon";
-import { DocumentIcon } from "../Icons/DocumentIcon";
+import { BoxIcon } from "../Icons/BoxIcon";
+import { HistoricIcon } from "../Icons/HistoricIcon";
+import { WhitepaperIcon } from "../Icons/WhitepaperIcon";
 
 export function Footer() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const logoVariants = {
     hidden: { opacity: 0, y: -20 },
@@ -56,23 +58,52 @@ export function Footer() {
                 transition: { duration: 0.2 },
               }}
             >
-              $ADR
+              Imperador Token
             </motion.span>
           </motion.div>
 
-          <div className="flex items-center space-x-4 sm:space-x-6">
-            <Link
-              href="/boxes"
-              className="text-[#EEEEEE] text-xs sm:text-sm lg:text-base font-semibold"
+          <div className="hidden lg:flex items-center gap-4 ml-10">
+            <motion.nav
+              className="flex items-center gap-2"
+              initial="hidden"
+              animate="visible"
             >
-              {t("header.boxes")}
-            </Link>
-            <Link
-              href="/transactions"
-              className="text-[#EEEEEE] text-xs sm:text-sm lg:text-base font-semibold hidden md:block"
+              <Link
+                href="/boxes"
+                className="text-white hover:text-[#28D939] transition-colors flex items-center gap-2"
+              >
+                <BoxIcon /> {t("header.boxes")}
+              </Link>
+            </motion.nav>
+
+            <motion.nav
+              className="flex items-center gap-6"
+              initial="hidden"
+              animate="visible"
             >
-              {t("header.historic")}
-            </Link>
+              <Link
+                href="/transactions"
+                className="text-white hover:text-[#28D939] transition-colors flex items-center gap-2"
+              >
+                <HistoricIcon /> {t("header.historic")}
+              </Link>
+            </motion.nav>
+
+            <motion.nav
+              className="flex items-center gap-6"
+              initial="hidden"
+              animate="visible"
+            >
+              <Link
+                href={`https://adriano-imperador.gitbook.io/${
+                  language === "en" ? "en" : "pt-br"
+                }`}
+                target="_blank"
+                className="text-white hover:text-[#28D939] transition-colors flex items-center gap-2"
+              >
+                <WhitepaperIcon /> {t("header.whitepaper")}
+              </Link>
+            </motion.nav>
           </div>
         </div>
 
@@ -129,7 +160,7 @@ export function Footer() {
           </motion.a>
 
           <motion.a
-            href="https://t.me/imperadortokenofficial"
+            href="https://t.me/imperadorcoin"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-[#EEEEEE] hover:text-[#28D939] transition-colors duration-200"
@@ -143,12 +174,14 @@ export function Footer() {
 
         <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-[#BDBDBD] text-xs sm:text-sm text-center sm:text-left">
-            © 2025 ADR Token. {t("footer.rights")}
+            © 2025 Imperador Token. {t("footer.rights")}
           </div>
 
-          <Button className="w-full sm:w-auto py-3 px-4 sm:px-6 text-sm sm:text-base">
-            {t("header.buyToken")}
-          </Button>
+          <Link href="https://t.me/imperadorcoin" target="_blank">
+            <Button className="w-full sm:w-auto py-3 px-4 sm:px-6 text-sm sm:text-base">
+              {t("hero.joinCommunity")}
+            </Button>
+          </Link>
         </div>
       </ScrollAnimation>
     </footer>

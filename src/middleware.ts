@@ -53,7 +53,6 @@ export function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/api/")) {
-
     if (request.method !== "GET" && !isValidOrigin(origin, host)) {
       console.log("❌ Blocked: Invalid origin", { origin, host });
       return new NextResponse(
@@ -95,13 +94,10 @@ export function middleware(request: NextRequest) {
         );
       }
 
-      // Only require referer for sensitive operations (purchase, burn)
-      // Allow read-only operations without strict referer validation
       if (
         request.method === "POST" &&
         (!referer || !referer.includes(host || ""))
       ) {
-        // Log the attempt but don't block immediately
         console.warn("⚠️ POST request to lootbox without proper referer:", {
           referer,
           host,
@@ -148,7 +144,7 @@ export function middleware(request: NextRequest) {
   // CSP header
   response.headers.set(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'none';"
+    "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https:; frame-src *; connect-src *; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; style-src-elem 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; media-src 'self' data: blob: https:; object-src 'none'; base-uri 'self';"
   );
 
   console.log("✅ Request allowed to proceed");

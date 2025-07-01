@@ -5,13 +5,15 @@ export const translations = {
     "header.historic": "Historic",
     "header.staking": "Staking",
     "header.buyToken": "Buy $IMPERA",
+    "header.whitepaper": "Whitepaper",
 
     // Hero
-    "hero.title": "The Official Token of",
+    "hero.title": "The Official Token of \n ",
     "hero.adriano": "Adriano Imperador",
     "hero.token": "Token",
     "hero.subtitle": "Be part of the Empire. Shape tomorrow's finance.",
     "hero.cta": "Buy $IMPERA",
+    "hero.joinCommunity": "Join Official Community",
     "hero.learnMore": "Learn More",
 
     // Roadmap Section
@@ -291,8 +293,9 @@ export const translations = {
     "box.superPrizes": "Super prizes",
     "box.description":
       "We value the importance of solidarity and empathy, offering the opportunity to win essential products that make a difference in everyday life!",
+    "box.illustrationImages": "Images are for illustrative purposes only.",
     "box.simulation": "Simulation",
-    "box.purchase": "Purchase",
+    "box.purchase": "Soon",
     "box.processingPurchase": "Processing your purchase",
     "box.openingBox": "Opening your mystery box...",
     "box.congratulations": "Congratulations!",
@@ -540,15 +543,17 @@ export const translations = {
     "header.historic": "Histórico",
     "header.staking": "Staking",
     "header.buyToken": "Comprar token $ADR",
+    "header.whitepaper": "Whitepaper",
 
     // Hero
-    "hero.title": "O Token Oficial Do",
+    "hero.title": "O Token Oficial \n Do ",
     "hero.adriano": "Didico",
     "hero.token": "Token",
     "hero.subtitle":
       "Faça parte do Império. Unindo ídolos e a próxima geração na WEB3.",
     "hero.cta": "Comprar token $ADR",
     "hero.learnMore": "Saiba Mais",
+    "hero.joinCommunity": "Junte-se à Comunidade Oficial",
 
     // Roadmap Section
     "roadmap.title": "Roteiro",
@@ -831,8 +836,9 @@ export const translations = {
     "box.superPrizes": "Super prêmios",
     "box.description":
       "Valorizamos a importância da solidariedade e empatia, oferecendo a oportunidade de ganhar produtos essenciais que fazem a diferença no dia a dia!",
+    "box.illustrationImages": "Imagens meramente ilustrativas.",
     "box.simulation": "Simulação",
-    "box.purchase": "Comprar",
+    "box.purchase": "Em breve",
     "box.processingPurchase": "Processando sua compra",
     "box.openingBox": "Abrindo sua caixa misteriosa...",
     "box.congratulations": "Parabéns!",

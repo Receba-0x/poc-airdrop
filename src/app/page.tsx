@@ -20,7 +20,7 @@ export default function Home() {
       <RoadMapSection />
       <TokenomicsChart />
       <JoinSection />
-      <FaqSection />
+      {/* <FaqSection /> */}
       <Footer />
     </section>
   );

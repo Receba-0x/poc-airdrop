@@ -34,7 +34,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
   } = usePurchase();
   const { stats, isLoading: statsLoading, refetch } = useBoxStats();
   const { t } = useLanguage();
-  console.log(currentStock)
+  console.log(currentStock);
 
   const [simulationModalOpen, setSimulationModalOpen] = useState(false);
   const [simulationStatus, setSimulationStatus] = useState<
@@ -102,12 +102,12 @@ export function BoxSection({ boxName }: { boxName: string }) {
   }, []);
 
   const handlePurchase = async () => {
-    try {
+    /* try {
       await onMint(boxName === "cryptos");
       refetch();
     } catch (error: any) {
       console.error("Erro ao processar compra:", error);
-    }
+    } */
   };
 
   const generateRandomNumber = () => {
@@ -304,7 +304,10 @@ export function BoxSection({ boxName }: { boxName: string }) {
                       : t("box.superPrizes")}
                   </motion.h1>
                   <p className="text-xs sm:text-sm text-[#B4B4B4] max-w-[300px] sm:max-w-none">
-                    {t("box.description")}
+                    {t("box.description")}{" "}
+                    <span className="text-[#FFD700]">
+                      {t("box.illustrationImages")}
+                    </span>
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-2">
