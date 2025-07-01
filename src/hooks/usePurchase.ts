@@ -1,8 +1,7 @@
 "use client";
 import {
-  adrControllerAddress,
-  adrNftAddress,
-  adrTokenAddress,
+  controllerAddress,
+  ERC20Address,
   CRYPTO_PRIZE_TABLE,
   PRIZE_TABLE,
 } from "@/constants";
@@ -12,7 +11,12 @@ import { useUser } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAccount } from "wagmi";
 import { useEthersSigner } from "@/libs";
-import { AdrAbi__factory, ERC20__factory } from "@/contracts";
+import {
+  ControllerAbi__factory,
+  ERC20__factory,
+  type ControllerAbi,
+  type ERC20,
+} from "@/contracts";
 import { ethers } from "ethers";
 import {
   getErrorMessage,
@@ -46,27 +50,6 @@ interface PurchaseState {
   amount: string;
 }
 
-const ERROR_MESSAGES = {
-  "replay attack":
-    "Esta transação já foi utilizada. Cada transação só pode ser usada uma vez.",
-  "Invalid server signature":
-    "Assinatura do servidor inválido. Tente novamente.",
-  "BNB fee validation failed":
-    "Falha na validação da taxa BNB. Verifique se a taxa foi paga corretamente.",
-  "Verified burn validation failed":
-    "Falha na validação da queima verificada. Verifique se a transação foi confirmada.",
-  "VerifiedTokensBurned event not found":
-    "Evento de queima verificada não encontrado. Verifique se o contrato foi chamado corretamente.",
-  "Treasury wallet not configured":
-    "Configuração do sistema incompleta. Tente novamente mais tarde.",
-  "too old": "Transação muito antiga. Por favor, tente novamente.",
-  "Amount mismatch":
-    "Valor da transação não confere. Verifique o valor enviado.",
-  "Timestamp mismatch": "Timestamp da transação não confere. Tente novamente.",
-  "Invalid sender":
-    "Remetente da transação inválido. A transação deve ser enviada da sua carteira.",
-} as const;
-
 export function usePurchase() {
   const { address, isConnected } = useAccount();
   const { balance, refreshBalance, bnbPrice } = useUser();
@@ -87,20 +70,20 @@ export function usePurchase() {
     amount: "",
   });
 
-  const contractsRef = useRef<{ token?: any; adr?: any }>({});
+  const contractsRef = useRef<{
+    token?: ERC20;
+    controller?: ControllerAbi;
+  }>({});
 
   const getCachedContracts = useCallback(async () => {
     if (!signer) throw new Error("Signer not available");
 
     if (!contractsRef.current.token) {
-      contractsRef.current.token = ERC20__factory.connect(
-        adrTokenAddress,
-        signer
-      );
+      contractsRef.current.token = ERC20__factory.connect(ERC20Address, signer);
     }
-    if (!contractsRef.current.adr) {
-      contractsRef.current.adr = AdrAbi__factory.connect(
-        adrControllerAddress,
+    if (!contractsRef.current.controller) {
+      contractsRef.current.controller = ControllerAbi__factory.connect(
+        controllerAddress,
         signer
       );
     }
@@ -126,9 +109,11 @@ export function usePurchase() {
     [key: number]: number;
   }> => {
     try {
+      console.log("fetching current stock");
       const response = await axios.post("/api/lootbox", {
         action: "get-stock",
       });
+      console.log(response.data);
       if (response.data.success) {
         setCurrentStock(response.data.stock);
         return response.data.stock;
@@ -147,7 +132,8 @@ export function usePurchase() {
 
       const [, bnbFeeTx] = await Promise.all([
         (async () => {
-          const balance = await contracts.token.balanceOf(address!);
+          const balance = await contracts.token?.balanceOf(address!);
+          if (!balance) throw new Error("Insufficient balance");
           const amountBigInt = BigInt(amountToBurn);
           if (balance < amountBigInt) throw new Error("Insufficient balance");
         })(),
@@ -214,22 +200,22 @@ export function usePurchase() {
         updateState({ status: "approving_tokens" });
         const contracts = await getCachedContracts();
         const tokens = BigInt(amountToBurn);
-        const approveTx = await contracts.token.approve(
-          adrControllerAddress,
+        const approveTx = await contracts?.token?.approve(
+          controllerAddress,
           tokens,
           { gasLimit: PURCHASE_CONFIG.GAS_LIMITS.APPROVE }
         );
-        await approveTx.wait();
+        await approveTx?.wait();
         updateState({ status: "burning_tokens" });
-        const burnTx = await contracts.adr.verifiedBurn(
+        const burnTx = await contracts?.controller?.burn(
           amountToBurn,
           timestamp,
           signature,
           { gasLimit: PURCHASE_CONFIG.GAS_LIMITS.BURN }
         );
-        await burnTx.wait();
+        await burnTx?.wait();
 
-        const txSig = burnTx.hash;
+        const txSig = burnTx?.hash;
         updateState({
           status: "determining_prize",
           transactionHash: txSig || "",
@@ -265,8 +251,8 @@ export function usePurchase() {
         return {
           tx: txSig,
           prizeTx: data.txSignature,
-          nftMint: data.nftMint || adrNftAddress,
-          nftMetadata: data.nftMetadata || adrNftAddress,
+          nftMint: data.nftMint,
+          nftMetadata: data.nftMetadata,
           prize: wonPrize,
           isCrypto: prizeId >= 100 && prizeId <= 111,
           prizeId,

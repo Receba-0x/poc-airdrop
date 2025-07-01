@@ -1,7 +1,6 @@
-export const adrControllerAddress =
-  "0xE88106E4a598926541EDeDcB07f233a0CD1b386B";
-export const adrNftAddress = "0xE2F2036AA31dbf166765F39dF8458438341fCb1E";
-export const adrTokenAddress = "0x2745F264348F9b6CF3eaC5f5B63d5E947C889a43";
+export const controllerAddress = "0xb51DDb3DEE76459dAc94F10be3E89Cc0E0a87d7a";
+export const ERC721Address = "0x3C5eD6E5A8170d229a369361A94b986B84E2b3D4";
+export const ERC20Address = "0x08856C1843bDF076E0Fdef1808083A5c2e871cC0";
 
 export const getItensData = (t: (key: string) => string) => {
   return PRIZE_TABLE.map((prize) => {

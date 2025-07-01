@@ -1,7 +1,7 @@
 {
-  "name": "ADR Token",
-  "short_name": "ADR",
-  "description": "Official ADR Token DApp on Solana blockchain.",
+  "name": "Imperador Token",
+  "short_name": "Imperador",
+  "description": "Official Imperador Token DApp on Solana blockchain.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0F0F0F",

@@ -217,7 +217,6 @@ export function TransactionPurchaseModal({
       showCloseButton={status === "success" || status === "error"}
     >
       <div className="flex flex-col items-center py-2">
-        {/* Progress Bar and Steps */}
         {showProgressBar && (
           <div className="w-full mb-6">
             <div className="relative">
@@ -248,19 +247,6 @@ export function TransactionPurchaseModal({
         )}
 
         {getStatusIcon()}
-
-        {!showProgressBar && (
-          <div className="text-center mb-4">
-            <h3 className="text-xl font-bold text-white mb-2">{getTitle()}</h3>
-            <p
-              className={`text-center ${
-                status === "error" ? "text-red-400" : "text-gray-300"
-              }`}
-            >
-              {getStatusMessage()}
-            </p>
-          </div>
-        )}
 
         {status !== "error" && (
           <div className="w-full space-y-4 mt-2">

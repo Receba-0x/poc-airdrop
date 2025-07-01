@@ -19,7 +19,16 @@ function formatTimeLeft(seconds: number) {
 }
 
 export function UnstakeContent() {
-  const { stakeInfo, onUnstake, isLoading, modalOpen, modalStatus, errorMessage, transactionHash, closeModal } = useUnstaking();
+  const {
+    stakeInfo,
+    onUnstake,
+    isLoading,
+    modalOpen,
+    modalStatus,
+    errorMessage,
+    transactionHash,
+    closeModal,
+  } = useUnstaking();
   const { t } = useLanguage();
   const [secondsLeft, setSecondsLeft] = useState<number>(0);
 
@@ -168,7 +177,7 @@ export function UnstakeContent() {
             : t("staking.confirmUnstake")}
         </Button>
       </div>
-      
+
       {/* Transaction Modal */}
       <TransactionModal
         isOpen={modalOpen}

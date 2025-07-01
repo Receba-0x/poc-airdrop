@@ -4,14 +4,14 @@ export const translations = {
     "header.boxes": "Boxes",
     "header.historic": "Historic",
     "header.staking": "Staking",
-    "header.buyToken": "Buy token $ADR",
+    "header.buyToken": "Buy $IMPERA",
 
     // Hero
     "hero.title": "The Official Token of",
     "hero.adriano": "Adriano Imperador",
     "hero.token": "Token",
     "hero.subtitle": "Be part of the Empire. Shape tomorrow's finance.",
-    "hero.cta": "Buy token $ADR",
+    "hero.cta": "Buy $IMPERA",
     "hero.learnMore": "Learn More",
 
     // Roadmap Section
@@ -40,7 +40,7 @@ export const translations = {
     "roadmap.phase4.item2": "Talent Scouting Program Rollout",
     "roadmap.phase4.item3": "Creation of Didico Football Club",
     // Features
-    "features.title": "Why Choose $ADR Token?",
+    "features.title": "Why Choose $IMPERA Token?",
     "features.secure": "Secure",
     "features.secureDesc": "Built on BSC blockchain with advanced security",
     "features.fast": "Fast",
@@ -50,7 +50,7 @@ export const translations = {
 
     // Staking
     "staking.title": "Stake Your Tokens",
-    "staking.subtitle": "Earn rewards by staking your $ADR tokens",
+    "staking.subtitle": "Earn rewards by staking your $IMPERA tokens",
     "staking.amount": "Amount to Stake",
     "staking.period": "Lock-up Period",
     "staking.rewards": "Estimated Rewards",
@@ -133,7 +133,7 @@ export const translations = {
     // Join
     "join.title": "Join the movement",
     "join.description":
-      "With ADR Token, you're not just entering the crypto universe — Help transform Vila Cruzeiro with every token acquired",
+      "With IMPERA Token, you're not just entering the crypto universe. Help transform Vila Cruzeiro with every token acquired",
     "join.feature1": "Strengthening the community",
     "join.feature2": "Real impact, real people",
     "join.feature3": "Blockchain with purpose",
@@ -194,37 +194,38 @@ export const translations = {
       "With the DART cookie, Google can display ads based on visits the reader has made to other websites on the Internet",
     "terms.externalLinks.title": "Privacy Policy for External Links",
     "terms.externalLinks.description":
-      "The ADR Token website has links to other sites that, in our view, may contain information or tools useful to our visitors. Our privacy policy does not apply to third-party sites. Therefore, if you visit another site from ours, we recommend that you read its privacy policy",
+      "The IMPERA Token website has links to other sites that, in our view, may contain information or tools useful to our visitors. Our privacy policy does not apply to third-party sites. Therefore, if you visit another site from ours, we recommend that you read its privacy policy",
     "terms.confidentiality.title":
       "Confidentiality and Use of Personal Information",
     "terms.confidentiality.description1":
       "We are not responsible for the privacy policy or content present on those same sites. All your personal information collected will be used to help you make your visit to our site as productive and enjoyable as possible.",
     "terms.confidentiality.description2":
-      "Guaranteeing the confidentiality of data from users of our site is important to ADR Token. All personal information relating to members, subscribers, customers or visitors who use the ADR Token site will be treated in accordance with applicable data protection laws.",
+      "Guaranteeing the confidentiality of data from users of our site is important to IMPERA Token. All personal information relating to members, subscribers, customers or visitors who use the IMPERA Token site will be treated in accordance with applicable data protection laws.",
     "terms.confidentiality.description3":
       "The personal information collected may include your name, email, phone and/or mobile number, address, date of birth and/or others.",
     "terms.confidentiality.description4":
-      "Use of the ADR Token site assumes acceptance of this Privacy Agreement. The ADR Token team reserves the right to change this agreement without prior notice. Therefore, we recommend that you consult our privacy policy regularly to stay updated",
+      "Use of the IMPERA Token site assumes acceptance of this Privacy Agreement. The IMPERA Token team reserves the right to change this agreement without prior notice. Therefore, we recommend that you consult our privacy policy regularly to stay updated",
 
     // FAQ
     "faq.title": "FAQ",
     "faq.description":
-      "Clear answers to the questions we hear most — because trust starts with transparency",
-    "faq.question1": "What is the tokenomics of the $ADR token?",
+      "Clear answers to the questions we hear most. because trust starts with transparency",
+    "faq.question1": "What is the tokenomics of the $IMPERA token?",
     "faq.answer1":
-      "The $ADR token is a utility token for the Vila Cruzeiro community. It has a fixed supply of 1 billion tokens, with 30% allocated to community initiatives, 25% for platform development, 20% for the team and advisors (vested over 3 years), 15% for marketing and partnerships, and 10% for liquidity provisioning.",
-    "faq.question2": "How can I use ADR Tokens on the platform?",
+      "The $IMPERA token is a utility token for the Vila Cruzeiro community. It has a fixed supply of 1 billion tokens, with 30% allocated to community initiatives, 25% for platform development, 20% for the team and advisors (vested over 3 years), 15% for marketing and partnerships, and 10% for liquidity provisioning.",
+    "faq.question2": "How can I use IMPERA Tokens on the platform?",
     "faq.answer2":
-      "ADR Tokens can be used to purchase mystery boxes with chances to win exclusive items, access premium features, participate in community governance decisions, and receive special benefits within the platform ecosystem.",
-    "faq.question3": "Is ADR Token available on multiple blockchains?",
+      "IMPERA Tokens can be used to purchase mystery boxes with chances to win exclusive items, access premium features, participate in community governance decisions, and receive special benefits within the platform ecosystem.",
+    "faq.question3": "Is IMPERA Token available on multiple blockchains?",
     "faq.answer3":
-      "Currently, ADR Token is available on the BSC blockchain. We chose BSC for its fast transaction speeds, low fees, and environmental efficiency. We may explore cross-chain compatibility in the future based on community needs.",
-    "faq.question4": "How do I get started with ADR Tokens?",
+      "Currently, IMPERA Token is available on the BSC blockchain. We chose BSC for its fast transaction speeds, low fees, and environmental efficiency. We may explore cross-chain compatibility in the future based on community needs.",
+    "faq.question4": "How do I get started with IMPERA Tokens?",
     "faq.answer4":
-      "To get started, connect your BSC wallet (like Phantom or Solflare), purchase ADR Tokens either directly through our platform or from supported exchanges, and then use them to access platform features like mystery boxes.",
-    "faq.question5": "Are there any fees for purchasing or using ADR Tokens?",
+      "To get started, connect your BSC wallet (like Phantom or Solflare), purchase IMPERA Tokens either directly through our platform or from supported exchanges, and then use them to access platform features like mystery boxes.",
+    "faq.question5":
+      "Are there any fees for purchasing or using IMPERA Tokens?",
     "faq.answer5":
-      "When purchasing ADR Tokens, you'll only pay the standard BSC network transaction fees, which are typically less than $0.01. There are no additional platform fees for holding or using your tokens within our ecosystem.",
+      "When purchasing IMPERA Tokens, you'll only pay the standard BSC network transaction fees, which are typically less than $0.01. There are no additional platform fees for holding or using your tokens within our ecosystem.",
 
     // Footer
     "footer.rights": "All rights reserved",
@@ -386,7 +387,7 @@ export const translations = {
 
     // Admin Panel
     "admin.title": "Admin Panel",
-    "admin.description": "Access the administrative controls for ADR Token",
+    "admin.description": "Access the administrative controls for IMPERA Token",
     "admin.login": "Login",
     "admin.password": "Admin Password",
     "admin.loginButton": "Login",
@@ -672,7 +673,7 @@ export const translations = {
     // Join
     "join.title": "Junte-se ao movimento",
     "join.description":
-      "Com o ADR Token, você não está apenas entrando no universo cripto — Ajude a transformar a Vila Cruzeiro com cada token adquirido",
+      "Com o IMPERA Token, você não está apenas entrando no universo cripto. Ajude a transformar a Vila Cruzeiro com cada token adquirido",
     "join.feature1": "Fortalecendo a comunidade",
     "join.feature2": "Impacto real, pessoas reais",
     "join.feature3": "Blockchain com propósito",
@@ -733,22 +734,22 @@ export const translations = {
       "Com o cookie DART, o Google pode exibir anúncios com base nas visitas que o leitor fez a outros websites na Internet",
     "terms.externalLinks.title": "Política de Privacidade para Links Externos",
     "terms.externalLinks.description":
-      "O site do ADR Token possui ligações para outros sites que, a nosso ver, podem conter informações ou ferramentas úteis para os nossos visitantes. A nossa política de privacidade não é aplicada a sites de terceiros. Assim, caso visite outro site a partir do nosso, recomendamos que leia a política de privacidade do mesmo",
+      "O site do IMPERA Token possui ligações para outros sites que, a nosso ver, podem conter informações ou ferramentas úteis para os nossos visitantes. A nossa política de privacidade não é aplicada a sites de terceiros. Assim, caso visite outro site a partir do nosso, recomendamos que leia a política de privacidade do mesmo",
     "terms.confidentiality.title":
       "Confidencialidade e Uso de Informações Pessoais",
     "terms.confidentiality.description1":
       "Não nos responsabilizamos pela política de privacidade ou conteúdo presente nesses mesmos sites. Todas as suas informações pessoais recolhidas serão usadas para ajudá-lo a tornar a sua visita ao nosso site o mais produtiva e agradável possível.",
     "terms.confidentiality.description2":
-      "A garantia da confidencialidade dos dados dos utilizadores do nosso site é importante para o ADR Token. Todas as informações pessoais relativas a membros, assinantes, clientes ou visitantes que usem o site do ADR Token serão tratadas em concordância com as leis de proteção de dados aplicáveis.",
+      "A garantia da confidencialidade dos dados dos utilizadores do nosso site é importante para o IMPERA Token. Todas as informações pessoais relativas a membros, assinantes, clientes ou visitantes que usem o site do IMPERA Token serão tratadas em concordância com as leis de proteção de dados aplicáveis.",
     "terms.confidentiality.description3":
       "A informação pessoal recolhida pode incluir o seu nome, e-mail, número de telefone e/ou telemóvel, morada, data de nascimento e/ou outros.",
     "terms.confidentiality.description4":
-      "O uso do site do ADR Token pressupõe a aceitação deste Acordo de Privacidade. A equipe do ADR Token reserva-se ao direito de alterar este acordo sem aviso prévio. Deste modo, recomendamos que consulte a nossa política de privacidade regularmente para estar sempre atualizado",
+      "O uso do site do IMPERA Token pressupõe a aceitação deste Acordo de Privacidade. A equipe do IMPERA Token reserva-se ao direito de alterar este acordo sem aviso prévio. Deste modo, recomendamos que consulte a nossa política de privacidade regularmente para estar sempre atualizado",
 
     // FAQ
     "faq.title": "FAQ",
     "faq.description":
-      "Respostas claras para as perguntas que mais ouvimos — porque a confiança começa com transparência",
+      "Respostas claras para as perguntas que mais ouvimos. porque a confiança começa com transparência",
     "faq.question1": "Qual é a tokenomics do token $ADR?",
     "faq.answer1":
       "O token $ADR é um token utilitário para a comunidade da Vila Cruzeiro. Tem um fornecimento fixo de 1 bilhão de tokens, com 30% alocados para iniciativas comunitárias, 25% para desenvolvimento da plataforma, 20% para a equipe e consultores (com vesting de 3 anos), 15% para marketing e parcerias, e 10% para provisão de liquidez.",
@@ -927,7 +928,7 @@ export const translations = {
 
     // Admin Panel
     "admin.title": "Painel Administrativo",
-    "admin.description": "Acesse os controles administrativos do ADR Token",
+    "admin.description": "Acesse os controles administrativos do IMPERA Token",
     "admin.login": "Login",
     "admin.password": "Senha de Administrador",
     "admin.loginButton": "Entrar",

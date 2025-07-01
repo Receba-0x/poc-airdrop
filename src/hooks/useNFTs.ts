@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
-import { AdrNFT__factory } from "@/contracts";
-import { adrNftAddress } from "@/constants";
+import { ERC721__factory } from "@/contracts";
+import { ERC721Address } from "@/constants";
 import { ethers } from "ethers";
 
 import chuteiraMetadata from "../../public/metadata/chuteira.json";
@@ -136,8 +136,8 @@ export function useNFTs() {
     try {
       const rpc = "https://bnb-testnet.g.alchemy.com/v2/MyJKsFQ0AIqA2MWPTRwV-";
       const provider = new ethers.JsonRpcProvider(rpc);
-      const nftContract = AdrNFT__factory.connect(adrNftAddress, provider);
-      const nftResult = await nftContract.getUserNFTs(address);
+      const erc721Contract = ERC721__factory.connect(ERC721Address, provider);
+      const nftResult = await erc721Contract.getUserNFTs(address);
       const { tokenIds, uris } = nftResult;
 
       if (tokenIds.length === 0) {

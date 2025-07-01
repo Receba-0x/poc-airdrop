@@ -4,7 +4,7 @@ import axios from "axios";
 import { useAccount } from "wagmi";
 import { getProvider } from "@/libs";
 import { ERC20__factory } from "@/contracts";
-import { adrTokenAddress } from "@/constants";
+import { ERC20Address } from "@/constants";
 import { ethers } from "ethers";
 
 interface UserContextType {
@@ -77,7 +77,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     try {
       const provider = await getProvider();
       const signer = await provider.getSigner();
-      const tokenContract = ERC20__factory.connect(adrTokenAddress, signer);
+      const tokenContract = ERC20__factory.connect(ERC20Address, signer);
       const balance = await tokenContract.balanceOf(address);
       const balanceFormatted = ethers.formatEther(balance);
       setBalance(Number(balanceFormatted));

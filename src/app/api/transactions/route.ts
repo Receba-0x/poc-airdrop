@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_KEY!;
@@ -9,27 +9,30 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const lastTimestamp = searchParams.get('lastTimestamp');
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const lastTimestamp = searchParams.get("lastTimestamp");
 
     let query = supabase
-      .from('purchases')
-      .select('*')
-      .eq('status', 'completed')
-      .order('created_at', { ascending: false })
+      .from("purchases")
+      .select("*")
+      .eq("status", "completed")
+      .order("created_at", { ascending: false })
       .limit(limit);
 
     // Se tiver lastTimestamp, buscar transações mais recentes que isso
     if (lastTimestamp) {
-      query = query.gt('created_at', new Date(parseInt(lastTimestamp)).toISOString());
+      query = query.gt(
+        "created_at",
+        new Date(parseInt(lastTimestamp)).toISOString()
+      );
     }
 
     const { data, error } = await query;
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error("Supabase error:", error);
       return NextResponse.json(
-        { error: 'Failed to fetch transactions' },
+        { error: "Failed to fetch transactions" },
         { status: 500 }
       );
     }
@@ -45,14 +48,13 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: formattedTransactions
+      data: formattedTransactions,
     });
-
   } catch (error) {
-    console.error('Error fetching transactions:', error);
+    console.error("Error fetching transactions:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
-} 
+}

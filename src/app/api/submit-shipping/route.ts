@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { ethers } from "ethers";
-import { AdrAbi__factory } from "@/contracts";
-import { adrControllerAddress, adrTokenAddress } from "@/constants";
+import { ControllerAbi__factory } from "@/contracts";
+import { controllerAddress } from "@/constants";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_KEY;
@@ -17,9 +17,12 @@ async function burnNFT(nftMint: string) {
     if (!privateKey) throw new Error("Private key is not configured");
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
     const wallet = new ethers.Wallet(privateKey, provider);
-    const adrContract = AdrAbi__factory.connect(adrControllerAddress, wallet);
+    const adrContract = ControllerAbi__factory.connect(
+      controllerAddress,
+      wallet
+    );
     console.log("Burning NFT:", nftMint);
-    const tx = await adrContract.burnNFTByOperator(Number(nftMint), {
+    const tx = await adrContract.burnNFT(Number(nftMint), {
       gasLimit: 1000000,
     });
     await tx.wait();

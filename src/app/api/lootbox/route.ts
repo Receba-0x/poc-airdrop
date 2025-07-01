@@ -4,10 +4,19 @@ import { createClient } from "@supabase/supabase-js";
 import {
   PRIZE_TABLE,
   CRYPTO_PRIZE_TABLE,
-  adrControllerAddress,
+  controllerAddress,
 } from "@/constants";
 import crypto from "crypto";
-import { AdrAbi__factory } from "@/contracts";
+import { ControllerAbi__factory } from "@/contracts";
+import {
+  withRateLimit,
+  purchaseRateLimiter,
+  apiRateLimiter,
+} from "@/utils/rateLimiter";
+import { InputValidator } from "@/utils/inputValidator";
+import { purchaseTimestampValidator } from "@/utils/timestampValidator";
+import { securityLogger } from "@/utils/securityLogger";
+import { withAPIProtection } from "@/utils/apiProtection";
 
 export const runtime = "nodejs";
 
@@ -20,55 +29,155 @@ const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseServiceKey)
   : null;
 
-// Consolidated lootbox endpoint - handles everything in one request
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const { action, ...params } = body;
+function validateRequestOrigin(req: NextRequest, action?: string): boolean {
+  const origin = req.headers.get("origin");
+  const referer = req.headers.get("referer");
+  const host = req.headers.get("host");
+  const userAgent = req.headers.get("user-agent") || "";
 
-    switch (action) {
-      case "purchase":
-        return await handlePurchase(params);
-      case "get-stock":
-        return await handleGetStock();
-      case "get-stats":
-        return await handleGetStats();
-      default:
-        return NextResponse.json(
-          { success: false, error: "Invalid action" },
-          { status: 400 }
-        );
+  if (
+    !userAgent.includes("Mozilla") &&
+    !userAgent.includes("Chrome") &&
+    !userAgent.includes("Safari")
+  ) {
+    return false;
+  }
+
+  if (origin && host && !origin.includes(host)) {
+    return false;
+  }
+
+  const sensitiveActions = ["purchase"];
+  if (action && sensitiveActions.includes(action)) {
+    if (referer && host && !referer.includes(host)) {
+      return false;
     }
+  }
+
+  return true;
+}
+
+export const POST = withAPIProtection(
+  withRateLimit(apiRateLimiter)(async (req: NextRequest) => {
+    try {
+      const body = await req.json();
+      const { action, ...params } = body;
+
+      if (action === "purchase" && !validateRequestOrigin(req, action)) {
+        securityLogger.logEvent(
+          "csrf_attempt" as any,
+          "Invalid request origin detected for purchase",
+          {
+            origin: req.headers.get("origin"),
+            referer: req.headers.get("referer"),
+            userAgent: req.headers.get("user-agent"),
+          },
+          "high",
+          req
+        );
+        return NextResponse.json(
+          { success: false, error: "Access denied" },
+          { status: 403 }
+        );
+      }
+
+      securityLogger.logEvent(
+        "contract_interaction" as any,
+        `Lootbox API chamada: ${action}`,
+        { action },
+        "low",
+        req
+      );
+
+      switch (action) {
+        case "purchase":
+          return await handlePurchaseWithSecurity(params, req);
+        case "get-stock":
+          return await handleGetStock();
+        case "get-stats":
+          return await handleGetStats();
+        default:
+          securityLogger.logInvalidInput("action", action, req);
+          return NextResponse.json(
+            { success: false, error: "Invalid action" },
+            { status: 400 }
+          );
+      }
+    } catch (error) {
+      console.error("Error in lootbox API:", error);
+      securityLogger.logEvent(
+        "transaction_validation_failed" as any,
+        `Erro na API lootbox: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        { error: error instanceof Error ? error.message : "Unknown error" },
+        "high",
+        req
+      );
+      return NextResponse.json(
+        {
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        },
+        { status: 500 }
+      );
+    }
+  })
+);
+
+async function handlePurchaseWithSecurity(params: any, req: NextRequest) {
+  try {
+    const validation = InputValidator.validatePurchaseData(params);
+    if (!validation.valid) {
+      securityLogger.logInvalidInput(
+        "purchase_data",
+        JSON.stringify(params),
+        req
+      );
+      return NextResponse.json(
+        { success: false, error: validation.error },
+        { status: 400 }
+      );
+    }
+
+    const sanitizedParams = validation.sanitized!;
+    return await handlePurchase(sanitizedParams, req);
   } catch (error) {
-    console.error("Error in lootbox API:", error);
+    securityLogger.logEvent(
+      "invalid_input" as any,
+      `Erro na validação de dados de compra: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`,
+      { params },
+      "medium",
+      req
+    );
     return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
+      { success: false, error: "Invalid purchase data" },
+      { status: 400 }
     );
   }
 }
 
-// Handle complete purchase flow
-async function handlePurchase(params: any) {
+async function handlePurchase(params: any, req?: NextRequest) {
   const { boxType, wallet, clientSeed, bnbFeeTransactionHash, bnbPrice } =
     params;
 
-  if (!boxType || !wallet || !clientSeed) {
-    return NextResponse.json(
-      { success: false, error: "Missing required parameters" },
-      { status: 400 }
-    );
-  }
-
   if (!PRIVATE_KEY) {
+    securityLogger.logEvent(
+      "private_key_access" as any,
+      "Tentativa de acesso à chave privada não configurada",
+      {},
+      "critical",
+      req
+    );
     return NextResponse.json(
       { success: false, error: "Server private key not configured" },
       { status: 500 }
     );
   }
+
+  securityLogger.logPrivateKeyAccess("signature_generation", req);
 
   const isCrypto = boxType === 1;
   const priceUSD = isCrypto ? 17.5 : 45;
@@ -76,6 +185,26 @@ async function handlePurchase(params: any) {
   const amountInTokens = priceUSD / tokenPrice;
   const amountToBurn = ethers.parseUnits(amountInTokens.toString(), 18);
   const timestamp = Math.floor(Date.now() / 1000);
+
+  const timestampValidation = purchaseTimestampValidator.validateTimestamp(
+    timestamp,
+    wallet,
+    amountToBurn.toString()
+  );
+
+  if (!timestampValidation.valid) {
+    securityLogger.logEvent(
+      "replay_attack" as any,
+      timestampValidation.error || "Timestamp validation failed",
+      { wallet, timestamp, amount: amountToBurn.toString() },
+      "high",
+      req
+    );
+    return NextResponse.json(
+      { success: false, error: timestampValidation.error },
+      { status: 400 }
+    );
+  }
 
   const walletBytes = ethers.getBytes(wallet);
   const amountBytes = ethers.toBeHex(amountToBurn, 32);
@@ -98,15 +227,35 @@ async function handlePurchase(params: any) {
       recoveredAddress.toLowerCase() === signer.address.toLowerCase();
 
     if (!isValidLocal) {
+      securityLogger.logSignatureVerificationFailed(
+        wallet,
+        "Generated signature is invalid",
+        req
+      );
       throw new Error("Generated signature is invalid");
     }
   } catch (validationError) {
     console.error("❌ Signature validation error:", validationError);
+    securityLogger.logSignatureVerificationFailed(
+      wallet,
+      validationError instanceof Error
+        ? validationError.message
+        : "Unknown error",
+      req
+    );
     return NextResponse.json(
       { success: false, error: "Failed to generate valid signature" },
       { status: 500 }
     );
   }
+
+  securityLogger.logEvent(
+    "contract_interaction" as any,
+    "Assinatura gerada com sucesso para compra",
+    { wallet, boxType, amount: amountToBurn.toString() },
+    "low",
+    req
+  );
 
   return NextResponse.json({
     success: true,
@@ -116,91 +265,181 @@ async function handlePurchase(params: any) {
       timestamp,
       signature,
       clientSeed,
+      bnbFeeTransactionHash,
+      bnbPrice,
     },
   });
 }
 
-export async function PUT(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const {
-      wallet,
-      amount,
-      timestamp,
-      txHash,
-      signature,
-      clientSeed,
-      bnbFeeTransactionHash,
-      bnbPrice,
-      boxType,
-    } = body;
+export const PUT = withAPIProtection(
+  withRateLimit(purchaseRateLimiter)(async (req: NextRequest) => {
+    try {
+      if (!validateRequestOrigin(req, "purchase")) {
+        securityLogger.logEvent(
+          "csrf_attempt" as any,
+          "Invalid request origin for purchase transaction",
+          {
+            origin: req.headers.get("origin"),
+            referer: req.headers.get("referer"),
+          },
+          "high",
+          req
+        );
+        return NextResponse.json(
+          { success: false, error: "Access denied" },
+          { status: 403 }
+        );
+      }
 
-    const burnValidation = await validateVerifiedBurnTransaction(
-      txHash,
-      wallet,
-      amount,
-      timestamp
-    );
+      const body = await req.json();
+      console.log("🔍 Body:", body);
 
-    if (!burnValidation.isValid) {
+      const validation = InputValidator.validateBurnTransactionData(body);
+      if (!validation.valid) {
+        securityLogger.logInvalidInput(
+          "burn_transaction_data",
+          JSON.stringify(body),
+          req
+        );
+        return NextResponse.json(
+          { success: false, error: validation.error },
+          { status: 400 }
+        );
+      }
+
+      const sanitizedData = validation.sanitized!;
+      const {
+        wallet,
+        amount,
+        timestamp,
+        txHash,
+        signature,
+        clientSeed,
+        bnbFeeTransactionHash,
+        bnbPrice,
+        boxType,
+      } = sanitizedData;
+
+      const timestampValidation = purchaseTimestampValidator.validateTimestamp(
+        timestamp,
+        wallet,
+        amount
+      );
+
+      if (!timestampValidation.valid) {
+        securityLogger.logReplayAttack(wallet, timestamp, req);
+        return NextResponse.json(
+          { success: false, error: timestampValidation.error },
+          { status: 400 }
+        );
+      }
+
+      const burnValidation = await validateVerifiedBurnTransaction(
+        txHash,
+        wallet,
+        amount,
+        timestamp
+      );
+
+      console.log("🔍 Burn validation:", burnValidation);
+
+      if (!burnValidation.isValid) {
+        securityLogger.logTransactionValidationFailed(
+          txHash,
+          burnValidation.error || "Unknown validation error",
+          req
+        );
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Transaction validation failed: ${burnValidation.error}`,
+          },
+          { status: 400 }
+        );
+      }
+
+      const serverSeed = crypto.randomBytes(32).toString("hex");
+      const randomNumber = generateProvablyFairNumber(
+        clientSeed,
+        serverSeed,
+        0
+      );
+      const isCrypto = boxType === 1;
+      const { prizeId, wonPrize } = await determinePrize(
+        randomNumber,
+        isCrypto
+      );
+
+      await updateBoxStock(isCrypto);
+      const prizeDeliveryResult = await deliverPrize(wallet, wonPrize);
+
+      await savePurchaseRecord({
+        wallet,
+        txHash,
+        prizeId,
+        wonPrize: wonPrize.name,
+        randomNumber,
+        clientSeed,
+        serverSeed,
+        nonce: prizeDeliveryResult.tokenId,
+        amount,
+        isCrypto,
+        boxType,
+        bnbFeeTransactionHash,
+        signature,
+        prizeDeliveryResult,
+        burnValidation,
+        bnbPrice,
+      });
+
+      await updatePrizeStock(prizeId);
+
+      securityLogger.logEvent(
+        "contract_interaction" as any,
+        "Compra processada com sucesso",
+        {
+          wallet,
+          txHash,
+          prizeId,
+          prizeName: wonPrize.name,
+          amount,
+        },
+        "low",
+        req
+      );
+
+      return NextResponse.json({
+        success: true,
+        prizeId,
+        prizeName: wonPrize.name,
+        prizeType: wonPrize.type,
+        amount: wonPrize.amount,
+        txSignature: prizeDeliveryResult.txHash || txHash,
+        nftTokenId: prizeDeliveryResult.tokenId,
+        nftMetadata: prizeDeliveryResult.metadataUri,
+        randomData: { randomNumber, clientSeed, serverSeed, nonce: 0 },
+      });
+    } catch (error) {
+      console.error("Error processing prize claim:", error);
+      securityLogger.logEvent(
+        "transaction_validation_failed" as any,
+        `Erro no processamento de prêmio: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        { error: error instanceof Error ? error.message : "Unknown error" },
+        "high",
+        req
+      );
       return NextResponse.json(
         {
           success: false,
-          error: `Transaction validation failed: ${burnValidation.error}`,
+          error: error instanceof Error ? error.message : "Unknown error",
         },
-        { status: 400 }
+        { status: 500 }
       );
     }
-
-    const serverSeed = crypto.randomBytes(32).toString("hex");
-    const randomNumber = generateProvablyFairNumber(clientSeed, serverSeed, 0);
-    const isCrypto = boxType === 1;
-    const { prizeId, wonPrize } = await determinePrize(randomNumber, isCrypto);
-
-    await updateBoxStock(isCrypto);
-    const prizeDeliveryResult = await deliverPrize(wallet, wonPrize);
-
-    await savePurchaseRecord({
-      wallet,
-      txHash,
-      prizeId,
-      wonPrize: wonPrize.name,
-      randomNumber,
-      clientSeed,
-      serverSeed,
-      nonce: 0,
-      amount,
-      isCrypto,
-      boxType,
-      bnbFeeTransactionHash,
-      signature,
-      prizeDeliveryResult,
-      burnValidation,
-      bnbPrice,
-    });
-
-    return NextResponse.json({
-      success: true,
-      prizeId,
-      prizeName: wonPrize.name,
-      prizeType: wonPrize.type,
-      amount: wonPrize.amount,
-      txSignature: prizeDeliveryResult.txHash || txHash,
-      nftTokenId: prizeDeliveryResult.tokenId,
-      nftMetadata: prizeDeliveryResult.metadataUri,
-      randomData: { randomNumber, clientSeed, serverSeed, nonce: 0 },
-    });
-  } catch (error) {
-    console.error("Error processing prize claim:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
-    );
-  }
-}
+  })
+);
 
 async function handleGetStock() {
   if (!isSupabaseConfigured || !supabase) {
@@ -303,14 +542,17 @@ async function validateVerifiedBurnTransaction(
     );
     console.log(`📍 Transaction status: ${receipt.status}`);
 
-    const adrContract = AdrAbi__factory.connect(adrControllerAddress, provider);
+    const adrContract = ControllerAbi__factory.connect(
+      controllerAddress,
+      provider
+    );
     const logs = receipt.logs;
 
     for (let i = 0; i < logs.length; i++) {
       const log = logs[i];
       console.log(`🔍 Processing log ${i + 1}/${logs.length}`);
       console.log(`📍 Log address: ${log.address}`);
-      console.log(`📍 Expected address: ${adrControllerAddress}`);
+      console.log(`📍 Expected address: ${controllerAddress}`);
 
       try {
         const parsedLog = adrContract.interface.parseLog({
@@ -422,7 +664,6 @@ async function determinePrize(randomNumber: number, isCrypto: boolean) {
     }
   }
 
-  // Fallback: Find a BNB prize that doesn't require stock
   console.log(
     `⚠️ Fallback triggered after 10 attempts - looking for BNB prize`
   );
@@ -434,26 +675,55 @@ async function determinePrize(randomNumber: number, isCrypto: boolean) {
     return { prizeId: fallbackPrize.id, wonPrize: fallbackPrize };
   }
 
-  // Last resort: return first prize
   console.log(`⚠️ Last resort: returning first prize`);
   return { prizeId: prizeTable[0].id, wonPrize: prizeTable[0] };
 }
 
 async function updateBoxStock(isCrypto: boolean) {
-  if (!isSupabaseConfigured || !supabase) return;
+  console.log(
+    "📦 Updating box stock for:",
+    isCrypto ? "crypto" : "super_prize"
+  );
+
+  if (!isSupabaseConfigured || !supabase) {
+    console.log("⚠️ Supabase not configured, skipping stock update");
+    return;
+  }
 
   const boxType = isCrypto ? "crypto" : "super_prize";
-  const { data: boxStockData } = await supabase
+  console.log("🔍 Fetching current stock for box type:", boxType);
+
+  const { data: boxStockData, error } = await supabase
     .from("box_stock")
     .select("*")
     .eq("box_type", boxType)
     .single();
 
+  if (error) {
+    console.error("❌ Error fetching box stock:", error);
+    return;
+  }
+
+  console.log("📊 Current box stock data:", boxStockData);
+
   if (boxStockData) {
-    await supabase
+    const newStock = boxStockData.current_stock - 1;
+    console.log(
+      `🔄 Updating stock from ${boxStockData.current_stock} to ${newStock}`
+    );
+
+    const { error: updateError } = await supabase
       .from("box_stock")
-      .update({ current_stock: boxStockData.current_stock - 1 })
+      .update({ current_stock: newStock })
       .eq("box_type", boxType);
+
+    if (updateError) {
+      console.error("❌ Error updating box stock:", updateError);
+    } else {
+      console.log("✅ Box stock updated successfully");
+    }
+  } else {
+    console.log("⚠️ No box stock data found for type:", boxType);
   }
 }
 
@@ -489,10 +759,13 @@ async function deliverPrize(
     } else if (wonPrize.type === "physical" || wonPrize.type === "special") {
       console.log(`🎨 Minting NFT for ${wonPrize.name} to ${wallet}`);
 
-      const adrContract = AdrAbi__factory.connect(adrControllerAddress, signer);
+      const adrContract = ControllerAbi__factory.connect(
+        controllerAddress,
+        signer
+      );
       const metadataUri = `https://www.imperadortoken.com/metadata/${wonPrize.metadata}.json`;
 
-      const tx = await adrContract.mintNFT(wallet, metadataUri, {
+      const tx = await adrContract.mint(wallet, metadataUri, {
         gasLimit: 1000000,
       });
       const receipt = await tx.wait();
@@ -551,12 +824,7 @@ async function savePurchaseRecord(data: any) {
   }
 
   try {
-    const bnbFeeUSD = data.isCrypto ? 5 : 10;
-    const bnbFeeValidationAmount = bnbFeeUSD / data.bnbPrice;
-
-    console.log(
-      `💰 BNB fee calculation: $${bnbFeeUSD} / $${data.bnbPrice} = ${bnbFeeValidationAmount} BNB`
-    );
+    const bnbFeeValidationAmount = data.bnbPrice;
     console.log(`🎁 Prize delivery result:`, data.prizeDeliveryResult);
 
     const purchaseRecord = {
@@ -596,5 +864,57 @@ async function savePurchaseRecord(data: any) {
   } catch (error) {
     console.error(`❌ Error in savePurchaseRecord:`, error);
     throw error;
+  }
+}
+
+async function updatePrizeStock(prizeId: number) {
+  console.log(`🎁 Updating prize stock for prize ID: ${prizeId}`);
+
+  if (!isSupabaseConfigured || !supabase) {
+    console.log("⚠️ Supabase not configured, skipping prize stock update");
+    return;
+  }
+
+  const PHYSICAL_PRIZES = [5, 6, 7, 8, 9, 10];
+  if (!PHYSICAL_PRIZES.includes(prizeId)) {
+    console.log(
+      `ℹ️ Prize ${prizeId} is not a physical prize, no stock update needed`
+    );
+    return;
+  }
+
+  console.log(`🔍 Fetching current stock for prize ID: ${prizeId}`);
+
+  const { data: prizeStockData, error } = await supabase
+    .from("prize_stock")
+    .select("*")
+    .eq("prize_id", prizeId)
+    .single();
+
+  if (error) {
+    console.error("❌ Error fetching prize stock:", error);
+    return;
+  }
+
+  console.log("📊 Current prize stock data:", prizeStockData);
+
+  if (prizeStockData && prizeStockData.current_stock > 0) {
+    const newStock = prizeStockData.current_stock - 1;
+    console.log(
+      `🔄 Updating prize stock from ${prizeStockData.current_stock} to ${newStock}`
+    );
+
+    const { error: updateError } = await supabase
+      .from("prize_stock")
+      .update({ current_stock: newStock })
+      .eq("prize_id", prizeId);
+
+    if (updateError) {
+      console.error("❌ Error updating prize stock:", updateError);
+    } else {
+      console.log("✅ Prize stock updated successfully");
+    }
+  } else {
+    console.log(`⚠️ Prize ${prizeId} is out of stock or not found`);
   }
 }

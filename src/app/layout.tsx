@@ -6,8 +6,8 @@ import { Nunito_Sans } from "next/font/google";
 const nunito = Nunito_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ADR Token",
-  description: "ADR Token",
+  title: "Imperador Token",
+  description: "Imperador Token",
 };
 
 type RootLayoutProps = {
