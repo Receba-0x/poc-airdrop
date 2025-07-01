@@ -10,7 +10,7 @@ export interface RequestSignature {
 export class APIProtection {
   private static readonly SECRET_KEY =
     process.env.API_SECRET_KEY || "default-secret-key";
-  private static readonly MAX_REQUEST_AGE = 5 * 60 * 1000; // 5 minutes
+  private static readonly MAX_REQUEST_AGE = 5 * 60 * 1000;
   private static usedNonces = new Set<string>();
 
   static generateRequestSignature(data: any): RequestSignature {
@@ -31,17 +31,14 @@ export class APIProtection {
   ): { valid: boolean; error?: string } {
     const now = Date.now();
 
-    // Check timestamp age
     if (now - providedSignature.timestamp > this.MAX_REQUEST_AGE) {
       return { valid: false, error: "Request expired" };
     }
 
-    // Check if nonce was already used
     if (this.usedNonces.has(providedSignature.nonce)) {
       return { valid: false, error: "Nonce already used" };
     }
 
-    // Verify signature
     const payload = JSON.stringify({
       ...data,
       timestamp: providedSignature.timestamp,
@@ -56,10 +53,8 @@ export class APIProtection {
       return { valid: false, error: "Invalid signature" };
     }
 
-    // Mark nonce as used
     this.usedNonces.add(providedSignature.nonce);
 
-    // Clean old nonces periodically
     if (this.usedNonces.size > 10000) {
       this.usedNonces.clear();
     }
@@ -76,7 +71,6 @@ export class APIProtection {
     const origin = req.headers.get("origin");
     const referer = req.headers.get("referer");
 
-    // Must have proper content type for POST/PUT
     if (
       ["POST", "PUT"].includes(req.method) &&
       !contentType?.includes("application/json")
@@ -84,12 +78,10 @@ export class APIProtection {
       return { valid: false, error: "Invalid content type" };
     }
 
-    // Must have user agent
     if (!userAgent) {
       return { valid: false, error: "User agent required" };
     }
 
-    // Block suspicious user agents
     const suspiciousPatterns = [
       /curl/i,
       /wget/i,
@@ -141,8 +133,6 @@ export class APIProtection {
     message: string
   ): boolean {
     try {
-      // This would need ethers.js to verify wallet signature
-      // For now, just basic validation
       return (
         wallet.length === 42 && wallet.startsWith("0x") && signature.length > 0
       );
@@ -161,7 +151,6 @@ export class APIProtection {
     const referer = req.headers.get("referer");
     const pathname = req.nextUrl.pathname;
 
-    // Check for obvious automation tools
     if (/selenium|puppeteer|playwright|webdriver/i.test(userAgent)) {
       reasons.push("Automation tool detected");
     }
@@ -177,26 +166,25 @@ export class APIProtection {
       }
     }
 
-    // Check for suspicious origins only for sensitive operations
     if (origin && pathname.includes("/lootbox") && req.method === "POST") {
-      if (!origin.includes("localhost") && !origin.includes("yourdomain.com")) {
+      const allowedOrigins: string[] =
+        process.env.ALLOWED_ORIGINS?.split(",") || [];
+      if (!origin.includes("localhost") && !allowedOrigins.includes(origin)) {
         reasons.push("Suspicious origin");
       }
     }
 
-    // Check for direct API access without referer only for sensitive operations
     if (pathname.includes("/lootbox") && req.method === "POST" && !referer) {
       reasons.push("Direct API access without referer");
     }
 
-    // For development, be more permissive
     if (process.env.NODE_ENV === "development" && reasons.length > 0) {
       console.log(
         "🔧 Development mode: logging suspicious activity but allowing request:",
         reasons
       );
       return {
-        suspicious: false, // Don't block in development
+        suspicious: false,
         reasons,
       };
     }
