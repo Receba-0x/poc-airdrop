@@ -35,11 +35,13 @@ export class TimestampValidator {
 
   /**
    * Valida um timestamp e previne replay attacks
+   * @param allowReuse Se true, permite que o mesmo timestamp seja usado múltiplas vezes
    */
   validateTimestamp(
     timestamp: number, 
     wallet: string, 
-    amount: string
+    amount: string,
+    allowReuse: boolean = false
   ): { valid: boolean; error?: string } {
     const now = Math.floor(Date.now() / 1000);
     const key = `${wallet}:${timestamp}:${amount}`;
@@ -50,6 +52,7 @@ export class TimestampValidator {
       wallet,
       amount,
       key,
+      allowReuse,
       usedTimestamps: Array.from(this.usedTimestamps).slice(-5), // Show last 5
       isUsed: this.usedTimestamps.has(key)
     });
@@ -70,7 +73,7 @@ export class TimestampValidator {
       };
     }
     
-    if (this.usedTimestamps.has(key)) {
+    if (this.usedTimestamps.has(key) && !allowReuse) {
       console.warn("⚠️ Replay attack detected:", { key, timestamp, wallet });
       
       // For development, be more tolerant
@@ -85,9 +88,13 @@ export class TimestampValidator {
       };
     }
     
-    // Marcar timestamp como usado
-    this.usedTimestamps.add(key);
-    console.log("✅ Timestamp validated and added to used set");
+    // Marcar timestamp como usado apenas se não for reutilização permitida
+    if (!allowReuse) {
+      this.usedTimestamps.add(key);
+      console.log("✅ Timestamp validated and added to used set");
+    } else {
+      console.log("✅ Timestamp validated (reuse allowed)");
+    }
     
     return { valid: true };
   }

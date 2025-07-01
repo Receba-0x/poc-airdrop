@@ -192,6 +192,8 @@ async function handlePurchase(params: any, req?: NextRequest) {
     amountToBurn.toString()
   );
 
+  console.log("🔍 Initial timestamp validation result:", timestampValidation);
+
   if (!timestampValidation.valid) {
     securityLogger.logEvent(
       "replay_attack" as any,
@@ -323,7 +325,8 @@ export const PUT = withAPIProtection(
       const timestampValidation = purchaseTimestampValidator.validateTimestamp(
         timestamp,
         wallet,
-        amount
+        amount,
+        true
       );
 
       if (!timestampValidation.valid) {
@@ -340,8 +343,6 @@ export const PUT = withAPIProtection(
         amount,
         timestamp
       );
-
-      console.log("🔍 Burn validation:", burnValidation);
 
       if (!burnValidation.isValid) {
         securityLogger.logTransactionValidationFailed(
