@@ -407,17 +407,17 @@ export function BoxSection({ boxName }: { boxName: string }) {
                       onClick={handlePurchase}
                       disabled={
                         isCrypto
-                          ? stats.remainingCryptoBoxes <= 0
-                          : stats.remainingSuperPrizeBoxes <= 0
+                          ? (stats?.remainingCryptoBoxes || 0) <= 0
+                          : (stats?.remainingSuperPrizeBoxes || 0) <= 0
                       }
                     >
                       <PurchaseIcon className="w-5 h-5" />
                       <span className="ml-1 text-sm sm:text-base">
                         {isCrypto
-                          ? stats.remainingCryptoBoxes <= 0
+                          ? stats?.remainingCryptoBoxes || 0 <= 0
                             ? t("box.soldOut")
                             : t("box.purchase")
-                          : stats.remainingSuperPrizeBoxes <= 0
+                          : stats?.remainingSuperPrizeBoxes || 0 <= 0
                           ? t("box.soldOut")
                           : t("box.purchase")}
                       </span>
