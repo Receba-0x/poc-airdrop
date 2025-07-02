@@ -322,21 +322,21 @@ export function BoxSection({ boxName }: { boxName: string }) {
                         <span>
                           {t("box.stats.opened")}:{" "}
                           <span className="text-white font-medium">
-                            {stats.totalSuperPrizeBoxesOpened}
+                            {stats?.totalSuperPrizeBoxesOpened || 0}
                           </span>
                         </span>
                         <span className="hidden sm:inline">•</span>
                         <span>
                           {t("box.stats.remaining")}:{" "}
                           <span className="text-[#28D939] font-medium">
-                            {stats.remainingSuperPrizeBoxes}
+                            {stats?.remainingSuperPrizeBoxes || 0}
                           </span>
                         </span>
                         <span className="hidden sm:inline">•</span>
                         <span>
                           {t("box.stats.total")}:{" "}
                           <span className="text-white font-medium">
-                            {stats.maxSuperPrizeBoxes}
+                            {stats?.maxSuperPrizeBoxes || 0}
                           </span>
                         </span>
                       </div>
@@ -346,21 +346,21 @@ export function BoxSection({ boxName }: { boxName: string }) {
                         <span>
                           {t("box.stats.opened")}:{" "}
                           <span className="text-white font-medium">
-                            {stats.totalCryptoBoxesOpened}
+                            {stats?.totalCryptoBoxesOpened || 0}
                           </span>
                         </span>
                         <span className="hidden sm:inline">•</span>
                         <span>
                           {t("box.stats.remaining")}:{" "}
                           <span className="text-[#28D939] font-medium">
-                            {stats.remainingCryptoBoxes}
+                            {stats?.remainingCryptoBoxes || 0}
                           </span>
                         </span>
                         <span className="hidden sm:inline">•</span>
                         <span>
                           {t("box.stats.total")}:{" "}
                           <span className="text-white font-medium">
-                            {stats.maxCryptoBoxes}
+                            {stats?.maxCryptoBoxes || 0}
                           </span>
                         </span>
                       </div>
