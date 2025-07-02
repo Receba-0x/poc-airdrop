@@ -10,32 +10,12 @@
       "value": "Soccer Jersey"
     },
     {
-      "trait_type": "Rarity",
-      "value": "Legendary"
-    },
-    {
-      "trait_type": "Autographed",
-      "value": "Yes"
-    },
-    {
-      "trait_type": "Player",
-      "value": "Adriano Imperador"
-    },
-    {
-      "trait_type": "Color",
-      "value": "Classic Green"
-    },
-    {
-      "trait_type": "Size",
-      "value": "M"
-    },
-    {
       "trait_type": "Edition",
       "value": "Limited"
     }
   ],
   "collection": {
-    "name": "ADR Collection",
+    "name": "Imperador Collection",
     "family": "Adriano Imperador"
   },
   "properties": {

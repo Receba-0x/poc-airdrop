@@ -9,11 +9,9 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "")
 function isValidOrigin(origin: string | null, host: string | null): boolean {
   if (!origin || !host) return false;
   if (ALLOWED_ORIGINS.includes(origin)) return true;
-  if (origin === `https://${host}` || origin === `http://${host}`) return true;
-  if (process.env.NODE_ENV === "development") {
-    if (origin.includes("localhost") || origin.includes("127.0.0.1"))
-      return true;
-  }
+  if (origin === `https://${host}`) return true;
+  const isDev = process.env.NODE_ENV === "development";
+  if (isDev && origin.includes("localhost")) return true;
   return false;
 }
 
