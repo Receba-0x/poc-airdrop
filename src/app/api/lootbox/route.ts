@@ -89,6 +89,11 @@ export const POST = withAPIProtection(
         req
       );
 
+      return NextResponse.json({
+        success: true,
+        message: "API chamada recebida",
+      });
+
       switch (action) {
         case "purchase":
           return await handlePurchaseWithSecurity(params, req);
