@@ -18,6 +18,7 @@ import { TimestampValidator } from "@/utils/timestampValidator";
 import { withAPIProtection } from "@/utils/apiProtection";
 import { SecurityLogger } from "@/utils/securityLogger";
 import { getPrivateKey, getSupabaseKey } from "@/utils/secretsManager";
+import { verifyCsrfToken, CSRF_SECRET_COOKIE, CSRF_TOKEN_HEADER } from '@/utils/csrf';
 
 const securityLogger = SecurityLogger.getInstance();
 const purchaseTimestampValidator = new TimestampValidator();
@@ -67,22 +68,44 @@ export const POST = withAPIProtection(
       const body = await req.json();
       const { action, ...params } = body;
 
-      if (action === "purchase" && !validateRequestOrigin(req, action)) {
-        securityLogger.logEvent(
-          "csrf_attempt" as any,
-          "Invalid request origin detected for purchase",
-          {
-            origin: req.headers.get("origin"),
-            referer: req.headers.get("referer"),
-            userAgent: req.headers.get("user-agent"),
-          },
-          "high",
-          req
-        );
-        return NextResponse.json(
-          { success: false, error: "Access denied" },
-          { status: 403 }
-        );
+      if (action === "purchase") {
+        // Validação do token CSRF
+        const csrfSecret = req.cookies.get(CSRF_SECRET_COOKIE)?.value;
+        const csrfToken = req.headers.get(CSRF_TOKEN_HEADER);
+        if (!csrfSecret || !csrfToken || !verifyCsrfToken(csrfSecret, csrfToken)) {
+          securityLogger.logEvent(
+            "csrf_attempt" as any,
+            "CSRF token inválido ou ausente",
+            {
+              origin: req.headers.get("origin"),
+              referer: req.headers.get("referer"),
+              userAgent: req.headers.get("user-agent"),
+            },
+            "high",
+            req
+          );
+          return NextResponse.json(
+            { success: false, error: "CSRF token inválido" },
+            { status: 403 }
+          );
+        }
+        if (!validateRequestOrigin(req, action)) {
+          securityLogger.logEvent(
+            "csrf_attempt" as any,
+            "Invalid request origin detected for purchase",
+            {
+              origin: req.headers.get("origin"),
+              referer: req.headers.get("referer"),
+              userAgent: req.headers.get("user-agent"),
+            },
+            "high",
+            req
+          );
+          return NextResponse.json(
+            { success: false, error: "Access denied" },
+            { status: 403 }
+          );
+        }
       }
 
       securityLogger.logEvent(

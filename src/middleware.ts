@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { generateCsrfSecret, createCsrfToken, CSRF_SECRET_COOKIE } from './utils/csrf';
 
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "")
   .split(",")
@@ -15,7 +16,7 @@ function isValidOrigin(origin: string | null, host: string | null): boolean {
   return false;
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
@@ -145,11 +146,9 @@ export function middleware(request: NextRequest) {
     );
     response.headers.set("Access-Control-Max-Age", "86400");
   }
-
-  // Enhanced CSP - Content Security Policy
+  
   const isDev = process.env.NODE_ENV === "development";
 
-  // Domínios confiáveis identificados no projeto
   const trustedDomains = [
     "'self'",
     "https://imperadortoken.com",
@@ -167,7 +166,6 @@ export function middleware(request: NextRequest) {
     "https://explorer-api.walletconnect.com",
   ];
 
-  // Adicionar localhost em desenvolvimento
   if (isDev) {
     trustedDomains.push("http://localhost:*", "https://localhost:*");
   }
@@ -190,6 +188,23 @@ export function middleware(request: NextRequest) {
   ];
 
   response.headers.set("Content-Security-Policy", cspDirectives.join("; "));
+
+  // Geração de token CSRF para rotas de API (GET)
+  if (request.nextUrl.pathname.startsWith('/api/') && request.method === 'GET') {
+    let csrfSecret = request.cookies.get(CSRF_SECRET_COOKIE)?.value;
+    if (!csrfSecret) {
+      csrfSecret = await generateCsrfSecret();
+      response.cookies.set(CSRF_SECRET_COOKIE, csrfSecret, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 60 * 60 * 2, // 2 horas
+      });
+    }
+    const csrfToken = createCsrfToken(csrfSecret);
+    response.headers.set('x-csrf-token', csrfToken);
+  }
 
   console.log("✅ Request allowed to proceed");
   return response;
