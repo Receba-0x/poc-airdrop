@@ -14,9 +14,13 @@ import {
   apiRateLimiter,
 } from "@/utils/rateLimiter";
 import { InputValidator } from "@/utils/inputValidator";
-import { purchaseTimestampValidator } from "@/utils/timestampValidator";
-import { securityLogger } from "@/utils/securityLogger";
+import { TimestampValidator } from "@/utils/timestampValidator";
 import { withAPIProtection } from "@/utils/apiProtection";
+import { SecurityLogger } from "@/utils/securityLogger";
+import { getPrivateKey, getSupabaseKey } from "@/utils/secretsManager";
+
+const securityLogger = SecurityLogger.getInstance();
+const purchaseTimestampValidator = new TimestampValidator();
 
 export const runtime = "nodejs";
 
@@ -163,16 +167,19 @@ async function handlePurchase(params: any, req?: NextRequest) {
   const { boxType, wallet, clientSeed, bnbFeeTransactionHash, bnbPrice } =
     params;
 
-  if (!PRIVATE_KEY) {
+  let privateKey: string;
+  try {
+    privateKey = await getPrivateKey();
+  } catch (error) {
     securityLogger.logEvent(
       "private_key_access" as any,
-      "Tentativa de acesso à chave privada não configurada",
-      {},
+      "Erro ao acessar chave privada",
+      { error: error instanceof Error ? error.message : "Unknown error" },
       "critical",
       req
     );
     return NextResponse.json(
-      { success: false, error: "Server private key not configured" },
+      { success: false, error: "Server configuration error" },
       { status: 500 }
     );
   }
@@ -215,7 +222,7 @@ async function handlePurchase(params: any, req?: NextRequest) {
   const messageHash = ethers.keccak256(packedData);
 
   const provider = new ethers.JsonRpcProvider(RPC_URL);
-  const signer = new ethers.Wallet(PRIVATE_KEY, provider);
+  const signer = new ethers.Wallet(privateKey, provider);
   const arrayifiedHash = ethers.getBytes(messageHash);
   const signature = await signer.signMessage(arrayifiedHash);
 
@@ -443,81 +450,102 @@ export const PUT = withAPIProtection(
 );
 
 async function handleGetStock() {
-  if (!isSupabaseConfigured || !supabase) {
-    const initialStock = { 8: 90, 9: 40, 10: 30, 11: 1, 12: 2, 13: 10 };
-    return NextResponse.json({ success: true, stock: initialStock });
-  }
-
-  const { data, error } = await supabase
-    .from("prize_stock")
-    .select("*")
-    .order("prize_id");
-
-  if (error) {
-    console.error("Supabase error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch stock data" },
-      { status: 500 }
-    );
-  }
-
-  const stockMap: { [key: number]: number } = {};
-  data.forEach((item) => {
-    stockMap[item.prize_id] = item.current_stock;
-  });
-
-  return NextResponse.json({ success: true, stock: stockMap });
-}
-
-async function handleGetStats() {
-  if (!isSupabaseConfigured || !supabase) {
+  let supabase;
+  try {
+    supabase = await createSupabaseClient();
+  } catch (error) {
+    console.log("⚠️ Error creating Supabase client for stock check:", error);
     return NextResponse.json({
       success: true,
-      data: {
-        totalBoxesOpened: 0,
-        totalCryptoBoxesOpened: 0,
-        totalSuperPrizeBoxesOpened: 0,
-        remainingCryptoBoxes: 275,
-        remainingSuperPrizeBoxes: 275,
-        maxCryptoBoxes: 275,
-        maxSuperPrizeBoxes: 275,
-      },
+      data: { boxStock: [], prizeStock: [] }
     });
   }
 
-  const { data: boxStockData } = await supabase.from("box_stock").select("*");
+  try {
+    // Get box stock
+    const { data: boxStock, error: boxError } = await supabase
+      .from("box_stock")
+      .select("*");
 
-  const cryptoBoxData = boxStockData?.find((box) => box.box_type === "crypto");
-  const superPrizeBoxData = boxStockData?.find(
-    (box) => box.box_type === "super_prize"
-  );
+    // Get prize stock
+    const { data: prizeStock, error: prizeError } = await supabase
+      .from("prize_stock")
+      .select("*");
 
-  const DEFAULT_MAX_BOXES = 275;
-  const cryptoBoxInitial = cryptoBoxData?.initial_stock || DEFAULT_MAX_BOXES;
-  const cryptoBoxCurrent = cryptoBoxData?.current_stock || DEFAULT_MAX_BOXES;
-  const superPrizeBoxInitial =
-    superPrizeBoxData?.initial_stock || DEFAULT_MAX_BOXES;
-  const superPrizeBoxCurrent =
-    superPrizeBoxData?.current_stock || DEFAULT_MAX_BOXES;
+    if (boxError) console.error("Box stock error:", boxError);
+    if (prizeError) console.error("Prize stock error:", prizeError);
 
-  return NextResponse.json({
-    success: true,
-    data: {
-      totalBoxesOpened:
-        cryptoBoxInitial -
-        cryptoBoxCurrent +
-        (superPrizeBoxInitial - superPrizeBoxCurrent),
-      totalCryptoBoxesOpened: cryptoBoxInitial - cryptoBoxCurrent,
-      totalSuperPrizeBoxesOpened: superPrizeBoxInitial - superPrizeBoxCurrent,
-      remainingCryptoBoxes: cryptoBoxCurrent,
-      remainingSuperPrizeBoxes: superPrizeBoxCurrent,
-      maxCryptoBoxes: cryptoBoxInitial,
-      maxSuperPrizeBoxes: superPrizeBoxInitial,
-    },
-  });
+    return NextResponse.json({
+      success: true,
+      data: {
+        boxStock: boxStock || [],
+        prizeStock: prizeStock || []
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching stock:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch stock" },
+      { status: 500 }
+    );
+  }
 }
 
-// Helper functions
+async function handleGetStats() {
+  let supabase;
+  try {
+    supabase = await createSupabaseClient();
+  } catch (error) {
+    console.log("⚠️ Error creating Supabase client for stats:", error);
+    return NextResponse.json({
+      success: true,
+      data: {
+        totalPurchases: 0,
+        totalRevenue: 0,
+        totalBoxes: 0,
+        recentActivity: []
+      }
+    });
+  }
+
+  try {
+    // Get total purchases
+    const { count: totalPurchases } = await supabase
+      .from('purchases')
+      .select('*', { count: 'exact', head: true });
+
+    // Get total revenue
+    const { data: revenueData } = await supabase
+      .from('purchases')
+      .select('amount_purchased');
+
+    const totalRevenue = revenueData?.reduce((sum: number, purchase: any) => sum + purchase.amount_purchased, 0) || 0;
+
+    // Get recent activity
+    const { data: recentActivity } = await supabase
+      .from('purchases')
+      .select('wallet_address, prize_name, purchase_timestamp, amount_purchased')
+      .order('purchase_timestamp', { ascending: false })
+      .limit(10);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        totalPurchases: totalPurchases || 0,
+        totalRevenue,
+        totalBoxes: totalPurchases || 0,
+        recentActivity: recentActivity || []
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching stats:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch stats" },
+      { status: 500 }
+    );
+  }
+}
+
 async function validateVerifiedBurnTransaction(
   txHash: string,
   wallet: string,
@@ -681,18 +709,16 @@ async function determinePrize(randomNumber: number, isCrypto: boolean) {
 }
 
 async function updateBoxStock(isCrypto: boolean) {
-  console.log(
-    "📦 Updating box stock for:",
-    isCrypto ? "crypto" : "super_prize"
-  );
-
-  if (!isSupabaseConfigured || !supabase) {
-    console.log("⚠️ Supabase not configured, skipping stock update");
+  let supabase;
+  try {
+    supabase = await createSupabaseClient();
+  } catch (error) {
+    console.log("⚠️ Error creating Supabase client for box stock update:", error);
     return;
   }
 
   const boxType = isCrypto ? "crypto" : "super_prize";
-  console.log("🔍 Fetching current stock for box type:", boxType);
+  console.log(`📦 Updating box stock for type: ${boxType}`);
 
   const { data: boxStockData, error } = await supabase
     .from("box_stock")
@@ -707,10 +733,10 @@ async function updateBoxStock(isCrypto: boolean) {
 
   console.log("📊 Current box stock data:", boxStockData);
 
-  if (boxStockData) {
+  if (boxStockData && boxStockData.current_stock > 0) {
     const newStock = boxStockData.current_stock - 1;
     console.log(
-      `🔄 Updating stock from ${boxStockData.current_stock} to ${newStock}`
+      `🔄 Updating box stock from ${boxStockData.current_stock} to ${newStock}`
     );
 
     const { error: updateError } = await supabase
@@ -736,14 +762,22 @@ async function deliverPrize(
   tokenId?: string;
   metadataUri?: string;
 }> {
-  if (!PRIVATE_KEY || !RPC_URL) {
-    console.log("⚠️ Private key or RPC URL not configured for prize delivery");
+  let privateKey: string;
+  try {
+    privateKey = await getPrivateKey();
+  } catch (error) {
+    console.log("⚠️ Error accessing private key for prize delivery:", error);
+    return { txHash: "" };
+  }
+
+  if (!RPC_URL) {
+    console.log("⚠️ RPC URL not configured for prize delivery");
     return { txHash: "" };
   }
 
   try {
     const provider = new ethers.JsonRpcProvider(RPC_URL);
-    const signer = new ethers.Wallet(PRIVATE_KEY, provider);
+    const signer = new ethers.Wallet(privateKey, provider);
 
     if (wonPrize.type === "sol" && wonPrize.amount) {
       console.log(`💰 Delivering ${wonPrize.amount} BNB to ${wallet}`);
@@ -819,8 +853,11 @@ async function deliverPrize(
 }
 
 async function savePurchaseRecord(data: any) {
-  if (!isSupabaseConfigured || !supabase) {
-    console.log(`⚠️ Supabase not configured, skipping database save`);
+  let supabase;
+  try {
+    supabase = await createSupabaseClient();
+  } catch (error) {
+    console.log(`⚠️ Error creating Supabase client, skipping database save:`, error);
     return;
   }
 
@@ -871,8 +908,11 @@ async function savePurchaseRecord(data: any) {
 async function updatePrizeStock(prizeId: number) {
   console.log(`🎁 Updating prize stock for prize ID: ${prizeId}`);
 
-  if (!isSupabaseConfigured || !supabase) {
-    console.log("⚠️ Supabase not configured, skipping prize stock update");
+  let supabase;
+  try {
+    supabase = await createSupabaseClient();
+  } catch (error) {
+    console.log("⚠️ Error creating Supabase client, skipping prize stock update:", error);
     return;
   }
 
@@ -918,4 +958,12 @@ async function updatePrizeStock(prizeId: number) {
   } else {
     console.log(`⚠️ Prize ${prizeId} is out of stock or not found`);
   }
+}
+
+async function createSupabaseClient() {
+  if (!supabaseUrl) {
+    throw new Error("SUPABASE_URL não configurada");
+  }
+  const supabaseServiceKey = await getSupabaseKey();
+  return createClient(supabaseUrl, supabaseServiceKey);
 }

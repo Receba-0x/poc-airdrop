@@ -1,5 +1,3 @@
-// Purchase utility functions for optimized performance
-
 export const PURCHASE_CONFIG = {
   PRICES: {
     CRYPTO: { USD: 17.5, TOKEN_RATE: 0.002 },

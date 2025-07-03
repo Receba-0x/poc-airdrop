@@ -1,9 +1,10 @@
 import { jwtVerify, SignJWT } from 'jose';
+import { getAdminSecret } from './secretsManager';
 
 export const TOKEN_EXPIRATION = 60 * 60 * 8;
-const JWT_SECRET = process.env.ADMIN_SECRET || '';
 
 export async function generateToken(payload: { username: string; role: string }) {
+  const JWT_SECRET = await getAdminSecret();
   const secret = new TextEncoder().encode(JWT_SECRET);
 
   const token = await new SignJWT(payload)
@@ -17,6 +18,7 @@ export async function generateToken(payload: { username: string; role: string })
 
 export async function verifyToken(token: string) {
   try {
+    const JWT_SECRET = await getAdminSecret();
     const secret = new TextEncoder().encode(JWT_SECRET);
     const { payload } = await jwtVerify(token, secret);
 

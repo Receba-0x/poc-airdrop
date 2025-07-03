@@ -3,22 +3,63 @@ import type { NextConfig } from "next";
 const securityHeaders = [
   {
     key: "X-Frame-Options",
-    value: "SAMEORIGIN",
+    value: "DENY",
   },
   {
     key: "X-Content-Type-Options",
     value: "nosniff",
   },
+  {
+    key: "Referrer-Policy",
+    value: "strict-origin-when-cross-origin",
+  },
+  {
+    key: "X-XSS-Protection",
+    value: "1; mode=block",
+  },
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=31536000; includeSubDomains; preload",
+  },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), payment=()",
+  },
 ];
 
 const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: securityHeaders,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**",
+        hostname: "imperadortoken.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.imperadortoken.com",
+      },
+      {
+        protocol: "https",
+        hostname: "adr-token.vercel.app",
+      },
+      {
+        protocol: "https",
+        hostname: "adriano-imperador.gitbook.io",
       },
     ],
+  },
+  compress: true,
+  poweredByHeader: false,
+  experimental: {
+    optimizePackageImports: ['@fortawesome/react-fontawesome', '@fortawesome/free-solid-svg-icons'],
   },
 };
 

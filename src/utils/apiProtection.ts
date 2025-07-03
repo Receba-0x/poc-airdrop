@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import crypto from "crypto";
+import { getAPISecretKey } from "./secretsManager";
 
 export interface RequestSignature {
   timestamp: number;
@@ -8,27 +9,35 @@ export interface RequestSignature {
 }
 
 export class APIProtection {
-  private static readonly SECRET_KEY =
-    process.env.API_SECRET_KEY || "default-secret-key";
+  private static SECRET_KEY: string | null = null;
   private static readonly MAX_REQUEST_AGE = 5 * 60 * 1000;
   private static usedNonces = new Set<string>();
 
-  static generateRequestSignature(data: any): RequestSignature {
+  private static async getSecretKey(): Promise<string> {
+    if (!this.SECRET_KEY) {
+      this.SECRET_KEY = await getAPISecretKey();
+    }
+    return this.SECRET_KEY;
+  }
+
+  static async generateRequestSignature(data: any): Promise<RequestSignature> {
+    const secretKey = await this.getSecretKey();
     const timestamp = Date.now();
     const nonce = crypto.randomBytes(16).toString("hex");
     const payload = JSON.stringify({ ...data, timestamp, nonce });
     const signature = crypto
-      .createHmac("sha256", this.SECRET_KEY)
+      .createHmac("sha256", secretKey)
       .update(payload)
       .digest("hex");
 
     return { timestamp, nonce, signature };
   }
 
-  static verifyRequestSignature(
+  static async verifyRequestSignature(
     data: any,
     providedSignature: RequestSignature
-  ): { valid: boolean; error?: string } {
+  ): Promise<{ valid: boolean; error?: string }> {
+    const secretKey = await this.getSecretKey();
     const now = Date.now();
 
     if (now - providedSignature.timestamp > this.MAX_REQUEST_AGE) {
@@ -45,7 +54,7 @@ export class APIProtection {
       nonce: providedSignature.nonce,
     });
     const expectedSignature = crypto
-      .createHmac("sha256", this.SECRET_KEY)
+      .createHmac("sha256", secretKey)
       .update(payload)
       .digest("hex");
 
@@ -155,7 +164,6 @@ export class APIProtection {
       reasons.push("Automation tool detected");
     }
 
-    // Check for missing browser headers only for sensitive operations
     if (pathname.includes("/lootbox") && req.method === "POST") {
       if (!req.headers.get("accept-language")) {
         reasons.push("Missing accept-language header");
@@ -166,9 +174,9 @@ export class APIProtection {
       }
     }
 
+    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
+
     if (origin && pathname.includes("/lootbox") && req.method === "POST") {
-      const allowedOrigins: string[] =
-        process.env.ALLOWED_ORIGINS?.split(",") || [];
       if (!origin.includes("localhost") && !allowedOrigins.includes(origin)) {
         reasons.push("Suspicious origin");
       }

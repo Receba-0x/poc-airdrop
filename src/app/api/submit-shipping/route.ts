@@ -285,11 +285,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("Error processing shipping submission:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "Internal server error",
-        details: error.message,
-      },
+      { success: false, error: "Internal server error" },
       { status: 500 }
     );
   }

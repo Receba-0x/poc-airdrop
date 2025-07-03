@@ -109,11 +109,9 @@ export function usePurchase() {
     [key: number]: number;
   }> => {
     try {
-      console.log("fetching current stock");
       const response = await axios.post("/api/lootbox", {
         action: "get-stock",
       });
-      console.log(response.data);
       if (response.data.success) {
         setCurrentStock(response.data.stock);
         return response.data.stock;

@@ -32,9 +32,8 @@ export function BoxSection({ boxName }: { boxName: string }) {
     closeModal,
     currentStock,
   } = usePurchase();
-  const { stats, isLoading: statsLoading, refetch } = useBoxStats();
+  const { stats, isLoading: statsLoading   } = useBoxStats();
   const { t } = useLanguage();
-  console.log(currentStock);
 
   const [simulationModalOpen, setSimulationModalOpen] = useState(false);
   const [simulationStatus, setSimulationStatus] = useState<

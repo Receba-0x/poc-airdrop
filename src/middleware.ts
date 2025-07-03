@@ -114,19 +114,26 @@ export function middleware(request: NextRequest) {
 
   const response = NextResponse.next();
 
-  // Security headers
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("X-XSS-Protection", "1; mode=block");
+  response.headers.set(
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains; preload"
+  );
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), payment=()"
+  );
 
-  // CORS headers for API routes
   if (pathname.startsWith("/api/")) {
     if (isValidOrigin(origin, host)) {
-      response.headers.set("Access-Control-Allow-Origin", origin || "*");
+      response.headers.set("Access-Control-Allow-Origin", origin!);
     } else {
-      // For development, be more permissive
-      response.headers.set("Access-Control-Allow-Origin", "*");
+      if (process.env.NODE_ENV === "development") {
+        response.headers.set("Access-Control-Allow-Origin", "*");
+      }
     }
     response.headers.set(
       "Access-Control-Allow-Methods",
@@ -139,11 +146,50 @@ export function middleware(request: NextRequest) {
     response.headers.set("Access-Control-Max-Age", "86400");
   }
 
-  // CSP header
-  response.headers.set(
-    "Content-Security-Policy",
-    "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https:; frame-src *; connect-src *; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; style-src-elem 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; media-src 'self' data: blob: https:; object-src 'none'; base-uri 'self';"
-  );
+  // Enhanced CSP - Content Security Policy
+  const isDev = process.env.NODE_ENV === "development";
+
+  // Domínios confiáveis identificados no projeto
+  const trustedDomains = [
+    "'self'",
+    "https://imperadortoken.com",
+    "https://www.imperadortoken.com",
+    "https://adr-token.vercel.app",
+    "https://adriano-imperador.gitbook.io",
+    "https://api.coingecko.com",
+    "https://bnb-testnet.g.alchemy.com",
+    "https://t.me",
+    "https://x.com",
+    "https://adrianotoken.org",
+    "wss://relay.walletconnect.com",
+    "wss://relay.walletconnect.org",
+    "https://registry.walletconnect.com",
+    "https://explorer-api.walletconnect.com",
+  ];
+
+  // Adicionar localhost em desenvolvimento
+  if (isDev) {
+    trustedDomains.push("http://localhost:*", "https://localhost:*");
+  }
+
+  const cspDirectives = [
+    `default-src ${trustedDomains.join(" ")}`,
+    `script-src ${trustedDomains.join(" ")} ${
+      isDev ? "'unsafe-eval'" : ""
+    } 'unsafe-inline'`,
+    `style-src ${trustedDomains.join(" ")} 'unsafe-inline'`,
+    `img-src ${trustedDomains.join(" ")} data: blob:`,
+    `font-src ${trustedDomains.join(" ")} data:`,
+    `connect-src ${trustedDomains.join(" ")} wss: ws:`,
+    `media-src ${trustedDomains.join(" ")} data: blob:`,
+    `object-src 'none'`,
+    `base-uri 'self'`,
+    `form-action 'self'`,
+    `frame-ancestors 'none'`,
+    `upgrade-insecure-requests`,
+  ];
+
+  response.headers.set("Content-Security-Policy", cspDirectives.join("; "));
 
   console.log("✅ Request allowed to proceed");
   return response;
