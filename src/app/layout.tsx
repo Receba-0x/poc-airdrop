@@ -2,6 +2,7 @@ import Providers from "@/components/Providers";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Nunito_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 
 const nunito = Nunito_Sans({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
       <body>
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );
