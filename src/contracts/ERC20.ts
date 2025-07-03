@@ -26,23 +26,45 @@ import type {
 export interface ERC20Interface extends Interface {
   getFunction(
     nameOrSignature:
+      | "MODE_NORMAL"
+      | "MODE_TRANSFER_CONTROLLED"
+      | "MODE_TRANSFER_RESTRICTED"
+      | "_mode"
       | "allowance"
       | "approve"
       | "balanceOf"
-      | "burn"
-      | "burnFrom"
       | "decimals"
+      | "decreaseAllowance"
+      | "increaseAllowance"
+      | "init"
       | "name"
+      | "owner"
+      | "renounceOwnership"
+      | "setMode"
       | "symbol"
       | "totalSupply"
       | "transfer"
       | "transferFrom"
+      | "transferOwnership"
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic: "Approval" | "Burn" | "Transfer"
+    nameOrSignatureOrTopic: "Approval" | "OwnershipTransferred" | "Transfer"
   ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "MODE_NORMAL",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "MODE_TRANSFER_CONTROLLED",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "MODE_TRANSFER_RESTRICTED",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "_mode", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "allowance",
     values: [AddressLike, AddressLike]
@@ -55,13 +77,29 @@ export interface ERC20Interface extends Interface {
     functionFragment: "balanceOf",
     values: [AddressLike]
   ): string;
-  encodeFunctionData(functionFragment: "burn", values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "burnFrom",
+    functionFragment: "decreaseAllowance",
     values: [AddressLike, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "increaseAllowance",
+    values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "init",
+    values: [string, string, BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMode",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
@@ -75,14 +113,44 @@ export interface ERC20Interface extends Interface {
     functionFragment: "transferFrom",
     values: [AddressLike, AddressLike, BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [AddressLike]
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "MODE_NORMAL",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "MODE_TRANSFER_CONTROLLED",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "MODE_TRANSFER_RESTRICTED",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "_mode", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "burnFrom", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "decreaseAllowance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "increaseAllowance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "init", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "setMode", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
@@ -91,6 +159,10 @@ export interface ERC20Interface extends Interface {
   decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferFrom",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
 }
@@ -113,12 +185,12 @@ export namespace ApprovalEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace BurnEvent {
-  export type InputTuple = [from: AddressLike, value: BigNumberish];
-  export type OutputTuple = [from: string, value: bigint];
+export namespace OwnershipTransferredEvent {
+  export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
+  export type OutputTuple = [previousOwner: string, newOwner: string];
   export interface OutputObject {
-    from: string;
-    value: bigint;
+    previousOwner: string;
+    newOwner: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -187,45 +259,75 @@ export interface ERC20 extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  MODE_NORMAL: TypedContractMethod<[], [bigint], "view">;
+
+  MODE_TRANSFER_CONTROLLED: TypedContractMethod<[], [bigint], "view">;
+
+  MODE_TRANSFER_RESTRICTED: TypedContractMethod<[], [bigint], "view">;
+
+  _mode: TypedContractMethod<[], [bigint], "view">;
+
   allowance: TypedContractMethod<
-    [arg0: AddressLike, arg1: AddressLike],
+    [owner: AddressLike, spender: AddressLike],
     [bigint],
     "view"
   >;
 
   approve: TypedContractMethod<
-    [spender: AddressLike, value: BigNumberish],
+    [spender: AddressLike, amount: BigNumberish],
     [boolean],
     "nonpayable"
   >;
 
-  balanceOf: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  balanceOf: TypedContractMethod<[account: AddressLike], [bigint], "view">;
 
-  burn: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  decimals: TypedContractMethod<[], [bigint], "view">;
 
-  burnFrom: TypedContractMethod<
-    [account: AddressLike, amount: BigNumberish],
+  decreaseAllowance: TypedContractMethod<
+    [spender: AddressLike, subtractedValue: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+
+  increaseAllowance: TypedContractMethod<
+    [spender: AddressLike, addedValue: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+
+  init: TypedContractMethod<
+    [name: string, symbol: string, totalSupply: BigNumberish],
     [void],
     "nonpayable"
   >;
 
-  decimals: TypedContractMethod<[], [bigint], "view">;
-
   name: TypedContractMethod<[], [string], "view">;
+
+  owner: TypedContractMethod<[], [string], "view">;
+
+  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  setMode: TypedContractMethod<[v: BigNumberish], [void], "nonpayable">;
 
   symbol: TypedContractMethod<[], [string], "view">;
 
   totalSupply: TypedContractMethod<[], [bigint], "view">;
 
   transfer: TypedContractMethod<
-    [to: AddressLike, value: BigNumberish],
+    [to: AddressLike, amount: BigNumberish],
     [boolean],
     "nonpayable"
   >;
 
   transferFrom: TypedContractMethod<
-    [from: AddressLike, to: AddressLike, value: BigNumberish],
+    [from: AddressLike, to: AddressLike, amount: BigNumberish],
     [boolean],
+    "nonpayable"
+  >;
+
+  transferOwnership: TypedContractMethod<
+    [newOwner: AddressLike],
+    [void],
     "nonpayable"
   >;
 
@@ -234,38 +336,70 @@ export interface ERC20 extends BaseContract {
   ): T;
 
   getFunction(
+    nameOrSignature: "MODE_NORMAL"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "MODE_TRANSFER_CONTROLLED"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "MODE_TRANSFER_RESTRICTED"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "_mode"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "allowance"
   ): TypedContractMethod<
-    [arg0: AddressLike, arg1: AddressLike],
+    [owner: AddressLike, spender: AddressLike],
     [bigint],
     "view"
   >;
   getFunction(
     nameOrSignature: "approve"
   ): TypedContractMethod<
-    [spender: AddressLike, value: BigNumberish],
+    [spender: AddressLike, amount: BigNumberish],
     [boolean],
     "nonpayable"
   >;
   getFunction(
     nameOrSignature: "balanceOf"
-  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "burn"
-  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "burnFrom"
-  ): TypedContractMethod<
-    [account: AddressLike, amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "decimals"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "decreaseAllowance"
+  ): TypedContractMethod<
+    [spender: AddressLike, subtractedValue: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "increaseAllowance"
+  ): TypedContractMethod<
+    [spender: AddressLike, addedValue: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "init"
+  ): TypedContractMethod<
+    [name: string, symbol: string, totalSupply: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "name"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "renounceOwnership"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setMode"
+  ): TypedContractMethod<[v: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "symbol"
   ): TypedContractMethod<[], [string], "view">;
@@ -275,17 +409,20 @@ export interface ERC20 extends BaseContract {
   getFunction(
     nameOrSignature: "transfer"
   ): TypedContractMethod<
-    [to: AddressLike, value: BigNumberish],
+    [to: AddressLike, amount: BigNumberish],
     [boolean],
     "nonpayable"
   >;
   getFunction(
     nameOrSignature: "transferFrom"
   ): TypedContractMethod<
-    [from: AddressLike, to: AddressLike, value: BigNumberish],
+    [from: AddressLike, to: AddressLike, amount: BigNumberish],
     [boolean],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "transferOwnership"
+  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
 
   getEvent(
     key: "Approval"
@@ -295,11 +432,11 @@ export interface ERC20 extends BaseContract {
     ApprovalEvent.OutputObject
   >;
   getEvent(
-    key: "Burn"
+    key: "OwnershipTransferred"
   ): TypedContractEvent<
-    BurnEvent.InputTuple,
-    BurnEvent.OutputTuple,
-    BurnEvent.OutputObject
+    OwnershipTransferredEvent.InputTuple,
+    OwnershipTransferredEvent.OutputTuple,
+    OwnershipTransferredEvent.OutputObject
   >;
   getEvent(
     key: "Transfer"
@@ -321,15 +458,15 @@ export interface ERC20 extends BaseContract {
       ApprovalEvent.OutputObject
     >;
 
-    "Burn(address,uint256)": TypedContractEvent<
-      BurnEvent.InputTuple,
-      BurnEvent.OutputTuple,
-      BurnEvent.OutputObject
+    "OwnershipTransferred(address,address)": TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
     >;
-    Burn: TypedContractEvent<
-      BurnEvent.InputTuple,
-      BurnEvent.OutputTuple,
-      BurnEvent.OutputObject
+    OwnershipTransferred: TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
     >;
 
     "Transfer(address,address,uint256)": TypedContractEvent<

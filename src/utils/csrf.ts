@@ -1,3 +1,4 @@
+// ATENÇÃO: Este módulo depende de pacotes Node.js e só deve ser usado em rotas Node.js (API Route tradicional ou app/api com runtime nodejs), nunca em middleware Edge!
 import Tokens from 'csrf';
 
 const tokens = new Tokens();

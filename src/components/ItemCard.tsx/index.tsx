@@ -61,8 +61,10 @@ export default function ItemCard({ item, currentStock = {} }: ItemCardProps) {
             <Image
               src={currentImage}
               alt={item.name}
-              fill
-              className="object-contain p-1 pt-4"
+              width={100000}
+              height={100000}
+              priority
+              className="object-contain p-4 w-full h-full"
             />
           </motion.div>
         </AnimatePresence>

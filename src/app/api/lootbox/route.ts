@@ -18,14 +18,17 @@ import { TimestampValidator } from "@/utils/timestampValidator";
 import { withAPIProtection } from "@/utils/apiProtection";
 import { SecurityLogger } from "@/utils/securityLogger";
 import { getPrivateKey, getSupabaseKey } from "@/utils/secretsManager";
-import { verifyCsrfToken, CSRF_SECRET_COOKIE, CSRF_TOKEN_HEADER } from '@/utils/csrf';
+import {
+  verifyCsrfToken,
+  CSRF_SECRET_COOKIE,
+  CSRF_TOKEN_HEADER,
+} from "@/utils/csrf";
 
 const securityLogger = SecurityLogger.getInstance();
 const purchaseTimestampValidator = new TimestampValidator();
 
 export const runtime = "nodejs";
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const RPC_URL = process.env.RPC_URL;
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_KEY;
@@ -69,10 +72,13 @@ export const POST = withAPIProtection(
       const { action, ...params } = body;
 
       if (action === "purchase") {
-        // Validação do token CSRF
         const csrfSecret = req.cookies.get(CSRF_SECRET_COOKIE)?.value;
         const csrfToken = req.headers.get(CSRF_TOKEN_HEADER);
-        if (!csrfSecret || !csrfToken || !verifyCsrfToken(csrfSecret, csrfToken)) {
+        if (
+          !csrfSecret ||
+          !csrfToken ||
+          !verifyCsrfToken(csrfSecret, csrfToken)
+        ) {
           securityLogger.logEvent(
             "csrf_attempt" as any,
             "CSRF token inválido ou ausente",
@@ -243,7 +249,6 @@ async function handlePurchase(params: any, req?: NextRequest) {
   const timestampBytes = ethers.toBeHex(timestamp, 32);
   const packedData = ethers.concat([walletBytes, amountBytes, timestampBytes]);
   const messageHash = ethers.keccak256(packedData);
-
   const provider = new ethers.JsonRpcProvider(RPC_URL);
   const signer = new ethers.Wallet(privateKey, provider);
   const arrayifiedHash = ethers.getBytes(messageHash);
@@ -480,7 +485,7 @@ async function handleGetStock() {
     console.log("⚠️ Error creating Supabase client for stock check:", error);
     return NextResponse.json({
       success: true,
-      data: { boxStock: [], prizeStock: [] }
+      data: { boxStock: [], prizeStock: [] },
     });
   }
 
@@ -502,8 +507,8 @@ async function handleGetStock() {
       success: true,
       data: {
         boxStock: boxStock || [],
-        prizeStock: prizeStock || []
-      }
+        prizeStock: prizeStock || [],
+      },
     });
   } catch (error) {
     console.error("Error fetching stock:", error);
@@ -526,29 +531,35 @@ async function handleGetStats() {
         totalPurchases: 0,
         totalRevenue: 0,
         totalBoxes: 0,
-        recentActivity: []
-      }
+        recentActivity: [],
+      },
     });
   }
 
   try {
     // Get total purchases
     const { count: totalPurchases } = await supabase
-      .from('purchases')
-      .select('*', { count: 'exact', head: true });
+      .from("purchases")
+      .select("*", { count: "exact", head: true });
 
     // Get total revenue
     const { data: revenueData } = await supabase
-      .from('purchases')
-      .select('amount_purchased');
+      .from("purchases")
+      .select("amount_purchased");
 
-    const totalRevenue = revenueData?.reduce((sum: number, purchase: any) => sum + purchase.amount_purchased, 0) || 0;
+    const totalRevenue =
+      revenueData?.reduce(
+        (sum: number, purchase: any) => sum + purchase.amount_purchased,
+        0
+      ) || 0;
 
     // Get recent activity
     const { data: recentActivity } = await supabase
-      .from('purchases')
-      .select('wallet_address, prize_name, purchase_timestamp, amount_purchased')
-      .order('purchase_timestamp', { ascending: false })
+      .from("purchases")
+      .select(
+        "wallet_address, prize_name, purchase_timestamp, amount_purchased"
+      )
+      .order("purchase_timestamp", { ascending: false })
       .limit(10);
 
     return NextResponse.json({
@@ -557,8 +568,8 @@ async function handleGetStats() {
         totalPurchases: totalPurchases || 0,
         totalRevenue,
         totalBoxes: totalPurchases || 0,
-        recentActivity: recentActivity || []
-      }
+        recentActivity: recentActivity || [],
+      },
     });
   } catch (error) {
     console.error("Error fetching stats:", error);
@@ -736,7 +747,10 @@ async function updateBoxStock(isCrypto: boolean) {
   try {
     supabase = await createSupabaseClient();
   } catch (error) {
-    console.log("⚠️ Error creating Supabase client for box stock update:", error);
+    console.log(
+      "⚠️ Error creating Supabase client for box stock update:",
+      error
+    );
     return;
   }
 
@@ -880,7 +894,10 @@ async function savePurchaseRecord(data: any) {
   try {
     supabase = await createSupabaseClient();
   } catch (error) {
-    console.log(`⚠️ Error creating Supabase client, skipping database save:`, error);
+    console.log(
+      `⚠️ Error creating Supabase client, skipping database save:`,
+      error
+    );
     return;
   }
 
@@ -935,7 +952,10 @@ async function updatePrizeStock(prizeId: number) {
   try {
     supabase = await createSupabaseClient();
   } catch (error) {
-    console.log("⚠️ Error creating Supabase client, skipping prize stock update:", error);
+    console.log(
+      "⚠️ Error creating Supabase client, skipping prize stock update:",
+      error
+    );
     return;
   }
 
@@ -990,3 +1010,5 @@ async function createSupabaseClient() {
   const supabaseServiceKey = await getSupabaseKey();
   return createClient(supabaseUrl, supabaseServiceKey);
 }
+
+export { validateRequestOrigin };

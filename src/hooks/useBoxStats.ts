@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 
 interface BoxStats {
   totalBoxesOpened: number;
@@ -29,19 +29,40 @@ export function useBoxStats() {
     try {
       setIsLoading(true);
       setError(null);
-      
-      const response = await axios.post('/api/lootbox', {
-        action: 'get-stats'
+
+      const { data } = await axios.post("/api/lootbox", {
+        action: "get-stock",
       });
-      
-      if (response.data.success) {
-        setStats(response.data.data);
+
+      if (data.success) {
+        const boxStock = data.data.boxStock;
+        const cryptoBox = boxStock.find((b: any) => b.box_type === "crypto");
+        const superPrizeBox = boxStock.find(
+          (b: any) => b.box_type === "super_prize"
+        );
+
+        setStats({
+          totalBoxesOpened:
+            (cryptoBox?.initial_stock ?? 0) -
+            (cryptoBox?.current_stock ?? 0) +
+            (superPrizeBox?.initial_stock ?? 0) -
+            (superPrizeBox?.current_stock ?? 0),
+          totalCryptoBoxesOpened:
+            (cryptoBox?.initial_stock ?? 0) - (cryptoBox?.current_stock ?? 0),
+          totalSuperPrizeBoxesOpened:
+            (superPrizeBox?.initial_stock ?? 0) -
+            (superPrizeBox?.current_stock ?? 0),
+          remainingCryptoBoxes: cryptoBox?.current_stock ?? 0,
+          remainingSuperPrizeBoxes: superPrizeBox?.current_stock ?? 0,
+          maxCryptoBoxes: cryptoBox?.initial_stock ?? 0,
+          maxSuperPrizeBoxes: superPrizeBox?.initial_stock ?? 0,
+        });
       } else {
-        throw new Error(response.data.error || 'Failed to fetch stats');
+        throw new Error(data.error || "Failed to fetch stats");
       }
     } catch (err: any) {
-      console.error('Error fetching box stats:', err);
-      setError(err.message || 'Failed to fetch box statistics');
+      console.error("Error fetching box stats:", err);
+      setError(err.message || "Failed to fetch box statistics");
     } finally {
       setIsLoading(false);
     }
@@ -61,4 +82,4 @@ export function useBoxStats() {
     error,
     refetch,
   };
-} 
+}

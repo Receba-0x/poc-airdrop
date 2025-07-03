@@ -11,6 +11,7 @@ export const translations = {
     "hero.title": "The Official Token of \n ",
     "hero.adriano": "Adriano Imperador",
     "hero.token": "Token",
+    "hero.tokenContract": "Token Contract:",
     "hero.subtitle": "Be part of the Empire. Shape tomorrow's finance.",
     "hero.cta": "Buy $IMPERA",
     "hero.joinCommunity": "Join Official Community",
@@ -549,6 +550,7 @@ export const translations = {
     "hero.title": "O Token Oficial \n Do ",
     "hero.adriano": "Didico",
     "hero.token": "Token",
+    "hero.tokenContract": "Contrato do token:",
     "hero.subtitle":
       "Faça parte do Império. Unindo ídolos e a próxima geração na WEB3.",
     "hero.cta": "Comprar token $ADR",

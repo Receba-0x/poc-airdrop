@@ -32,7 +32,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
     closeModal,
     currentStock,
   } = usePurchase();
-  const { stats, isLoading: statsLoading   } = useBoxStats();
+  const { stats, isLoading: statsLoading, refetch } = useBoxStats();
   const { t } = useLanguage();
 
   const [simulationModalOpen, setSimulationModalOpen] = useState(false);
@@ -101,12 +101,13 @@ export function BoxSection({ boxName }: { boxName: string }) {
   }, []);
 
   const handlePurchase = async () => {
-    /* try {
-      await onMint(boxName === "cryptos");
-      refetch();
+    try {
+      return;
+      /* await onMint(boxName === "cryptos");
+      refetch(); */
     } catch (error: any) {
       console.error("Erro ao processar compra:", error);
-    } */
+    }
   };
 
   const generateRandomNumber = () => {
@@ -248,6 +249,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
                     alt={item.name || `Prize ${item.id}`}
                     width={100000}
                     height={100000}
+                    priority
                     className="w-full h-full object-contain"
                   />
                 </motion.div>
@@ -281,6 +283,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
                     alt="random"
                     width={130}
                     height={88}
+                    priority
                     className="w-full h-full object-contain"
                   />
                 </motion.div>
@@ -405,18 +408,31 @@ export function BoxSection({ boxName }: { boxName: string }) {
                       variant="primary"
                       onClick={handlePurchase}
                       disabled={
-                        isCrypto
-                          ? (stats?.remainingCryptoBoxes || 0) <= 0
-                          : (stats?.remainingSuperPrizeBoxes || 0) <= 0
+                        true
+                        /* isCrypto
+                          ? stats?.remainingCryptoBoxes <= 0
+                          : stats?.remainingSuperPrizeBoxes <= 0 */
                       }
                     >
-                      <PurchaseIcon className="w-5 h-5" />
+                      <PurchaseIcon
+                        fill={
+                          "#B4B4B4"
+                          /*  isCrypto
+                            ? stats?.remainingCryptoBoxes <= 0
+                              ? "#B4B4B4"
+                              : "#FFF7A8"
+                            : stats?.remainingSuperPrizeBoxes <= 0
+                            ? "#B4B4B4"
+                            : "#FFF7A8" */
+                        }
+                        className="w-5 h-5"
+                      />
                       <span className="ml-1 text-sm sm:text-base">
                         {isCrypto
-                          ? stats?.remainingCryptoBoxes || 0 <= 0
+                          ? stats?.remainingCryptoBoxes <= 0
                             ? t("box.soldOut")
                             : t("box.purchase")
-                          : stats?.remainingSuperPrizeBoxes || 0 <= 0
+                          : stats?.remainingSuperPrizeBoxes <= 0
                           ? t("box.soldOut")
                           : t("box.purchase")}
                       </span>

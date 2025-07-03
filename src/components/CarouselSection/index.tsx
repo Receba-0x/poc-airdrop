@@ -30,20 +30,13 @@ export const CarouselSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Check if we're on mobile
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
-    // Initial check
     checkMobile();
-    
-    // Add event listener for window resize
-    window.addEventListener('resize', checkMobile);
-    
-    // Cleanup
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const { scrollYProgress } = useScroll({
@@ -51,20 +44,18 @@ export const CarouselSection = () => {
     offset: ["start end", "end start"],
   });
 
-  // On mobile, we use static positions instead of scroll-based animations
   const topCarouselX = useTransform(
-    scrollYProgress, 
-    [0, 1], 
+    scrollYProgress,
+    [0, 1],
     isMobile ? ["0%", "0%"] : ["50%", "-100%"]
   );
-  
+
   const bottomCarouselX = useTransform(
     scrollYProgress,
     [0, 1],
     isMobile ? ["0%", "0%"] : ["-100%", "100%"]
   );
 
-  // For mobile, select a subset of images to display statically
   const mobileTopImages = topCarouselImages.slice(0, 4);
   const mobileBottomImages = bottomCarouselImages.slice(0, 4);
 
@@ -82,27 +73,28 @@ export const CarouselSection = () => {
           }}
         />
 
-        <motion.div 
-          className="flex gap-2 md:gap-4 py-4" 
+        <motion.div
+          className="flex gap-2 md:gap-4 py-4"
           style={{ x: topCarouselX }}
         >
-          {/* Display subset of images on mobile, full set otherwise */}
-          {(isMobile ? mobileTopImages : topCarouselImages).map((src, index) => (
-            <div
-              key={`top-${index}`}
-              className="relative min-w-[180px] sm:min-w-[250px] md:min-w-[300px] h-[120px] sm:h-[160px] md:h-[200px] rounded-lg overflow-hidden flex-shrink-0"
-            >
-              <Image
-                src={src}
-                alt={`Impact image ${index}`}
-                fill
-                className="object-cover"
-              />
-            </div>
-          ))}
+          {(isMobile ? mobileTopImages : topCarouselImages).map(
+            (src, index) => (
+              <div
+                key={`top-${index}`}
+                className="relative min-w-[180px] sm:min-w-[250px] md:min-w-[300px] h-[120px] sm:h-[160px] md:h-[200px] rounded-lg overflow-hidden flex-shrink-0"
+              >
+                <Image
+                  src={src}
+                  alt={`Impact image ${index}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
+            )
+          )}
         </motion.div>
 
-        {/* Right fade */}
         <div
           className="absolute top-0 right-0 w-[100px] md:w-[200px] h-full z-10 pointer-events-none"
           style={{
@@ -112,9 +104,7 @@ export const CarouselSection = () => {
         />
       </div>
 
-      {/* Bottom carousel - moves right */}
       <div className="w-full mt-4 sm:mt-6 overflow-hidden -rotate-[4deg] relative">
-        {/* Left fade */}
         <div
           className="absolute top-0 left-0 w-[100px] md:w-[200px] h-full z-10 pointer-events-none"
           style={{
@@ -123,27 +113,27 @@ export const CarouselSection = () => {
           }}
         />
 
-        <motion.div 
-          className="flex gap-2 md:gap-4 py-4" 
+        <motion.div
+          className="flex gap-2 md:gap-4 py-4"
           style={{ x: bottomCarouselX }}
         >
-          {/* Display subset of images on mobile, full set otherwise */}
-          {(isMobile ? mobileBottomImages : bottomCarouselImages).map((src, index) => (
-            <div
-              key={`bottom-${index}`}
-              className="relative min-w-[180px] sm:min-w-[250px] md:min-w-[300px] h-[120px] sm:h-[160px] md:h-[200px] rounded-lg overflow-hidden flex-shrink-0"
-            >
-              <Image
-                src={src}
-                alt={`Impact image ${index}`}
-                fill
-                className="object-cover"
-              />
-            </div>
-          ))}
+          {(isMobile ? mobileBottomImages : bottomCarouselImages).map(
+            (src, index) => (
+              <div
+                key={`bottom-${index}`}
+                className="relative min-w-[180px] sm:min-w-[250px] md:min-w-[300px] h-[120px] sm:h-[160px] md:h-[200px] rounded-lg overflow-hidden flex-shrink-0"
+              >
+                <Image
+                  src={src}
+                  alt={`Impact image ${index}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
+            )
+          )}
         </motion.div>
-
-        {/* Right fade */}
         <div
           className="absolute top-0 right-0 w-[100px] md:w-[200px] h-full z-10 pointer-events-none"
           style={{

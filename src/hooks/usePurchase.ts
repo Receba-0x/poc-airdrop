@@ -26,6 +26,7 @@ import {
   formatTokenAmount,
   PURCHASE_CONFIG,
 } from "@/utils/purchase";
+import { getCsrfToken, CSRF_TOKEN_HEADER } from "@/utils/getCsrfToken";
 
 type PurchaseStatus =
   | "initializing"
@@ -109,12 +110,23 @@ export function usePurchase() {
     [key: number]: number;
   }> => {
     try {
-      const response = await axios.post("/api/lootbox", {
+      const { data } = await axios.post("/api/lootbox", {
         action: "get-stock",
       });
-      if (response.data.success) {
-        setCurrentStock(response.data.stock);
-        return response.data.stock;
+      if (data.success) {
+        const prizeStockArray = data.data.prizeStock;
+        const formattedStock = prizeStockArray.reduce(
+          (
+            acc: { [key: number]: number },
+            item: { prize_id: number; current_stock: number }
+          ) => {
+            acc[item.prize_id] = item.current_stock;
+            return acc;
+          },
+          {} as { [key: number]: number }
+        );
+        setCurrentStock(formattedStock);
+        return formattedStock;
       }
       throw new Error("Erro ao buscar estoque");
     } catch (error) {
@@ -177,12 +189,22 @@ export function usePurchase() {
       });
 
       try {
-        const { data: purchaseData } = await axios.post("/api/lootbox", {
-          action: "purchase",
-          boxType: isCrypto ? 1 : 2,
-          wallet: address,
-          clientSeed: address + "_" + Date.now(),
-        });
+        const csrfToken = await getCsrfToken();
+        const { data: purchaseData } = await axios.post(
+          "/api/lootbox",
+          {
+            action: "purchase",
+            boxType: isCrypto ? 1 : 2,
+            wallet: address,
+            clientSeed: address + "_" + Date.now(),
+          },
+          {
+            headers: {
+              [CSRF_TOKEN_HEADER]: csrfToken,
+            },
+            withCredentials: true,
+          }
+        );
 
         if (!purchaseData.success) {
           throw new Error(purchaseData.error || "Failed to get purchase data");
@@ -219,17 +241,25 @@ export function usePurchase() {
           transactionHash: txSig || "",
         });
         await new Promise((resolve) => setTimeout(resolve, 2000));
-        const { data } = await axios.put("/api/lootbox", {
-          wallet: address,
-          amount: amountToBurn,
-          timestamp,
-          txHash: txSig,
-          signature,
-          clientSeed,
-          bnbFeeTransactionHash: bnbFeeTx.hash,
-          bnbPrice,
-          boxType: isCrypto ? 1 : 2,
-        });
+        const csrfTokenPut = await getCsrfToken();
+        const { data } = await axios.put(
+          "/api/lootbox",
+          {
+            wallet: address,
+            amount: amountToBurn,
+            timestamp,
+            txHash: txSig,
+            signature,
+            clientSeed,
+            bnbFeeTransactionHash: bnbFeeTx.hash,
+            bnbPrice,
+            boxType: isCrypto ? 1 : 2,
+          },
+          {
+            headers: { [CSRF_TOKEN_HEADER]: csrfTokenPut },
+            withCredentials: true,
+          }
+        );
         if (!data.success) {
           console.error("❌ Prize claim API error:", data.error);
           throw new Error(getErrorMessage(data.error));

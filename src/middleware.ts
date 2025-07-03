@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { generateCsrfSecret, createCsrfToken, CSRF_SECRET_COOKIE } from './utils/csrf';
 
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "")
   .split(",")
@@ -146,7 +145,7 @@ export async function middleware(request: NextRequest) {
     );
     response.headers.set("Access-Control-Max-Age", "86400");
   }
-  
+
   const isDev = process.env.NODE_ENV === "development";
 
   const trustedDomains = [
@@ -174,11 +173,16 @@ export async function middleware(request: NextRequest) {
     `default-src ${trustedDomains.join(" ")}`,
     `script-src ${trustedDomains.join(" ")} ${
       isDev ? "'unsafe-eval'" : ""
-    } 'unsafe-inline'`,
-    `style-src ${trustedDomains.join(" ")} 'unsafe-inline'`,
+    } 'unsafe-inline' https://va.vercel-scripts.com`,
+    `style-src ${trustedDomains.join(
+      " "
+    )} 'unsafe-inline' https://fonts.googleapis.com`,
+    `font-src ${trustedDomains.join(" ")} data: https://fonts.gstatic.com`,
+    `connect-src ${trustedDomains.join(
+      " "
+    )} wss: ws: https://api.web3modal.org https://pulse.walletconnect.org https://rpc.walletconnect.org https://data-seed-prebsc-1-s1.bnbchain.org`,
+    `frame-src 'self' https://secure.walletconnect.org`,
     `img-src ${trustedDomains.join(" ")} data: blob:`,
-    `font-src ${trustedDomains.join(" ")} data:`,
-    `connect-src ${trustedDomains.join(" ")} wss: ws:`,
     `media-src ${trustedDomains.join(" ")} data: blob:`,
     `object-src 'none'`,
     `base-uri 'self'`,
@@ -188,23 +192,6 @@ export async function middleware(request: NextRequest) {
   ];
 
   response.headers.set("Content-Security-Policy", cspDirectives.join("; "));
-
-  // Geração de token CSRF para rotas de API (GET)
-  if (request.nextUrl.pathname.startsWith('/api/') && request.method === 'GET') {
-    let csrfSecret = request.cookies.get(CSRF_SECRET_COOKIE)?.value;
-    if (!csrfSecret) {
-      csrfSecret = await generateCsrfSecret();
-      response.cookies.set(CSRF_SECRET_COOKIE, csrfSecret, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/',
-        maxAge: 60 * 60 * 2, // 2 horas
-      });
-    }
-    const csrfToken = createCsrfToken(csrfSecret);
-    response.headers.set('x-csrf-token', csrfToken);
-  }
 
   console.log("✅ Request allowed to proceed");
   return response;
