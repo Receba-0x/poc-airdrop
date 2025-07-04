@@ -14,10 +14,6 @@
       "value": "Mythic"
     },
     {
-      "trait_type": "Platform",
-      "value": "Amazon"
-    },
-    {
       "trait_type": "Product",
       "value": "MacBook"
     },
@@ -30,29 +26,8 @@
       "value": "Gift Card"
     },
     {
-      "trait_type": "Validity",
-      "value": "1 Year"
-    },
-    {
       "trait_type": "Region",
       "value": "Global"
-    },
-    {
-      "trait_type": "Special",
-      "value": "Grand Prize"
     }
-  ],
-  "collection": {
-    "name": "Imperador Collection",
-    "family": "Adriano Imperador"
-  },
-  "properties": {
-    "files": [
-      {
-        "uri": "/images/itens/macbook.webp",
-        "type": "image/webp"
-      }
-    ],
-    "category": "image"
-  }
+  ]
 }
