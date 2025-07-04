@@ -1,6 +1,5 @@
 {
   "name": "Adriano Imperador Soccer Jersey",
-  "symbol": "IMPERADOR-JERSEY",
   "description": "Exclusive autographed soccer jersey from Adriano Imperador. A rare collectible item celebrating the legend of Brazilian football. Part of the official Imperador Token collection.",
   "image": "https://imperadortoken.com/images/itens/camisa2.webp",
   "external_url": "https://imperadortoken.com",
@@ -13,9 +12,5 @@
       "trait_type": "Edition",
       "value": "Limited"
     }
-  ],
-  "collection": {
-    "name": "Imperador Collection",
-    "family": "Adriano Imperador"
-  }
+  ]
 } 

@@ -1,6 +1,5 @@
 {
   "name": "Adriano Imperador Soccer Ball",
-  "symbol": "IMPERADOR-BALL",
   "description": "Official soccer ball signed by the legendary Adriano Imperador. A premium collectible that represents the spirit of Brazilian football and the power of Vila Cruzeiro. Part of the official Imperador Token collection.",
   "image": "https://imperadortoken.com/images/itens/ball.png",
   "external_url": "https://imperadortoken.com",
@@ -33,9 +32,5 @@
       "trait_type": "Type",
       "value": "Match Ball"
     }
-  ],
-  "collection": {
-    "name": "Imperador Collection",
-    "family": "Adriano Imperador"
-  }
+  ]
 }
