@@ -193,13 +193,29 @@ async function handlePurchaseWithSecurity(params: any, req: NextRequest) {
 }
 
 async function handlePurchase(params: any, req?: NextRequest) {
+  console.log("🔍 [DEBUG] handlePurchase called with:", {
+    params: JSON.stringify(params, null, 2),
+    hasReq: !!req,
+  });
+
   const { boxType, wallet, clientSeed, bnbFeeTransactionHash, bnbPrice } =
     params;
 
+  console.log("🔍 [DEBUG] Destructured parameters:", {
+    boxType,
+    wallet,
+    clientSeed,
+    bnbFeeTransactionHash,
+    bnbPrice,
+  });
+
   let privateKey: string;
   try {
+    console.log("🔍 [DEBUG] Getting private key...");
     privateKey = await getPrivateKey();
+    console.log("✅ [DEBUG] Private key retrieved successfully");
   } catch (error) {
+    console.error("❌ [DEBUG] Error getting private key:", error);
     securityLogger.logEvent(
       "private_key_access" as any,
       "Erro ao acessar chave privada",
@@ -213,6 +229,7 @@ async function handlePurchase(params: any, req?: NextRequest) {
     );
   }
 
+  console.log("🔍 [DEBUG] Logging private key access...");
   securityLogger.logPrivateKeyAccess("signature_generation", req);
 
   const isCrypto = boxType === 1;
@@ -222,6 +239,16 @@ async function handlePurchase(params: any, req?: NextRequest) {
   const amountToBurn = ethers.parseUnits(amountInTokens.toString(), 18);
   const timestamp = Math.floor(Date.now() / 1000);
 
+  console.log("🔍 [DEBUG] Calculated values:", {
+    isCrypto,
+    priceUSD,
+    tokenPrice,
+    amountInTokens,
+    amountToBurn: amountToBurn.toString(),
+    timestamp,
+  });
+
+  console.log("🔍 [DEBUG] Starting timestamp validation...");
   const timestampValidation = purchaseTimestampValidator.validateTimestamp(
     timestamp,
     wallet,
@@ -231,6 +258,12 @@ async function handlePurchase(params: any, req?: NextRequest) {
   console.log("🔍 Initial timestamp validation result:", timestampValidation);
 
   if (!timestampValidation.valid) {
+    console.error("❌ [DEBUG] Timestamp validation failed:", {
+      error: timestampValidation.error,
+      timestamp,
+      wallet,
+      amount: amountToBurn.toString(),
+    });
     securityLogger.logEvent(
       "replay_attack" as any,
       timestampValidation.error || "Timestamp validation failed",
@@ -244,6 +277,8 @@ async function handlePurchase(params: any, req?: NextRequest) {
     );
   }
 
+  console.log("✅ [DEBUG] Timestamp validation passed, proceeding with signature generation");
+
   const walletBytes = ethers.getBytes(wallet);
   const amountBytes = ethers.toBeHex(amountToBurn, 32);
   const timestampBytes = ethers.toBeHex(timestamp, 32);
@@ -252,9 +287,13 @@ async function handlePurchase(params: any, req?: NextRequest) {
   const provider = new ethers.JsonRpcProvider(RPC_URL);
   const signer = new ethers.Wallet(privateKey, provider);
   const arrayifiedHash = ethers.getBytes(messageHash);
+  
+  console.log("🔍 [DEBUG] Generating signature...");
   const signature = await signer.signMessage(arrayifiedHash);
+  console.log("✅ [DEBUG] Signature generated successfully");
 
   try {
+    console.log("🔍 [DEBUG] Validating generated signature...");
     const ethSignedMessageHash = ethers.hashMessage(arrayifiedHash);
     const recoveredAddress = ethers.recoverAddress(
       ethSignedMessageHash,
@@ -264,6 +303,10 @@ async function handlePurchase(params: any, req?: NextRequest) {
       recoveredAddress.toLowerCase() === signer.address.toLowerCase();
 
     if (!isValidLocal) {
+      console.error("❌ [DEBUG] Generated signature is invalid:", {
+        recoveredAddress,
+        expectedAddress: signer.address,
+      });
       securityLogger.logSignatureVerificationFailed(
         wallet,
         "Generated signature is invalid",
@@ -271,8 +314,9 @@ async function handlePurchase(params: any, req?: NextRequest) {
       );
       throw new Error("Generated signature is invalid");
     }
+    console.log("✅ [DEBUG] Signature validation passed");
   } catch (validationError) {
-    console.error("❌ Signature validation error:", validationError);
+    console.error("❌ [DEBUG] Signature validation error:", validationError);
     securityLogger.logSignatureVerificationFailed(
       wallet,
       validationError instanceof Error
@@ -286,6 +330,7 @@ async function handlePurchase(params: any, req?: NextRequest) {
     );
   }
 
+  console.log("🎉 [DEBUG] Purchase process completed successfully, returning response");
   securityLogger.logEvent(
     "contract_interaction" as any,
     "Assinatura gerada com sucesso para compra",
