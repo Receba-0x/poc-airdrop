@@ -152,39 +152,65 @@ export class InputValidator {
     const requiredFields = ["boxType", "wallet", "clientSeed"];
     const errors: string[] = [];
 
+    console.log("🔍 [DEBUG] validatePurchaseData called with:", {
+      data: JSON.stringify(data, null, 2),
+      dataType: typeof data,
+      isObject: data && typeof data === "object",
+      keys: data ? Object.keys(data) : [],
+    });
+
     if (!data || typeof data !== "object") {
+      console.error("❌ [DEBUG] Data is not an object:", { data, type: typeof data });
       return { valid: false, error: "Dados de compra devem ser um objeto" };
     }
 
     for (const field of requiredFields) {
       if (!(field in data)) {
+        console.error(`❌ [DEBUG] Required field missing: ${field}`);
         errors.push(`Campo ${field} é obrigatório`);
+      } else {
+        console.log(`✅ [DEBUG] Required field present: ${field} = ${data[field]}`);
       }
     }
 
     if (errors.length > 0) {
+      console.error("❌ [DEBUG] Missing required fields:", errors);
       return { valid: false, error: errors.join(", ") };
     }
 
+    console.log("🔍 [DEBUG] Validating wallet address:", data.wallet);
     const walletValidation = this.validateEthereumAddress(data.wallet);
     if (!walletValidation.valid) {
+      console.error("❌ [DEBUG] Wallet validation failed:", walletValidation.error);
       errors.push(`Wallet: ${walletValidation.error}`);
+    } else {
+      console.log("✅ [DEBUG] Wallet validation passed");
     }
 
+    console.log("🔍 [DEBUG] Validating boxType:", data.boxType);
     const boxTypeValidation = this.validateBoxType(data.boxType);
     if (!boxTypeValidation.valid) {
+      console.error("❌ [DEBUG] BoxType validation failed:", boxTypeValidation.error);
       errors.push(`BoxType: ${boxTypeValidation.error}`);
+    } else {
+      console.log("✅ [DEBUG] BoxType validation passed");
     }
 
+    console.log("🔍 [DEBUG] Validating clientSeed:", data.clientSeed);
     const seedValidation = this.validateClientSeed(data.clientSeed);
     if (!seedValidation.valid) {
+      console.error("❌ [DEBUG] ClientSeed validation failed:", seedValidation.error);
       errors.push(`ClientSeed: ${seedValidation.error}`);
+    } else {
+      console.log("✅ [DEBUG] ClientSeed validation passed");
     }
 
     if (errors.length > 0) {
+      console.error("❌ [DEBUG] Validation errors:", errors);
       return { valid: false, error: errors.join(", ") };
     }
 
+    console.log("✅ [DEBUG] All validations passed, returning sanitized data");
     return {
       valid: true,
       sanitized: {

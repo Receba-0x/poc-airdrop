@@ -133,8 +133,34 @@ export const POST = withAPIProtection(
 
 async function handlePurchaseWithSecurity(params: any, req: NextRequest) {
   try {
+    console.log("🔍 [DEBUG] Purchase validation starting:", {
+      params: JSON.stringify(params, null, 2),
+      headers: {
+        origin: req.headers.get("origin"),
+        referer: req.headers.get("referer"),
+        userAgent: req.headers.get("user-agent"),
+        host: req.headers.get("host"),
+        contentType: req.headers.get("content-type"),
+      },
+      environment: process.env.NODE_ENV,
+    });
+
     const validation = InputValidator.validatePurchaseData(params);
+    
+    console.log("🔍 [DEBUG] Validation result:", {
+      valid: validation.valid,
+      error: validation.error,
+      sanitized: validation.sanitized,
+    });
+
     if (!validation.valid) {
+      console.error("❌ [DEBUG] Purchase data validation failed:", {
+        error: validation.error,
+        params: JSON.stringify(params, null, 2),
+        requiredFields: ["boxType", "wallet", "clientSeed"],
+        receivedFields: Object.keys(params || {}),
+      });
+
       securityLogger.logInvalidInput(
         "purchase_data",
         JSON.stringify(params),
@@ -149,6 +175,7 @@ async function handlePurchaseWithSecurity(params: any, req: NextRequest) {
     const sanitizedParams = validation.sanitized!;
     return await handlePurchase(sanitizedParams, req);
   } catch (error) {
+    console.error("❌ [DEBUG] Exception in handlePurchaseWithSecurity:", error);
     securityLogger.logEvent(
       "invalid_input" as any,
       `Erro na validação de dados de compra: ${
@@ -562,8 +589,7 @@ async function validateVerifiedBurnTransaction(
   try {
     console.log(`🔍 Validating transaction: ${txHash}`);
     console.log(
-      `📋 Expected: wallet=${wallet}, amount=${amount}, timestamp=${timestamp}`
-    );
+      `📋 Expected: wallet=${wallet}, amount=${amount}, timestamp=${timestamp}`    );
 
     const provider = new ethers.JsonRpcProvider(RPC_URL);
     const receipt = await provider.getTransactionReceipt(txHash);
@@ -983,3 +1009,4 @@ async function createSupabaseClient() {
   const supabaseServiceKey = await getSupabaseKey();
   return createClient(supabaseUrl, supabaseServiceKey);
 }
+
