@@ -1,6 +1,6 @@
-export const controllerAddress = "0xb51DDb3DEE76459dAc94F10be3E89Cc0E0a87d7a";
+export const controllerAddress = "0x35E79be176b4d10fa21921934691c98312ee063A";
 export const ERC721Address = "0x3C5eD6E5A8170d229a369361A94b986B84E2b3D4";
-export const ERC20Address = "0x5c3a3764d4614E5710693Bc2aE8Ae2B4f7144444";
+export const ERC20Address = "0x08856C1843bDF076E0Fdef1808083A5c2e871cC0";
 
 export const getItensData = (t: (key: string) => string) => {
   return PRIZE_TABLE.map((prize) => {

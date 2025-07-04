@@ -102,9 +102,8 @@ export function BoxSection({ boxName }: { boxName: string }) {
 
   const handlePurchase = async () => {
     try {
-      return;
-      /* await onMint(boxName === "cryptos");
-      refetch(); */
+      await onMint(boxName === "cryptos");
+      refetch();
     } catch (error: any) {
       console.error("Erro ao processar compra:", error);
     }
@@ -408,22 +407,20 @@ export function BoxSection({ boxName }: { boxName: string }) {
                       variant="primary"
                       onClick={handlePurchase}
                       disabled={
-                        true
-                        /* isCrypto
+                        isCrypto
                           ? stats?.remainingCryptoBoxes <= 0
-                          : stats?.remainingSuperPrizeBoxes <= 0 */
+                          : stats?.remainingSuperPrizeBoxes <= 0
                       }
                     >
                       <PurchaseIcon
                         fill={
-                          "#B4B4B4"
-                          /*  isCrypto
+                          isCrypto
                             ? stats?.remainingCryptoBoxes <= 0
                               ? "#B4B4B4"
                               : "#FFF7A8"
                             : stats?.remainingSuperPrizeBoxes <= 0
                             ? "#B4B4B4"
-                            : "#FFF7A8" */
+                            : "#FFF7A8"
                         }
                         className="w-5 h-5"
                       />
