@@ -14,22 +14,6 @@
       "value": "Epic"
     },
     {
-      "trait_type": "Player Used",
-      "value": "Yes"
-    },
-    {
-      "trait_type": "Player",
-      "value": "Adriano Imperador"
-    },
-    {
-      "trait_type": "Size",
-      "value": "42-43"
-    },
-    {
-      "trait_type": "Condition",
-      "value": "Game Worn"
-    },
-    {
       "trait_type": "Material",
       "value": "Synthetic Upper"
     }
@@ -37,14 +21,5 @@
   "collection": {
     "name": "Imperador Collection",
     "family": "Adriano Imperador"
-  },
-  "properties": {
-    "files": [
-      {
-        "uri": "/images/itens/chuteira.webp",
-        "type": "image/webp"
-      }
-    ],
-    "category": "image"
   }
 }

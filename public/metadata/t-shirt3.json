@@ -17,14 +17,5 @@
   "collection": {
     "name": "Imperador Collection",
     "family": "Adriano Imperador"
-  },
-  "properties": {
-    "files": [
-      {
-        "uri": "/images/itens/camisa3.webp",
-        "type": "image/webp"
-      }
-    ],
-    "category": "image"
   }
 } 

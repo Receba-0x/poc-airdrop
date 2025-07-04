@@ -14,24 +14,12 @@
       "value": "Ultra Rare"
     },
     {
-      "trait_type": "Platform",
-      "value": "Amazon"
-    },
-    {
       "trait_type": "Product",
       "value": "iPhone"
     },
     {
-      "trait_type": "Value",
-      "value": "High"
-    },
-    {
       "trait_type": "Type",
       "value": "Gift Card"
-    },
-    {
-      "trait_type": "Validity",
-      "value": "1 Year"
     },
     {
       "trait_type": "Region",
@@ -41,14 +29,5 @@
   "collection": {
     "name": "Imperador Collection",
     "family": "Adriano Imperador"
-  },
-  "properties": {
-    "files": [
-      {
-        "uri": "/images/itens/iphone.webp",
-        "type": "image/webp"
-      }
-    ],
-    "category": "image"
   }
 }
