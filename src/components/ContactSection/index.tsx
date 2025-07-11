@@ -23,20 +23,20 @@ export function ContactSection() {
       </p>
       <div className="flex justify-center space-x-6">
         <a
-          href="mailto:suporte@adrianotoken.org"
+          href="mailto:adrianoimperadortoken@gmail.com"
           className="flex items-center space-x-2 text-[#28D939] hover:text-white transition-colors"
         >
           <span>📧</span>
-          <span>suporte@adrianotoken.org</span>
+          <span>adrianoimperadortoken@gmail.com</span>
         </a>
         <a
-          href="https://adrianotoken.org"
+          href="https://imperadortoken.com"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center space-x-2 text-[#28D939] hover:text-white transition-colors"
         >
           <span>🌐</span>
-          <span>adrianotoken.org</span>
+          <span>imperadortoken.com</span>
         </a>
       </div>
     </motion.div>
