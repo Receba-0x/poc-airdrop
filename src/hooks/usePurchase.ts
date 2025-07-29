@@ -133,7 +133,7 @@ export function usePurchase() {
       console.error("Erro ao buscar estoque:", error);
       return {};
     }
-  }, []);
+  }, [address]);
 
   const executeParallelBlockchainOps = useCallback(
     async (amountToBurn: string, isCrypto: boolean) => {
@@ -199,9 +199,7 @@ export function usePurchase() {
             clientSeed: address + "_" + Date.now(),
           },
           {
-            headers: {
-              [CSRF_TOKEN_HEADER]: csrfToken,
-            },
+            headers: { [CSRF_TOKEN_HEADER]: csrfToken },
             withCredentials: true,
           }
         );
@@ -317,10 +315,8 @@ export function usePurchase() {
   );
 
   useEffect(() => {
-    if (address) {
-      Promise.all([refreshBalance(), fetchCurrentStock()]);
-    }
-  }, [address, refreshBalance, fetchCurrentStock]);
+    Promise.all([refreshBalance(), fetchCurrentStock()]);
+  }, [address]);
 
   return useMemo(
     () => ({
