@@ -309,7 +309,7 @@ export const translations = {
     "box.type": "Box Type",
     "box.yourPrize": "Your Prize",
     "box.wonPrize": "Prize Won",
-    "box.solDelivered": "BNB Successfully Delivered",
+    "box.solDelivered": "SOL Successfully Delivered",
     "box.checkWallet": "Check your wallet balance",
     "box.physicalPrize": "Physical Prize",
     "box.claimInstructions":
@@ -317,7 +317,8 @@ export const translations = {
 
     // Purchase Process
     "purchase.initializing": "Initializing",
-    "purchase.payingBnbFee": "Paying BNB Fee",
+    "purchase.processingSolFee": "Processing SOL Fee",
+    "purchase.payingBnbFee": "Paying SOL Fee",
     "purchase.checkingBalance": "Checking Balance",
     "purchase.approvingTokens": "Approving Tokens",
     "purchase.burningTokens": "Burning Tokens",
@@ -326,14 +327,16 @@ export const translations = {
     "purchase.savingTransaction": "Saving Transaction",
     "purchase.complete": "Complete",
     "purchase.error": "Error",
-    "purchase.payingBnbFeeDetail": "Processing BNB fee payment, please wait...",
+    "purchase.processingSolFeeDetail":
+      "Processing SOL fee payment, please wait...",
+    "purchase.payingBnbFeeDetail": "Processing SOL fee payment, please wait...",
     "purchase.checkingBalanceDetail": "Verifying your token balance...",
     "purchase.approvingTokensDetail":
       "Approving token spending, please confirm in your wallet...",
     "purchase.burningTokensDetail":
       "Burning tokens to process your purchase...",
     "purchase.validatingTransactionDetail":
-      "Validating both BNB fee and token burn transactions on blockchain...",
+      "Validating both SOL fee and token burn transactions on blockchain...",
     "purchase.determiningPrizeDetail":
       "Determining your prize using provably fair algorithm...",
     "purchase.savingTransactionDetail": "Saving transaction data...",
@@ -341,6 +344,15 @@ export const translations = {
     "purchase.errorTitle": "Transação Falhou",
     "purchase.cancel": "Cancelar",
     "purchase.tryAgain": "Tentar Novamente",
+
+    // Error Messages
+    "error.transactionCancelled": "Transaction cancelled by user",
+    "error.similarTransactionRecent":
+      "A similar transaction was recently processed. Please wait a moment and try again.",
+    "error.networkCongestion":
+      "Network congestion detected. Please try again in a few seconds.",
+    "error.insufficientBalance": "Insufficient balance for this transaction",
+    "error.transactionFailed": "Transaction failed. Please try again.",
 
     // Items
     "items.soccerJersey": "Soccer Jersey Autographed",
@@ -521,9 +533,9 @@ export const translations = {
     "claim.orderSummary": "Order Summary",
 
     // Validation Messages
-    "validation.bnbFeeRequired": "BNB fee payment is required",
+    "validation.bnbFeeRequired": "SOL fee payment is required",
     "validation.bnbFeeFailed":
-      "BNB fee validation failed. Please verify the fee was paid correctly.",
+      "SOL fee validation failed. Please verify the fee was paid correctly.",
     "validation.burnTransactionFailed":
       "Token burn validation failed. Please verify tokens were burned correctly.",
     "validation.invalidServerSignature":
@@ -853,7 +865,7 @@ export const translations = {
     "box.type": "Tipo de Caixa",
     "box.yourPrize": "Seu Prêmio",
     "box.wonPrize": "Prêmio Ganho",
-    "box.solDelivered": "BNB Entregue com Sucesso",
+    "box.solDelivered": "SOL Entregue com Sucesso",
     "box.checkWallet": "Verifique o saldo da sua carteira",
     "box.physicalPrize": "Prêmio Físico",
     "box.claimInstructions":
@@ -861,7 +873,8 @@ export const translations = {
 
     // Purchase Process
     "purchase.initializing": "Inicializando",
-    "purchase.payingBnbFee": "Pagando Taxa BNB",
+    "purchase.processingSolFee": "Processando Taxa SOL",
+    "purchase.payingBnbFee": "Pagando Taxa SOL",
     "purchase.checkingBalance": "Verificando Saldo",
     "purchase.approvingTokens": "Aprovando Tokens",
     "purchase.burningTokens": "Queimando Tokens",
@@ -870,15 +883,15 @@ export const translations = {
     "purchase.savingTransaction": "Salvando Transação",
     "purchase.complete": "Concluído",
     "purchase.error": "Erro",
-    "purchase.payingBnbFeeDetail":
-      "Processando pagamento da taxa BNB, por favor aguarde...",
-    "purchase.checkingBalanceDetail": "Verificando seu saldo de tokens...",
+    "purchase.processingSolFeeDetail":
+      "Processando pagamento da taxa SOL, por favor aguarde...",
+    "purchase.payingBnbFeeDetail": "Verificando seu saldo de tokens...",
     "purchase.approvingTokensDetail":
       "Aprovando gastos com tokens, por favor confirme em sua carteira...",
     "purchase.burningTokensDetail":
       "Queimando tokens para processar sua compra...",
     "purchase.validatingTransactionDetail":
-      "Validando taxa BNB e queima de tokens na blockchain...",
+      "Validando taxa SOL e queima de tokens na blockchain...",
     "purchase.determiningPrizeDetail":
       "Determinando seu prêmio usando algoritmo provably fair...",
     "purchase.savingTransactionDetail": "Salvando dados da transação...",
@@ -886,6 +899,15 @@ export const translations = {
     "purchase.errorTitle": "Transação Falhou",
     "purchase.cancel": "Cancelar",
     "purchase.tryAgain": "Tentar Novamente",
+
+    // Error Messages
+    "error.transactionCancelled": "Transação cancelada pelo usuário",
+    "error.similarTransactionRecent":
+      "Uma transação similar foi processada recentemente. Por favor, aguarde um momento e tente novamente.",
+    "error.networkCongestion":
+      "Congestão de rede detectada. Por favor, tente novamente em alguns segundos.",
+    "error.insufficientBalance": "Saldo insuficiente para esta transação",
+    "error.transactionFailed": "Transação falhou. Por favor, tente novamente.",
 
     // Items
     "items.soccerJersey": "Camisa de Futebol Autografada",
@@ -1071,9 +1093,9 @@ export const translations = {
     "claim.orderSummary": "Resumo do Pedido",
 
     // Validation Messages
-    "validation.bnbFeeRequired": "Pagamento da taxa BNB é obrigatório",
+    "validation.bnbFeeRequired": "Pagamento da taxa SOL é obrigatório",
     "validation.bnbFeeFailed":
-      "Falha na validação da taxa BNB. Verifique se a taxa foi paga corretamente.",
+      "Falha na validação da taxa SOL. Verifique se a taxa foi paga corretamente.",
     "validation.burnTransactionFailed":
       "Falha na validação da queima de tokens. Verifique se os tokens foram queimados corretamente.",
     "validation.invalidServerSignature":

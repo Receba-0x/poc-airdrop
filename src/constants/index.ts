@@ -1,6 +1,22 @@
-export const controllerAddress = "0x35E79be176b4d10fa21921934691c98312ee063A";
-export const ERC721Address = "0x3C5eD6E5A8170d229a369361A94b986B84E2b3D4";
-export const ERC20Address = "0x08856C1843bDF076E0Fdef1808083A5c2e871cC0";
+export const COLLECTION_NAME = "Imperador Collection";
+export const COLLECTION_SYMBOL = "IMPERADOR";
+export const COLLECTION_URI = "https://imperadortoken.com/metadata";
+export const COLLECTION_MINT = "B3js6wNMcDdQsNv2UsP3zd4zps7tAVS9cxu3aSFZ5Mth";
+export const COLLECTION_METADATA =
+  "6UAq8sFKccmxTXtRtHKbEc19BFGxrvfSvDVRuJ33NikD";
+export const COLLECTION_TOKEN_ACCOUNT =
+  "3kig3DHddw1yAMuP4MdagQSv2QdGbKwGY4YPvtLLYUpT";
+export const PROGRAM_ID = "EN2SeC45TuHgrLg33ZhJLsYSX5gxnunrVm5P6Dx5eiRS";
+export const PAYMENT_TOKEN_MINT =
+  "6fWhJxuTjoUgYNx5NJpb8w8AyonmVbHhhdmN2AfwUTMH";
+export const NETWORK = "devnet";
+export const CONFIG_ACCOUNT = "GAnjrKx377NS9ceg6k4nB7vaDX8bAo9yWfJSD4vhrecr";
+export const TOKEN_METADATA_PROGRAM = [
+  11, 112, 101, 177, 227, 209, 124, 69, 56, 157, 82, 127, 107, 4, 195, 205, 88,
+  184, 108, 115, 26, 160, 253, 181, 73, 182, 209, 188, 3, 248, 41, 70,
+];
+export const METAPLEX_PROGRAM_ID =
+  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
 
 export const getItensData = (t: (key: string) => string) => {
   return PRIZE_TABLE.map((prize) => {
@@ -63,7 +79,7 @@ function getImageForPrize(prize: any, t: (key: string) => string) {
 export const PRIZE_TABLE = [
   {
     id: 1,
-    name: "BNB",
+    name: "0.002538 SOL",
     type: "sol",
     amount: 0.002538,
     probability: 0.175379,
@@ -71,7 +87,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 2,
-    name: "BNB",
+    name: "0.012692 SOL",
     type: "sol",
     amount: 0.012692,
     probability: 0.315682,
@@ -79,7 +95,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 3,
-    name: "BNB",
+    name: "0.025385 SOL",
     type: "sol",
     amount: 0.025385,
     probability: 0.175379,
@@ -87,7 +103,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 4,
-    name: "BNB",
+    name: "0.076154 SOL",
     type: "sol",
     amount: 0.076154,
     probability: 0.035076,
@@ -152,7 +168,7 @@ export const PRIZE_TABLE = [
 export const CRYPTO_PRIZE_TABLE = [
   {
     id: 101,
-    name: "0.001277 BNB",
+    name: "0.001277 SOL",
     type: "sol",
     amount: 0.001277,
     probability: 0.15,
@@ -161,7 +177,7 @@ export const CRYPTO_PRIZE_TABLE = [
   },
   {
     id: 102,
-    name: "0.002538 BNB",
+    name: "0.002538 SOL",
     type: "sol",
     amount: 0.002538,
     probability: 0.2,
@@ -170,7 +186,7 @@ export const CRYPTO_PRIZE_TABLE = [
   },
   {
     id: 103,
-    name: "0.007615 BNB",
+    name: "0.007615 SOL",
     type: "sol",
     amount: 0.007615,
     probability: 0.2,
@@ -179,7 +195,7 @@ export const CRYPTO_PRIZE_TABLE = [
   },
   {
     id: 104,
-    name: "0.012692 BNB",
+    name: "0.012692 SOL",
     type: "sol",
     amount: 0.012692,
     probability: 0.15,
@@ -188,7 +204,7 @@ export const CRYPTO_PRIZE_TABLE = [
   },
   {
     id: 105,
-    name: "0.025385 BNB",
+    name: "0.025385 SOL",
     type: "sol",
     amount: 0.025385,
     probability: 0.12,
@@ -197,7 +213,7 @@ export const CRYPTO_PRIZE_TABLE = [
   },
   {
     id: 106,
-    name: "0.050769 BNB",
+    name: "0.050769 SOL",
     type: "sol",
     amount: 0.050769,
     probability: 0.08,
@@ -206,7 +222,7 @@ export const CRYPTO_PRIZE_TABLE = [
   },
   {
     id: 107,
-    name: "0.076154 BNB",
+    name: "0.076154 SOL",
     type: "sol",
     amount: 0.076154,
     probability: 0.05,
@@ -215,7 +231,7 @@ export const CRYPTO_PRIZE_TABLE = [
   },
   {
     id: 108,
-    name: "0.126923 BNB",
+    name: "0.126923 SOL",
     type: "sol",
     amount: 0.126923,
     probability: 0.03,
@@ -224,7 +240,7 @@ export const CRYPTO_PRIZE_TABLE = [
   },
   {
     id: 109,
-    name: "0.203077 BNB",
+    name: "0.203077 SOL",
     type: "sol",
     amount: 0.203077,
     probability: 0.01,
@@ -233,7 +249,7 @@ export const CRYPTO_PRIZE_TABLE = [
   },
   {
     id: 110,
-    name: "0.253846 BNB",
+    name: "0.253846 SOL",
     type: "sol",
     amount: 0.253846,
     probability: 0.007,
@@ -242,7 +258,7 @@ export const CRYPTO_PRIZE_TABLE = [
   },
   {
     id: 111,
-    name: "0.761538 BNB",
+    name: "0.761538 SOL",
     type: "sol",
     amount: 0.761538,
     probability: 0.003,

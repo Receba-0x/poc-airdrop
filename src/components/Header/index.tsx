@@ -13,12 +13,10 @@ import { BoxIcon } from "../Icons/BoxIcon";
 import { HistoricIcon } from "../Icons/HistoricIcon";
 import { WhitepaperIcon } from "../Icons/WhitepaperIcon";
 import { BurnTicker } from "../BurnTicker";
-import { StakingIcon } from "../Icons/StakingIcon";
 import { LanguageToggle } from "../LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { WalletConnectButton } from "../WalletConnectButton";
-import { useAccount } from "wagmi";
 import { useUser } from "@/contexts/UserContext";
+import { WalletConnectButton } from "../WalletConnectButton";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -26,8 +24,7 @@ export function Header() {
   const { scrollY } = useScroll();
   const headerOpacity = useTransform(scrollY, [0, 50], [0.8, 1]);
   const { t, language } = useLanguage();
-  const { isConnected } = useAccount();
-  const { balance } = useUser();
+  const { balance, isConnected } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -237,35 +234,8 @@ export function Header() {
               variants={buttonVariants}
               className="flex items-center gap-2"
             >
-              <WalletConnectButton
-                style={{
-                  width: "100%",
-                  height: "40px",
-                  background:
-                    "linear-gradient(135deg, #0B3B10 0%, #24682B 100%)",
-                  color: "#ADF0B4",
-                  fontWeight: "bold",
-                  fontSize: "14px",
-                  border: "1.5px solid #28D939",
-                  borderRadius: "6px",
-                  padding: "8px 24px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                }}
-              />
+              <WalletConnectButton />
             </motion.div>
-            {/* <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={buttonVariants}
-            >
-              <Button className="text-sm sm:text-base py-2 px-3 sm:px-4 md:py-2 md:px-6">
-                {t("header.buyToken")}
-              </Button>
-            </motion.div> */}
           </div>
           <motion.div
             className="md:hidden flex items-center z-50"
@@ -404,25 +374,7 @@ export function Header() {
                       <LanguageToggle />
                     </div>
                     {isConnected && <BalanceDisplay className="mb-4" />}
-                    <WalletConnectButton
-                      style={{
-                        width: "100%",
-                        height: "40px",
-                        background:
-                          "linear-gradient(135deg, #0B3B10 0%, #24682B 100%)",
-                        color: "#ADF0B4",
-                        fontWeight: "bold",
-                        fontSize: "14px",
-                        border: "1.5px solid #28D939",
-                        borderRadius: "6px",
-                        padding: "8px 24px",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
-                      }}
-                    />
+                    <WalletConnectButton />
                   </motion.div>
                   <motion.div variants={menuItemVariants}>
                     <Button

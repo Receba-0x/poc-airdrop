@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { PublicKey } from "@solana/web3.js";
 
 export interface ValidationResult {
   valid: boolean;
@@ -7,16 +7,16 @@ export interface ValidationResult {
 }
 
 export class InputValidator {
-  static validateEthereumAddress(address: string): ValidationResult {
+  static validateSolanaAddress(address: string): ValidationResult {
     if (!address || typeof address !== "string") {
-      return { valid: false, error: "Endereço é obrigatório" };
+      return { valid: false, error: "Endereço Solana é obrigatório" };
     }
 
     try {
-      const sanitized = ethers.getAddress(address.toLowerCase());
-      return { valid: true, sanitized };
+      new PublicKey(address);
+      return { valid: true, sanitized: address.trim() };
     } catch (error) {
-      return { valid: false, error: "Endereço Ethereum inválido" };
+      return { valid: false, error: "Endereço Solana inválido" };
     }
   }
 
@@ -25,17 +25,19 @@ export class InputValidator {
       return { valid: false, error: "Hash da transação é obrigatório" };
     }
 
-    // Verificar formato hexadecimal e comprimento
-    const hexRegex = /^0x[a-fA-F0-9]{64}$/;
-    if (!hexRegex.test(hash)) {
-      return {
-        valid: false,
-        error:
-          "Hash da transação deve ter formato 0x seguido de 64 caracteres hexadecimais",
-      };
+    const sanitized = hash.trim();
+    
+    // Solana transaction signatures are base58 encoded and typically 87-88 characters
+    if (sanitized.length < 80 || sanitized.length > 90) {
+      return { valid: false, error: "Hash da transação Solana inválido" };
     }
 
-    return { valid: true, sanitized: hash.toLowerCase() };
+    // Basic base58 character check
+    if (!/^[1-9A-HJ-NP-Za-km-z]+$/.test(sanitized)) {
+      return { valid: false, error: "Hash da transação Solana contém caracteres inválidos" };
+    }
+
+    return { valid: true, sanitized };
   }
 
   static validateNumericValue(
@@ -179,7 +181,7 @@ export class InputValidator {
     }
 
     console.log("🔍 [DEBUG] Validating wallet address:", data.wallet);
-    const walletValidation = this.validateEthereumAddress(data.wallet);
+    const walletValidation = this.validateSolanaAddress(data.wallet);
     if (!walletValidation.valid) {
       console.error("❌ [DEBUG] Wallet validation failed:", walletValidation.error);
       errors.push(`Wallet: ${walletValidation.error}`);
@@ -205,6 +207,32 @@ export class InputValidator {
       console.log("✅ [DEBUG] ClientSeed validation passed");
     }
 
+    // Validate optional SOL fields
+    let solFeeTransactionHash, solPrice;
+    if (data.solFeeTransactionHash) {
+      console.log("🔍 [DEBUG] Validating solFeeTransactionHash:", data.solFeeTransactionHash);
+      const solFeeValidation = this.validateTransactionHash(data.solFeeTransactionHash);
+      if (!solFeeValidation.valid) {
+        console.error("❌ [DEBUG] SOL fee transaction hash validation failed:", solFeeValidation.error);
+        errors.push(`SOL Fee Transaction Hash: ${solFeeValidation.error}`);
+      } else {
+        console.log("✅ [DEBUG] SOL fee transaction hash validation passed");
+        solFeeTransactionHash = solFeeValidation.sanitized;
+      }
+    }
+
+    if (data.solPrice) {
+      console.log("🔍 [DEBUG] Validating solPrice:", data.solPrice);
+      const solPriceValidation = this.validateNumericValue(data.solPrice, "solPrice", { min: 0 });
+      if (!solPriceValidation.valid) {
+        console.error("❌ [DEBUG] SOL price validation failed:", solPriceValidation.error);
+        errors.push(`SOL Price: ${solPriceValidation.error}`);
+      } else {
+        console.log("✅ [DEBUG] SOL price validation passed");
+        solPrice = solPriceValidation.sanitized;
+      }
+    }
+
     if (errors.length > 0) {
       console.error("❌ [DEBUG] Validation errors:", errors);
       return { valid: false, error: errors.join(", ") };
@@ -217,13 +245,8 @@ export class InputValidator {
         wallet: walletValidation.sanitized,
         boxType: boxTypeValidation.sanitized,
         clientSeed: seedValidation.sanitized,
-        bnbFeeTransactionHash: data.bnbFeeTransactionHash
-          ? this.validateTransactionHash(data.bnbFeeTransactionHash).sanitized
-          : undefined,
-        bnbPrice: data.bnbPrice
-          ? this.validateNumericValue(data.bnbPrice, "bnbPrice", { min: 0 })
-              .sanitized
-          : undefined,
+        solFeeTransactionHash,
+        solPrice,
       },
     };
   }
@@ -235,6 +258,7 @@ export class InputValidator {
       "timestamp",
       "txHash",
       "signature",
+      "clientSeed",
     ];
     const errors: string[] = [];
 
@@ -252,7 +276,7 @@ export class InputValidator {
       return { valid: false, error: errors.join(", ") };
     }
 
-    const walletValidation = this.validateEthereumAddress(data.wallet);
+    const walletValidation = this.validateSolanaAddress(data.wallet);
     if (!walletValidation.valid) {
       errors.push(`Wallet: ${walletValidation.error}`);
     }
@@ -281,6 +305,40 @@ export class InputValidator {
       errors.push(`TxHash: ${txHashValidation.error}`);
     }
 
+    const clientSeedValidation = this.validateClientSeed(data.clientSeed);
+    if (!clientSeedValidation.valid) {
+      errors.push(`ClientSeed: ${clientSeedValidation.error}`);
+    }
+
+    // Validate optional SOL fields
+    let solFeeTransactionHash, solPrice, boxType;
+    if (data.solFeeTransactionHash) {
+      const solFeeValidation = this.validateTransactionHash(data.solFeeTransactionHash);
+      if (!solFeeValidation.valid) {
+        errors.push(`SOL Fee Transaction Hash: ${solFeeValidation.error}`);
+      } else {
+        solFeeTransactionHash = solFeeValidation.sanitized;
+      }
+    }
+
+    if (data.solPrice) {
+      const solPriceValidation = this.validateNumericValue(data.solPrice, "solPrice", { min: 0 });
+      if (!solPriceValidation.valid) {
+        errors.push(`SOL Price: ${solPriceValidation.error}`);
+      } else {
+        solPrice = solPriceValidation.sanitized;
+      }
+    }
+
+    if (data.boxType) {
+      const boxTypeValidation = this.validateBoxType(data.boxType);
+      if (!boxTypeValidation.valid) {
+        errors.push(`BoxType: ${boxTypeValidation.error}`);
+      } else {
+        boxType = boxTypeValidation.sanitized;
+      }
+    }
+
     if (errors.length > 0) {
       return { valid: false, error: errors.join(", ") };
     }
@@ -293,6 +351,10 @@ export class InputValidator {
         timestamp: timestampValidation.sanitized,
         txHash: txHashValidation.sanitized,
         signature: data.signature,
+        clientSeed: clientSeedValidation.sanitized,
+        solFeeTransactionHash,
+        solPrice,
+        boxType,
       },
     };
   }

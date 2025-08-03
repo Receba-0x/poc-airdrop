@@ -164,6 +164,14 @@ export async function middleware(request: NextRequest) {
     "wss://relay.walletconnect.org",
     "https://registry.walletconnect.com",
     "https://explorer-api.walletconnect.com",
+    // Solana API URLs
+    
+    "https://api.devnet.solana.com",
+    "https://api.mainnet-beta.solana.com",
+    "https://solana-devnet.g.alchemy.com",
+    "https://solana-mainnet.g.alchemy.com",
+    "https://rpc.helius.xyz",
+    "https://api.solana.fm",
   ];
 
   if (isDev) {
