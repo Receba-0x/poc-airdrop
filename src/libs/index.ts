@@ -5,15 +5,9 @@ import { type Config, useConnectorClient } from "wagmi";
 
 export * from "./currency";
 
-declare global {
-  interface Window {
-    ethereum: any;
-  }
-}
-
 export async function getProvider() {
-  if (!window.ethereum) throw new Error("Ethereum provider not found");
-  return new ethers.BrowserProvider(window.ethereum);
+  if (!(window as any).ethereum) throw new Error("Ethereum provider not found");
+  return new ethers.BrowserProvider((window as any).ethereum);
 }
 
 export function clientToSigner(client: Client<Transport, Chain, Account>) {
