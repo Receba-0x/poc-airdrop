@@ -1,6 +1,5 @@
 {
   "name": "Imperador iPhone Gift Card",
-  "symbol": "IMPERADOR-IPHONE",
   "description": "Exclusive Amazon gift card for iPhone purchase. A digital prize that brings technology and innovation to Vila Cruzeiro. Part of the official Imperador Token collection.",
   "image": "https://imperadortoken.com/images/itens/iphone.webp",
   "external_url": "https://imperadortoken.com",
@@ -14,41 +13,16 @@
       "value": "Ultra Rare"
     },
     {
-      "trait_type": "Platform",
-      "value": "Amazon"
-    },
-    {
       "trait_type": "Product",
       "value": "iPhone"
-    },
-    {
-      "trait_type": "Value",
-      "value": "High"
     },
     {
       "trait_type": "Type",
       "value": "Gift Card"
     },
     {
-      "trait_type": "Validity",
-      "value": "1 Year"
-    },
-    {
       "trait_type": "Region",
       "value": "Global"
     }
-  ],
-  "collection": {
-    "name": "Imperador Collection",
-    "family": "Adriano Imperador"
-  },
-  "properties": {
-    "files": [
-      {
-        "uri": "/images/itens/iphone.webp",
-        "type": "image/webp"
-      }
-    ],
-    "category": "image"
-  }
+  ]
 }

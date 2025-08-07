@@ -159,7 +159,7 @@ export async function middleware(request: NextRequest) {
     "https://bnb-testnet.g.alchemy.com",
     "https://t.me",
     "https://x.com",
-    "https://adrianotoken.org",
+    "https://imperadortoken.com",
     "wss://relay.walletconnect.com",
     "wss://relay.walletconnect.org",
     "https://registry.walletconnect.com",

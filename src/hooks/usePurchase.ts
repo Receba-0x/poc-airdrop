@@ -106,7 +106,7 @@ export function usePurchase() {
     } catch (error) {
       return {};
     }
-  }, []);
+  }, [address]);
 
   async function prepareNftAccounts(provider: AnchorProvider) {
     const idl = await anchor.Program.fetchIdl(PROGRAM_ID, provider);
@@ -677,10 +677,8 @@ export function usePurchase() {
   );
 
   useEffect(() => {
-    if (address) {
-      Promise.all([refreshBalance(), fetchCurrentStock()]);
-    }
-  }, [address, refreshBalance, fetchCurrentStock]);
+    Promise.all([refreshBalance(), fetchCurrentStock()]);
+  }, [address]);
 
   return useMemo(
     () => ({

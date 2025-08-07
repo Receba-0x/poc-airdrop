@@ -1,6 +1,5 @@
 {
   "name": "Adriano Imperador Soccer Cleats",
-  "symbol": "IMPERADOR-CLEATS",
   "description": "Professional soccer cleats worn by the legendary Adriano Imperador. A unique collectible item that carries the power and passion of Brazilian football. Part of the official Imperador Token collection.",
   "image": "https://imperadortoken.com/images/itens/chuteira.webp",
   "external_url": "https://imperadortoken.com",
@@ -14,37 +13,8 @@
       "value": "Epic"
     },
     {
-      "trait_type": "Player Used",
-      "value": "Yes"
-    },
-    {
-      "trait_type": "Player",
-      "value": "Adriano Imperador"
-    },
-    {
-      "trait_type": "Size",
-      "value": "42-43"
-    },
-    {
-      "trait_type": "Condition",
-      "value": "Game Worn"
-    },
-    {
       "trait_type": "Material",
       "value": "Synthetic Upper"
     }
-  ],
-  "collection": {
-    "name": "Imperador Collection",
-    "family": "Adriano Imperador"
-  },
-  "properties": {
-    "files": [
-      {
-        "uri": "/images/itens/chuteira.webp",
-        "type": "image/webp"
-      }
-    ],
-    "category": "image"
-  }
+  ]
 }

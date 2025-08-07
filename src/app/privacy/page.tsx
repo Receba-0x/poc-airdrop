@@ -114,11 +114,11 @@ export default function PrivacyPage() {
               </p>
               <div className="space-y-2">
                 <a
-                  href="mailto:privacidade@adrianotoken.org"
+                  href="mailto:adrianoimperadortoken@gmail.com"
                   className="flex items-center space-x-2 text-[#28D939] hover:text-white transition-colors text-sm"
                 >
                   <span>📧</span>
-                  <span>privacidade@adrianotoken.org</span>
+                  <span>adrianoimperadortoken@gmail.com</span>
                 </a>
                 <p className="text-gray-400 text-xs">
                   {language === "pt"

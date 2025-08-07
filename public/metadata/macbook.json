@@ -1,6 +1,5 @@
 {
   "name": "Imperador MacBook Gift Card",
-  "symbol": "IMPERADOR-MACBOOK",
   "description": "Premium Amazon gift card for MacBook purchase, sponsored by the Imperador Token community. The ultimate digital prize bringing cutting-edge technology to Vila Cruzeiro. Part of the official Imperador Token collection.",
   "image": "https://imperadortoken.com/images/itens/macbook.webp",
   "external_url": "https://imperadortoken.com",
@@ -12,10 +11,6 @@
     {
       "trait_type": "Rarity",
       "value": "Mythic"
-    },
-    {
-      "trait_type": "Platform",
-      "value": "Amazon"
     },
     {
       "trait_type": "Product",
@@ -30,29 +25,8 @@
       "value": "Gift Card"
     },
     {
-      "trait_type": "Validity",
-      "value": "1 Year"
-    },
-    {
       "trait_type": "Region",
       "value": "Global"
-    },
-    {
-      "trait_type": "Special",
-      "value": "Grand Prize"
     }
-  ],
-  "collection": {
-    "name": "Imperador Collection",
-    "family": "Adriano Imperador"
-  },
-  "properties": {
-    "files": [
-      {
-        "uri": "/images/itens/macbook.webp",
-        "type": "image/webp"
-      }
-    ],
-    "category": "image"
-  }
+  ]
 }
