@@ -400,21 +400,19 @@ export function BoxSection({ boxName }: { boxName: string }) {
                       className="w-full sm:w-[209px] h-[44px] sm:h-[52px]"
                       variant="primary"
                       onClick={handlePurchase}
-                      disabled={
-                        isCrypto
-                          ? stats?.remainingCryptoBoxes <= 0
-                          : stats?.remainingSuperPrizeBoxes <= 0
-                      }
+                      disabled={true}
                     >
                       <PurchaseIcon
                         fill={
-                          isCrypto
+                          "#B4B4B4"
+                          /*  isCrypto
                             ? stats?.remainingCryptoBoxes <= 0
                               ? "#B4B4B4"
                               : "#FFF7A8"
                             : stats?.remainingSuperPrizeBoxes <= 0
                             ? "#B4B4B4"
                             : "#FFF7A8"
+                         */
                         }
                         className="w-5 h-5"
                       />

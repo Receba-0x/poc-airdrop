@@ -237,7 +237,7 @@ export function TransactionPurchaseModal({
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 2,
                       })}{" "}
-                      $ADR
+                      $IMPERA
                     </span>
                   </div>
                 </div>

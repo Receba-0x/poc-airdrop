@@ -7,26 +7,6 @@
     {
       "trait_type": "Category",
       "value": "Digital Gift"
-    },
-    {
-      "trait_type": "Rarity",
-      "value": "Mythic"
-    },
-    {
-      "trait_type": "Product",
-      "value": "MacBook"
-    },
-    {
-      "trait_type": "Value",
-      "value": "Premium"
-    },
-    {
-      "trait_type": "Type",
-      "value": "Gift Card"
-    },
-    {
-      "trait_type": "Region",
-      "value": "Global"
     }
   ]
 }
