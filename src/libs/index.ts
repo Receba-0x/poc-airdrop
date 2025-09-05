@@ -1,31 +1,4 @@
-import { ethers } from "ethers";
-import { useMemo } from "react";
-import type { Account, Chain, Client, Transport } from "viem";
-import { type Config, useConnectorClient } from "wagmi";
-
 export * from "./currency";
-
-export async function getProvider() {
-  if (!(window as any).ethereum) throw new Error("Ethereum provider not found");
-  return new ethers.BrowserProvider((window as any).ethereum);
-}
-
-export function clientToSigner(client: Client<Transport, Chain, Account>) {
-  const { account, chain, transport } = client;
-  const network = {
-    chainId: chain.id,
-    name: chain.name,
-    ensAddress: chain.contracts?.ensRegistry?.address,
-  };
-  const provider = new ethers.BrowserProvider(transport, network);
-  const signer = new ethers.JsonRpcSigner(provider, account.address);
-  return signer;
-}
-
-export function useEthersSigner({ chainId }: { chainId?: number } = {}) {
-  const { data: client } = useConnectorClient<Config>({ chainId });
-  return useMemo(() => (client ? clientToSigner(client) : undefined), [client]);
-}
 
 export function clearWalletCache() {
   try {
