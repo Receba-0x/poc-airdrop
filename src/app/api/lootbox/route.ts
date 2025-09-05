@@ -21,8 +21,6 @@ import {
   COLLECTION_URI,
 } from "@/constants";
 import crypto from "crypto";
-import bs58 from "bs58";
-import nacl from "tweetnacl";
 import {
   withRateLimit,
   purchaseRateLimiter,
@@ -254,46 +252,6 @@ async function handlePurchase(params: any, req?: NextRequest) {
   }
 
   const tokenAmount = amountInLamports;
-  const privateKeyBytes = bs58.decode(privateKey);
-  const keypair = nacl.sign.keyPair.fromSecretKey(privateKeyBytes);
-  const backendPubkey = bs58.encode(keypair.publicKey);
-  const messagePayload = { wallet, amount: tokenAmount, timestamp };
-  const message = JSON.stringify(messagePayload);
-  const signature = nacl.sign.detached(Buffer.from(message), keypair.secretKey);
-  const signatureBase58 = bs58.encode(signature);
-
-  try {
-    const isValidLocal = nacl.sign.detached.verify(
-      Buffer.from(message),
-      signature,
-      keypair.publicKey
-    );
-
-    if (!isValidLocal) {
-      console.error("❌ [DEBUG] Generated signature is invalid:", {
-        publicKey: keypair.publicKey.toString(),
-      });
-      securityLogger.logSignatureVerificationFailed(
-        wallet,
-        "Generated signature is invalid",
-        req
-      );
-      throw new Error("Generated signature is invalid");
-    }
-  } catch (validationError) {
-    console.error("❌ [DEBUG] Signature validation error:", validationError);
-    securityLogger.logSignatureVerificationFailed(
-      wallet,
-      validationError instanceof Error
-        ? validationError.message
-        : "Unknown error",
-      req
-    );
-    return NextResponse.json(
-      { success: false, error: "Failed to generate valid signature" },
-      { status: 500 }
-    );
-  }
   securityLogger.logEvent(
     "contract_interaction" as any,
     "Assinatura gerada com sucesso para compra",
@@ -308,9 +266,7 @@ async function handlePurchase(params: any, req?: NextRequest) {
     data: {
       amountToBurn: tokenAmount.toString(),
       timestamp,
-      signature: signatureBase58,
       clientSeed,
-      backendPubkey,
       solFeeTransactionHash,
     },
   });
@@ -839,7 +795,7 @@ async function deliverPrizeToWallet(
 
   try {
     const connection = new Connection(SOLANA_RPC_URL);
-    const privateKeyBytes = bs58.decode(privateKey);
+    const privateKeyBytes: any = "0x" + privateKey;
     const keypair = Keypair.fromSecretKey(privateKeyBytes);
 
     if (wonPrize.type === "sol" && wonPrize.amount) {

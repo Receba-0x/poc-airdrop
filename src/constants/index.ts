@@ -27,6 +27,7 @@ export const getItensData = (t: (key: string) => string) => {
       title: name,
       type: prize.type,
       amount: prize.amount,
+      rarity: prize.rarity,
       image: getImageForPrize(prize, t),
     };
   });
@@ -79,6 +80,7 @@ function getImageForPrize(prize: any, t: (key: string) => string) {
 export const PRIZE_TABLE = [
   {
     id: 1,
+    rarity: "uncommon",
     name: "0.002538 SOL",
     type: "sol",
     amount: 0.002538,
@@ -87,6 +89,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 2,
+    rarity: "rare",
     name: "0.012692 SOL",
     type: "sol",
     amount: 0.012692,
@@ -95,6 +98,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 3,
+    rarity: "epic",
     name: "0.025385 SOL",
     type: "sol",
     amount: 0.025385,
@@ -103,6 +107,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 4,
+    rarity: "legendary",
     name: "0.076154 SOL",
     type: "sol",
     amount: 0.076154,
@@ -111,6 +116,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 5,
+    rarity: "uncommon",
     name: "Camisas de time",
     type: "physical",
     metadata: "t-shirt1",
@@ -120,6 +126,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 6,
+    rarity: "rare",
     name: "Bolas oficiais",
     type: "physical",
     metadata: "ball",
@@ -129,6 +136,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 7,
+    rarity: "epic",
     name: "Chuteiras",
     type: "physical",
     metadata: "chuteira",
@@ -138,6 +146,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 8,
+    rarity: "legendary",
     name: "MacBook M3",
     type: "physical",
     metadata: "macbook",
@@ -147,6 +156,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 9,
+    rarity: "legendary",
     name: "iPhone 16 Pro Max",
     type: "physical",
     metadata: "iphone",
@@ -156,6 +166,7 @@ export const PRIZE_TABLE = [
   },
   {
     id: 10,
+    rarity: "legendary",
     name: "Ticket Dourado",
     type: "special",
     metadata: "ticket",
@@ -264,5 +275,171 @@ export const CRYPTO_PRIZE_TABLE = [
     probability: 0.003,
     value_usd: 495.0,
     image: "/images/itens/sol-coin.webp",
+  },
+];
+
+export const itensMock = [
+  {
+    id: 1,
+    title: "Camisa Neymar",
+    image: "/images/itens/camisa1.webp",
+    rarity: "uncommon",
+  },
+  {
+    id: 2,
+    title: "Bolas oficiais",
+    image: "/images/itens/ball.png",
+    rarity: "rare",
+  },
+  {
+    id: 3,
+    title: "Chuteiras",
+    image: "/images/itens/chuteira.webp",
+    rarity: "epic",
+  },
+  {
+    id: 4,
+    title: "MacBook M3",
+    image: "/images/itens/macbook.webp",
+    rarity: "legendary",
+  },
+  {
+    id: 5,
+    title: "iPhone 16",
+    image: "/images/itens/iphone.webp",
+    rarity: "legendary",
+  },
+  {
+    id: 6,
+    title: "Ticket Dourado",
+    image: "/images/itens/golden-ticket.png",
+    rarity: "legendary",
+  },
+  {
+    id: 7,
+    title: "0.002538 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "uncommon",
+  },
+  {
+    id: 8,
+    title: "0.012692 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "rare",
+  },
+  {
+    id: 9,
+    title: "0.050769 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "epic",
+  },
+  {
+    id: 10,
+    title: "0.076154 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "legendary",
+  },
+  {
+    id: 11,
+    title: "0.050769 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "epic",
+  },
+  {
+    id: 12,
+    title: "0.076154 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "legendary",
+  },
+  {
+    id: 13,
+    title: "0.050769 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "epic",
+  },
+  {
+    id: 14,
+    title: "0.076154 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "legendary",
+  },
+  {
+    id: 15,
+    title: "0.076154 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "legendary",
+  },
+  {
+    id: 16,
+    title: "0.050769 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "epic",
+  },
+  {
+    id: 17,
+    title: "0.076154 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "legendary",
+  },
+  {
+    id: 18,
+    title: "0.076154 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "legendary",
+  },
+  {
+    id: 19,
+    title: "0.050769 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "epic",
+  },
+  {
+    id: 20,
+    title: "0.076154 SOL",
+    image: "/images/itens/sol-coin.webp",
+    rarity: "legendary",
+  },
+];
+
+export const leadersMock = [
+  {
+    id: 1,
+    avatar: "/images/avatar_default.png",
+    username: "John Doe",
+    rank: 1,
+    last_win: 1,
+    winnings: 1000,
+  },
+  {
+    id: 2,
+    avatar: "/images/avatar_default.png",
+    username: "John Doe",
+    rank: 2,
+    last_win: 1,
+    winnings: 1000,
+  },
+  {
+    id: 3,
+    avatar: "/images/avatar_default.png",
+    username: "John Doe",
+    rank: 3,
+    last_win: 1,
+    winnings: 1000,
+  },
+  {
+    id: 4,
+    avatar: "/images/avatar_default.png",
+    username: "John Doe",
+    rank: 4,
+    last_win: 1,
+    winnings: 1000,
+  },
+  {
+    id: 5,
+    avatar: "/images/avatar_default.png",
+    username: "John Doe",
+    rank: 5,
+    last_win: 1,
+    winnings: 1000,
   },
 ];

@@ -1,8 +1,11 @@
 export const translations = {
   en: {
     // Header
+    "header.home": "Home",
     "header.boxes": "Boxes",
     "header.historic": "Historic",
+    "header.leaderboard": "Leaderboard",
+    "header.transactions": "Transactions",
     "header.staking": "Staking",
     "header.buyToken": "Buy $IMPERA",
     "header.whitepaper": "Whitepaper",
@@ -17,145 +20,11 @@ export const translations = {
     "hero.joinCommunity": "Join Official Community",
     "hero.learnMore": "Learn More",
 
-    // Roadmap Section
-    "roadmap.title": "Roadmap",
-    "roadmap.phase1": "Phase 1 – Foundation & Launch",
-    "roadmap.phase2": "Phase 2 – Community & Utility Layer",
-    "roadmap.phase3": "Phase 3 – Expansion & Ecosystem Growth",
-    "roadmap.phase4": "Phase 4 – Legacy Building",
-    "roadmap.phase1.item1": "Website Development",
-    "roadmap.phase1.item2": "Social Media Activation",
-    "roadmap.phase1.item3": "Gacha System (Mystery Boxes) Deployment",
-    "roadmap.phase1.item4": "Token Launch",
-    "roadmap.phase1.item5": "Interactive Launch Livestream (Featuring Adriano)",
-    "roadmap.phase2.item1": "NFT System Integration",
-    "roadmap.phase2.item2": "First Community Events",
-    "roadmap.phase2.item3":
-      "Charity System Activation (Donation Role & Tracking)",
-    "roadmap.phase2.item4": "Real-Time Charity Dashboard Launch",
-    "roadmap.phase3.item1":
-      "Launch of Interoperability Layer (Cross-Chain Bridge & Multi-Chain Support)",
-    "roadmap.phase3.item2":
-      "Strategic Partnerships with Sports & Lifestyle Brands",
-    "roadmap.phase3.item3": "CEX Listings",
-    "roadmap.phase3.item4": "Memorabilia Tokenization Protocol Launch",
-    "roadmap.phase4.item1": "Expansion of Social Impact Projects",
-    "roadmap.phase4.item2": "Talent Scouting Program Rollout",
-    "roadmap.phase4.item3": "Creation of Didico Football Club",
-    // Features
-    "features.title": "Why Choose $IMPERA Token?",
-    "features.secure": "Secure",
-    "features.secureDesc": "Built on BSC blockchain with advanced security",
-    "features.fast": "Fast",
-    "features.fastDesc": "Lightning-fast transactions with low fees",
-    "features.innovative": "Innovative",
-    "features.innovativeDesc": "Cutting-edge technology for the future",
-
-    // Staking
-    "staking.title": "Stake Your Tokens",
-    "staking.subtitle": "Earn rewards by staking your $IMPERA tokens",
-    "staking.amount": "Amount to Stake",
-    "staking.period": "Lock-up Period",
-    "staking.rewards": "Estimated Rewards",
-    "staking.stake": "Stake Tokens",
-    "staking.unstake": "Unstake",
-    "staking.balance": "Balance",
-    "staking.max": "MAX",
-    "staking.resume": "Resume",
-    "staking.stakingAmount": "Staking Amount",
-    "staking.lockupPeriod": "Lock-up Period",
-    "staking.estimatedRewards": "Estimated Rewards",
-    "staking.none": "None",
-    "staking.days7": "7 Days",
-    "staking.days14": "14 Days",
-    "staking.days30": "30 Days",
-    "staking.days90": "90 Days",
-    "staking.days180": "180 Days",
-    "staking.rewardsClaimedStatus": "Rewards Claimed",
-    "staking.awaitingUnlockStatus": "Awaiting Unlock",
-    "staking.readyForWithdrawalStatus": "Ready for Withdrawal",
-    "staking.availableForUnstake": "Available for unstake",
-    "staking.loadingStakeInfo": "Loading stake info...",
-    "staking.stakedAmountLabel": "Staked Amount",
-    "staking.startTime": "Start Time",
-    "staking.unlockTime": "Unlock Time",
-    "staking.status": "Status",
-    "staking.timeLeft": "Time Left",
-    "staking.claimed": "Claimed",
-    "staking.locked": "Locked",
-    "staking.available": "Available",
-    "staking.processing": "Processing...",
-    "staking.alreadyClaimed": "Already Claimed",
-    "staking.waitToUnstake": "Wait to Unstake",
-    "staking.confirmUnstake": "Confirm Unstake",
-    "staking.insufficientBalance": "Insufficient balance",
-
-    // Transaction Modal
-    "staking.stakingInProgress": "Staking in Progress",
-    "staking.unstakingInProgress": "Unstaking in Progress",
-    "staking.stakingSuccess": "Staking Successful",
-    "staking.unstakingSuccess": "Unstaking Successful",
-    "staking.stakingFailed": "Staking Failed",
-    "staking.unstakingFailed": "Unstaking Failed",
-    "staking.processingStakeMessage":
-      "Your staking transaction is being processed on the blockchain.",
-    "staking.processingUnstakeMessage":
-      "Your unstaking transaction is being processed on the blockchain.",
-    "staking.stakingSuccessMessage":
-      "Your tokens have been successfully staked.",
-    "staking.unstakingSuccessMessage":
-      "Your tokens have been successfully unstaked.",
-    "staking.transactionDetails": "Transaction Details",
     "common.transactionHash": "Transaction Hash",
     "common.pleaseDoNotCloseWindow": "Please do not close this window",
     "common.done": "Done",
     "common.close": "Close",
     "common.errorOccurred": "An error occurred during the transaction",
-
-    // Impact
-    "impact.title": "Blockchain and Social Impact",
-    "impact.description1":
-      "The advancement of blockchain technology and cryptocurrencies goes beyond finance, creating opportunities for social impact initiatives. Tokens like the Adriano Token combine financial potential and social transformation, creating projects where economic success drives real benefits for communities.",
-    "impact.description2":
-      "The advantages of this model include transparency, elimination of intermediaries, global reach, community engagement, and financial sustainability.",
-
-    // Tokenomics
-    "tokenomics.title": "Tokenomics",
-    "tokenomics.distribution": "Token Distribution",
-    "tokenomics.totalSupply": "Total Supply",
-    "tokenomics.presale": "Seed Round",
-    "tokenomics.lp": "LP",
-    "tokenomics.staking": "Staking",
-    "tokenomics.community": "Community (Airdrop, Quests)",
-    "tokenomics.treasury": "Treasury",
-    "tokenomics.reserveFunds": "Reserve Funds",
-    "tokenomics.marketing": "Marketing",
-    "tokenomics.team": "Team",
-    "tokenomics.costs": "Costs",
-
-    // Join
-    "join.title": "Join the movement",
-    "join.description":
-      "With IMPERA Token, you're not just entering the crypto universe. Help transform Vila Cruzeiro with every token acquired",
-    "join.feature1": "Strengthening the community",
-    "join.feature2": "Real impact, real people",
-    "join.feature3": "Blockchain with purpose",
-
-    // About
-    "about.title": "Adriano Token from Vila Cruzeiro to the World",
-    "about.description":
-      "World football icon and pride of Brazil, Adriano Imperador presents his official token: a project that celebrates his journey and drives social actions to transform the community where it all began.",
-
-    // Features Cards
-    "features.card1.title": "More than a Token: A Movement",
-    "features.card1.description":
-      "The Adriano Token stems from the genuine desire to give back to the community what football provided to Adriano. Using blockchain technology, the project connects innovation with real impact, creating opportunities and new paths for young people from Vila Cruzeiro.",
-    "features.card2.title": "Transformation in Vila Cruzeiro",
-    "features.card2.description":
-      "Part of the resources generated with the Adriano Token will be allocated to social projects: education, sports, culture, and local entrepreneurship.",
-    "features.card3.title": "Strong roots, big dreams",
-    "features.card3.description":
-      "Unlike disconnected initiatives, the Adriano Token is built around a true and living relationship with Vila Cruzeiro. It's not just about honoring history.",
 
     // Terms
     "terms.title": "Legal Documentation",
@@ -208,27 +77,6 @@ export const translations = {
       "The personal information collected may include your name, email, phone and/or mobile number, address, date of birth and/or others.",
     "terms.confidentiality.description4":
       "Use of the IMPERA Token site assumes acceptance of this Privacy Agreement. The IMPERA Token team reserves the right to change this agreement without prior notice. Therefore, we recommend that you consult our privacy policy regularly to stay updated",
-
-    // FAQ
-    "faq.title": "FAQ",
-    "faq.description":
-      "Clear answers to the questions we hear most. because trust starts with transparency",
-    "faq.question1": "What is the tokenomics of the $IMPERA token?",
-    "faq.answer1":
-      "The $IMPERA token is a utility token for the Vila Cruzeiro community. It has a fixed supply of 1 billion tokens, with 30% allocated to community initiatives, 25% for platform development, 20% for the team and advisors (vested over 3 years), 15% for marketing and partnerships, and 10% for liquidity provisioning.",
-    "faq.question2": "How can I use IMPERA Tokens on the platform?",
-    "faq.answer2":
-      "IMPERA Tokens can be used to purchase mystery boxes with chances to win exclusive items, access premium features, participate in community governance decisions, and receive special benefits within the platform ecosystem.",
-    "faq.question3": "Is IMPERA Token available on multiple blockchains?",
-    "faq.answer3":
-      "Currently, IMPERA Token is available on the BSC blockchain. We chose BSC for its fast transaction speeds, low fees, and environmental efficiency. We may explore cross-chain compatibility in the future based on community needs.",
-    "faq.question4": "How do I get started with IMPERA Tokens?",
-    "faq.answer4":
-      "To get started, connect your BSC wallet (like Phantom or Solflare), purchase IMPERA Tokens either directly through our platform or from supported exchanges, and then use them to access platform features like mystery boxes.",
-    "faq.question5":
-      "Are there any fees for purchasing or using IMPERA Tokens?",
-    "faq.answer5":
-      "When purchasing IMPERA Tokens, you'll only pay the standard BSC network transaction fees, which are typically less than $0.01. There are no additional platform fees for holding or using your tokens within our ecosystem.",
 
     // Footer
     "footer.rights": "All rights reserved",
@@ -552,166 +400,20 @@ export const translations = {
   },
   pt: {
     // Header
+    "header.home": "Início",
     "header.boxes": "Caixas",
     "header.historic": "Histórico",
+    "header.leaderboard": "Leaderboard",
+    "header.transactions": "Transações",
     "header.staking": "Staking",
     "header.buyToken": "Comprar token $ADR",
     "header.whitepaper": "Whitepaper",
 
-    // Hero
-    "hero.title": "O Token Oficial \n Do ",
-    "hero.adriano": "Didico",
-    "hero.token": "Token",
-    "hero.tokenContract": "Contrato do token:",
-    "hero.subtitle":
-      "Faça parte do Império. Unindo ídolos e a próxima geração na WEB3.",
-    "hero.cta": "Comprar token $ADR",
-    "hero.learnMore": "Saiba Mais",
-    "hero.joinCommunity": "Junte-se à Comunidade Oficial",
-
-    // Roadmap Section
-    "roadmap.title": "Roteiro",
-    "roadmap.phase1": "Fase 1 - Fundação e Lançamento",
-    "roadmap.phase2": "Fase 2 - Comunidade e Camada de Utilidade",
-    "roadmap.phase3": "Fase 3 - Expansão e Crescimento do Ecossistema",
-    "roadmap.phase4": "Fase 4 - Construção de Legado",
-    "roadmap.phase1.item1": "Desenvolvimento do Website",
-    "roadmap.phase1.item2": "Ativação das Redes Sociais",
-    "roadmap.phase1.item3":
-      "Implementação do Sistema Gacha (Caixas Misteriosas)",
-    "roadmap.phase1.item4": "Lançamento do Token",
-    "roadmap.phase1.item5":
-      "Live Interativa de Lançamento (com participação do Adriano)",
-    "roadmap.phase2.item1": "Integração do Sistema de NFTs",
-    "roadmap.phase2.item2": "Primeiros Eventos da Comunidade",
-    "roadmap.phase2.item3":
-      "Ativação do Sistema de Caridade (Função de Doação e Monitoramento)",
-    "roadmap.phase2.item4": "Lançamento do Painel de Doações em Tempo Real",
-    "roadmap.phase3.item1":
-      "Lançamento da Camada de Interoperabilidade (Bridge Cross-Chain e Suporte Multichain)",
-    "roadmap.phase3.item2":
-      "Parcerias Estratégicas com Marcas Esportivas e de Lifestyle",
-    "roadmap.phase3.item3": "Listagens em CEX",
-    "roadmap.phase3.item4":
-      "Lançamento do Protocolo de Tokenização de Memorabilia",
-    "roadmap.phase4.item1": "Expansão dos Projetos de Impacto Social",
-    "roadmap.phase4.item2": "Implementação do Programa de Scouting de Talentos",
-    "roadmap.phase4.item3": "Criação do Didico Futebol Clube",
-
-    // Features
-    "features.title": "Por que Escolher o Token $ADR?",
-    "features.secure": "Seguro",
-    "features.secureDesc":
-      "Construído na blockchain BSC com segurança avançada",
-    "features.fast": "Rápido",
-    "features.fastDesc": "Transações super rápidas com taxas baixas",
-    "features.innovative": "Inovador",
-    "features.innovativeDesc": "Tecnologia de ponta para o futuro",
-
-    // Staking
-    "staking.title": "Faça Stake dos Seus Tokens",
-    "staking.subtitle": "Ganhe recompensas fazendo stake dos seus tokens $ADR",
-    "staking.amount": "Quantidade para Stake",
-    "staking.period": "Período de Bloqueio",
-    "staking.rewards": "Recompensas Estimadas",
-    "staking.stake": "Fazer Stake",
-    "staking.unstake": "Retirar Stake",
-    "staking.balance": "Saldo",
-    "staking.max": "MÁX",
-    "staking.resume": "Resumo",
-    "staking.stakingAmount": "Quantidade em Stake",
-    "staking.lockupPeriod": "Período de Bloqueio",
-    "staking.estimatedRewards": "Recompensas Estimadas",
-    "staking.none": "Nenhum",
-    "staking.days7": "7 Dias",
-    "staking.days14": "14 Dias",
-    "staking.days30": "30 Dias",
-    "staking.days90": "90 Dias",
-    "staking.days180": "180 Dias",
-    "staking.rewardsClaimedStatus": "Recompensas Resgatadas",
-    "staking.awaitingUnlockStatus": "Aguardando Desbloqueio",
-    "staking.readyForWithdrawalStatus": "Pronto para Resgate",
-    "staking.loadingStakeInfo": "Carregando informações do stake...",
-    "staking.stakedAmountLabel": "Quantidade em Stake",
-    "staking.startTime": "Hora de Início",
-    "staking.unlockTime": "Hora de Desbloqueio",
-    "staking.status": "Status",
-    "staking.timeLeft": "Tempo Restante",
-    "staking.claimed": "Resgatado",
-    "staking.locked": "Bloqueado",
-    "staking.available": "Disponível",
-    "staking.processing": "Processando...",
-    "staking.alreadyClaimed": "Já Resgatado",
-    "staking.waitToUnstake": "Aguardar para Retirar",
-    "staking.confirmUnstake": "Confirmar Retirada",
-    "staking.insufficientBalance": "Saldo insuficiente",
-
-    // Transaction Modal
-    "staking.stakingInProgress": "Stake em Andamento",
-    "staking.unstakingInProgress": "Retirada em Andamento",
-    "staking.stakingSuccess": "Stake Realizado com Sucesso",
-    "staking.unstakingSuccess": "Retirada Realizada com Sucesso",
-    "staking.stakingFailed": "Falha no Stake",
-    "staking.unstakingFailed": "Falha na Retirada",
-    "staking.processingStakeMessage":
-      "Sua transação de stake está sendo processada na blockchain.",
-    "staking.processingUnstakeMessage":
-      "Sua transação de retirada está sendo processada na blockchain.",
-    "staking.stakingSuccessMessage":
-      "Seus tokens foram colocados em stake com sucesso.",
-    "staking.unstakingSuccessMessage":
-      "Seus tokens foram retirados com sucesso.",
-    "staking.transactionDetails": "Detalhes da Transação",
     "common.transactionHash": "Hash da Transação",
     "common.pleaseDoNotCloseWindow": "Por favor, não feche esta janela",
     "common.done": "Concluído",
     "common.close": "Fechar",
     "common.errorOccurred": "Ocorreu um erro durante a transação",
-
-    // Impact
-    "impact.title": "Blockchain e Impacto Social",
-    "impact.description1":
-      "O avanço da tecnologia blockchain e das criptomoedas vai além das finanças, criando oportunidades para iniciativas de impacto social. Tokens como o Adriano Token combinam potencial financeiro e transformação social, criando projetos onde o sucesso econômico gera benefícios reais para as comunidades.",
-    "impact.description2":
-      "As vantagens deste modelo incluem transparência, eliminação de intermediários, alcance global, engajamento da comunidade e sustentabilidade financeira.",
-
-    // Tokenomics
-    "tokenomics.title": "Tokenomics",
-    "tokenomics.distribution": "Distribuição de Tokens",
-    "tokenomics.totalSupply": "Fornecimento Total",
-    "tokenomics.presale": "Seed Round",
-    "tokenomics.lp": "LP",
-    "tokenomics.staking": "Staking",
-    "tokenomics.community": "Comunidade (Airdrop, Quests)",
-    "tokenomics.treasury": "Tesouro",
-    "tokenomics.reserveFunds": "Fundos de Reserva",
-    "tokenomics.marketing": "Marketing",
-    "tokenomics.team": "Equipe",
-    "tokenomics.costs": "Custos",
-
-    // Join
-    "join.title": "Junte-se ao movimento",
-    "join.description":
-      "Com o IMPERA Token, você não está apenas entrando no universo cripto. Ajude a transformar a Vila Cruzeiro com cada token adquirido",
-    "join.feature1": "Fortalecendo a comunidade",
-    "join.feature2": "Impacto real, pessoas reais",
-    "join.feature3": "Blockchain com propósito",
-
-    // About
-    "about.title": "Adriano Token da Vila Cruzeiro para o Mundo",
-    "about.description":
-      "Ícone mundial do futebol e orgulho do Brasil, Adriano Imperador apresenta seu token oficial: um projeto que celebra sua trajetória e impulsiona ações sociais para transformar a comunidade onde tudo começou.",
-
-    // Features Cards
-    "features.card1.title": "Mais que um Token: Um Movimento",
-    "features.card1.description":
-      "O Adriano Token nasce do desejo genuíno de devolver para a comunidade o que o futebol proporcionou ao Adriano. Utilizando tecnologia blockchain, o projeto conecta inovação com impacto real, criando oportunidades e novos caminhos para jovens da Vila Cruzeiro.",
-    "features.card2.title": "Transformação na Vila Cruzeiro",
-    "features.card2.description":
-      "Parte dos recursos gerados com o Adriano Token será destinada a projetos sociais: educação, esporte, cultura e empreendedorismo local.",
-    "features.card3.title": "Raízes fortes, sonhos grandes",
-    "features.card3.description":
-      "Diferente de iniciativas desconectadas, o Adriano Token é construído em torno de uma relação verdadeira e viva com a Vila Cruzeiro. Não se trata apenas de homenagear a história.",
 
     // Terms
     "terms.title": "Documentação Legal",
@@ -764,26 +466,6 @@ export const translations = {
       "A informação pessoal recolhida pode incluir o seu nome, e-mail, número de telefone e/ou telemóvel, morada, data de nascimento e/ou outros.",
     "terms.confidentiality.description4":
       "O uso do site do IMPERA Token pressupõe a aceitação deste Acordo de Privacidade. A equipe do IMPERA Token reserva-se ao direito de alterar este acordo sem aviso prévio. Deste modo, recomendamos que consulte a nossa política de privacidade regularmente para estar sempre atualizado",
-
-    // FAQ
-    "faq.title": "FAQ",
-    "faq.description":
-      "Respostas claras para as perguntas que mais ouvimos. porque a confiança começa com transparência",
-    "faq.question1": "Qual é a tokenomics do token $ADR?",
-    "faq.answer1":
-      "O token $ADR é um token utilitário para a comunidade da Vila Cruzeiro. Tem um fornecimento fixo de 1 bilhão de tokens, com 30% alocados para iniciativas comunitárias, 25% para desenvolvimento da plataforma, 20% para a equipe e consultores (com vesting de 3 anos), 15% para marketing e parcerias, e 10% para provisão de liquidez.",
-    "faq.question2": "Como posso usar os Tokens ADR na plataforma?",
-    "faq.answer2":
-      "Os Tokens ADR podem ser usados para comprar caixas misteriosas com chances de ganhar itens exclusivos, acessar recursos premium, participar de decisões de governança da comunidade e receber benefícios especiais dentro do ecossistema da plataforma.",
-    "faq.question3": "O Token ADR está disponível em múltiplas blockchains?",
-    "faq.answer3":
-      "Atualmente, o Token ADR está disponível na blockchain BSC. Escolhemos a BSC por suas velocidades de transação rápidas, taxas baixas e eficiência ambiental. Podemos explorar compatibilidade cross-chain no futuro com base nas necessidades da comunidade.",
-    "faq.question4": "Como faço para começar com os Tokens ADR?",
-    "faq.answer4":
-      "Para começar, conecte sua carteira BSC (como MetaMask ou Trust Wallet), compre Tokens ADR diretamente através da nossa plataforma ou de exchanges suportadas, e então use-os para acessar recursos da plataforma como caixas misteriosas.",
-    "faq.question5": "Há taxas para comprar ou usar Tokens ADR?",
-    "faq.answer5":
-      "Ao comprar Tokens ADR, você pagará apenas as taxas padrão de transação da rede BSC, que tipicamente custam menos de $0,01. Não há taxas adicionais da plataforma para manter ou usar seus tokens dentro do nosso ecossistema.",
 
     // Footer
     "footer.rights": "Todos os direitos reservados",

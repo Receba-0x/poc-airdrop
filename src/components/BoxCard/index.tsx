@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { LogoIcon } from "../Icons/LogoIcon";
 import { motion } from "framer-motion";
 
 interface BoxCardProps {
@@ -14,60 +13,36 @@ interface BoxCardProps {
 }
 
 export default function BoxCard({ box }: BoxCardProps) {
-  const boxPrice = box.id === "cryptos" ? 17.5 : 45;
-  const tokenPrice = 0.002;
-  const boxPriceInSol = boxPrice / tokenPrice;
   return (
-    <motion.div
-      className="bg-[#171717] rounded-lg overflow-hidden hover:bg-[#1E1E1E] transition-colors h-full"
-      whileHover={{
-        y: -8,
-        boxShadow: "0 10px 20px rgba(0, 0, 0, 0.2)",
-      }}
-      transition={{ duration: 0.3 }}
-    >
-      <Link href={`/boxes/${box.id}`} className="block h-full">
-        <div className="w-full h-[200px] relative overflow-hidden">
-          <motion.div
-            className="w-full h-full"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Image
-              src={box.image}
-              alt={box.title}
-              fill
-              className="object-contain p-4"
-            />
-          </motion.div>
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-t from-[#171717] to-transparent opacity-40"
-            whileHover={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+    <Link href={`/boxes/${box.id}`} className="group">
+      <motion.div
+        className="bg-neutral-3 flex flex-col justify-between h-[259px] border relative p-4 border-neutral-6 rounded-lg overflow-hidden hover:bg-neutral-4 transition-colors duration-300 ease-in-out"
+        whileHover={{
+          y: -8,
+          boxShadow: "0 10px 20px rgba(0, 0, 0, 0.2)",
+        }}
+        transition={{ duration: 0.3 }}
+      >
+        <div
+          className={`absolute top-0 left-1/2 -translate-x-1/2 inset-0 bg-neutral-11 h-1 w-[60%] rounded-b-xl`}
+        />
+
+        <div className="w-full h-full flex items-center justify-center">
+          <Image
+            src={box.image}
+            alt={box.title}
+            width={177}
+            height={150}
+            className="object-cover z-10 group-hover:-rotate-6 transition-all duration-300 ease-in-out"
+          />
+
+          <div
+            className={`absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-20 h-20 bg-neutral-11 blur-2xl`}
           />
         </div>
 
-        <div className="p-4">
-          <motion.h3
-            className="text-lg bg-gradient-to-r from-[#FFF7A8] to-[#FFEB28] bg-clip-text text-transparent font-bold mb-2"
-            whileHover={{ textShadow: "0 0 8px rgba(255, 235, 40, 0.5)" }}
-          >
-            {box.title}
-          </motion.h3>
-
-          <motion.div
-            className="flex items-center bg-[#222222] rounded-lg px-4 py-2 gap-2 w-min"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
-            <LogoIcon className="w-5 h-6" />
-            <span className="font-bold">{boxPriceInSol.toLocaleString("en-US", {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 2,
-            })}</span>
-          </motion.div>
-        </div>
-      </Link>
-    </motion.div>
+        <span className="text-neutral-12 font-semibold">{box.title}</span>
+      </motion.div>
+    </Link>
   );
 }

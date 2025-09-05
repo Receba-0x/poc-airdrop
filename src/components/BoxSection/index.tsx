@@ -1,11 +1,12 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
+import { HorizontalSpinCarouselRef } from "../HorizontalSpinCarousel";
 import { LogoIcon } from "../Icons/LogoIcon";
 import { Button } from "../Button";
 import Image from "next/image";
 import { SimulationIcon } from "../Icons/SimulationIcon";
 import { PurchaseIcon } from "../Icons/PurchaseIcon";
-import ItemCard from "../ItemCard.tsx";
+import ItemCard from "../ItemCard";
 import { ScrollAnimation } from "../ScrollAnimation";
 import { motion } from "framer-motion";
 import { CRYPTO_PRIZE_TABLE, PRIZE_TABLE, getItensData } from "@/constants";
@@ -13,14 +14,14 @@ import { usePurchase } from "@/hooks/usePurchase";
 import { useBoxStats } from "@/hooks/useBoxStats";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { TransactionPurchaseModal } from "../TransactionPurchaseModal";
+import HorizontalSpinCarousel from "../HorizontalSpinCarousel";
 import crypto from "crypto";
 
 export function BoxSection({ boxName }: { boxName: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const carouselRef = useRef<HorizontalSpinCarouselRef>(null);
   const {
     onMint,
     modalOpen,
@@ -48,17 +49,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
   const [simulationPrize, setSimulationPrize] = useState<any>(null);
 
   const isCrypto = boxName === "cryptos";
-  const itens = isCrypto ? CRYPTO_PRIZE_TABLE : getItensData(t).slice(3, 10);
-
-  const carouselItems = [];
-  for (let i = 0; i < 30; i++) {
-    const item = itens[i % itens.length];
-    carouselItems.push(item);
-  }
-
-  const itemWidth = 160;
-  const itemGap = 60;
-  const speed = 0.1;
+  const itens = getItensData(t).slice(3, 10);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -67,34 +58,6 @@ export function BoxSection({ boxName }: { boxName: string }) {
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  const animate = () => {
-    if (!carouselRef.current) return;
-    const currentTransform =
-      carouselRef.current.style.transform || "translateX(0px)";
-    let position = parseFloat(
-      currentTransform.replace("translateX(", "").replace("px)", "")
-    );
-    position -= speed;
-    const resetPoint = -((itemWidth + itemGap) * itens.length);
-    if (position <= resetPoint) {
-      position = 0;
-    }
-    carouselRef.current.style.transform = `translateX(${position}px)`;
-    animationRef.current = requestAnimationFrame(animate);
-  };
-
-  useEffect(() => {
-    if (carouselRef.current) {
-      carouselRef.current.style.transform = "translateX(0px)";
-    }
-    animationRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
   }, []);
 
   const handlePurchase = async () => {
@@ -156,13 +119,8 @@ export function BoxSection({ boxName }: { boxName: string }) {
         setTimeout(() => {
           setSimulationStatus("validating_transaction");
           setTimeout(() => {
-            setSimulationStatus("determining_prize");
-            setTimeout(() => {
-              const randomNumber = generateRandomNumber();
-              const prize = simulateDeterminePrize(randomNumber, isCrypto);
-              setSimulationPrize(prize);
-              setSimulationStatus("success");
-            }, 2000);
+            handleTestSpin();
+            setSimulationModalOpen(false);
           }, 1500);
         }, 1500);
       }, 1500);
@@ -172,6 +130,19 @@ export function BoxSection({ boxName }: { boxName: string }) {
   const closeSimulationModal = () => {
     setSimulationModalOpen(false);
     setSimulationPrize(null);
+  };
+
+  const handleSpinComplete = (winningItem: any) => {
+    setIsSpinning(false);
+  };
+
+  const handleTestSpin = () => {
+    if (carouselRef.current && !isSpinning) {
+      setIsSpinning(true);
+      const randomIndex = Math.floor(Math.random() * itens.length);
+      console.log("🎰 Starting spin with random winner index:", randomIndex);
+      carouselRef.current.startSpin(randomIndex);
+    }
   };
 
   const boxImage =
@@ -189,7 +160,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
           type="fade"
           direction="up"
           duration={0.8}
-          className="bg-[#0F0F0F] mt-[56px] md:mt-[64px] flex flex-col items-center justify-center border-y border-[#222222] w-full h-[250px] sm:h-[280px] md:h-[318px] relative overflow-hidden"
+          className="bg-neutral-2 flex flex-col items-center justify-center border-b border-neutral-6 w-full h-[250px] sm:h-[280px] md:h-[318px] relative overflow-hidden"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
@@ -215,44 +186,17 @@ export function BoxSection({ boxName }: { boxName: string }) {
             />
           </div>
 
-          <div
-            ref={containerRef}
-            className="relative w-full h-full overflow-hidden z-10"
-          >
-            <div className="absolute left-0 top-0 bottom-0 z-20 w-[15%] sm:w-[20%] md:w-[25%] pointer-events-none">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#0F0F0F] via-[#0F0F0F]/80 to-transparent"></div>
-            </div>
-            <div
-              ref={carouselRef}
-              className="absolute flex items-center h-full"
-              style={{ gap: `${itemGap}px` }}
-            >
-              {carouselItems.map((item, index) => (
-                <motion.div
-                  key={`item-${index}`}
-                  className="flex-shrink-0 bg-cover bg-center bg-no-repeat rounded-md"
-                  style={{
-                    width: `${itemWidth * (isMobile ? 0.8 : 1)}px`,
-                    height: `${itemWidth * (isMobile ? 0.8 : 1)}px`,
-                  }}
-                  whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
-                >
-                  <Image
-                    src={item.image}
-                    alt={item.name || `Prize ${item.id}`}
-                    width={100000}
-                    height={100000}
-                    priority
-                    className="w-full h-full object-contain"
-                  />
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="absolute right-0 top-0 bottom-0 z-20 w-[15%] sm:w-[20%] md:w-[25%] pointer-events-none">
-              <div className="absolute inset-0 bg-gradient-to-l from-[#0F0F0F] via-[#0F0F0F]/80 to-transparent"></div>
-            </div>
-          </div>
+          <HorizontalSpinCarousel
+            ref={carouselRef}
+            items={itens}
+            itemWidth={isMobile ? 128 : 160}
+            itemHeight={isMobile ? 128 : 160}
+            gap={60}
+            speed={0.1}
+            spinDuration={8000}
+            onSpinComplete={handleSpinComplete}
+            className="relative w-full h-full z-10"
+          />
         </ScrollAnimation>
 
         <div className="flex flex-col w-full max-w-[1280px] px-6 md:px-0 pt-6">
@@ -264,22 +208,14 @@ export function BoxSection({ boxName }: { boxName: string }) {
           >
             <div className="flex flex-col md:flex-row items-start md:items-center w-full justify-between gap-4 md:gap-16">
               <div className="flex items-center gap-4 sm:gap-8">
-                <motion.div
-                  whileHover={{
-                    rotate: [0, -5, 5, -5, 0],
-                    transition: { duration: 0.5 },
-                  }}
-                  className="w-24 h-16 sm:w-32 sm:h-auto"
-                >
-                  <Image
-                    src={boxImage}
-                    alt="random"
-                    width={130}
-                    height={88}
-                    priority
-                    className="w-full h-full object-contain"
-                  />
-                </motion.div>
+                <Image
+                  src={boxImage}
+                  alt="random"
+                  height={110}
+                  width={130}
+                  className="object-cover"
+                  priority
+                />
                 <div className="flex flex-col gap-2">
                   <motion.h1
                     className="bg-gradient-to-r from-[#FFF7A8] to-[#FFEB28] bg-clip-text text-transparent font-bold text-xl sm:text-2xl"
@@ -304,63 +240,6 @@ export function BoxSection({ boxName }: { boxName: string }) {
                       {t("box.illustrationImages")}
                     </span>
                   </p>
-
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-[#FFD700] rounded-full animate-pulse"></div>
-                      <span className="text-xs text-[#FFD700] font-medium">
-                        {t("box.stats.limited")}
-                      </span>
-                    </div>
-                    {!isCrypto && !statsLoading && (
-                      <div className="flex flex-col sm:flex-row gap-2 text-xs text-[#B4B4B4]">
-                        <span>
-                          {t("box.stats.opened")}:{" "}
-                          <span className="text-white font-medium">
-                            {stats?.totalSuperPrizeBoxesOpened || 0}
-                          </span>
-                        </span>
-                        <span className="hidden sm:inline">•</span>
-                        <span>
-                          {t("box.stats.remaining")}:{" "}
-                          <span className="text-[#28D939] font-medium">
-                            {stats?.remainingSuperPrizeBoxes || 0}
-                          </span>
-                        </span>
-                        <span className="hidden sm:inline">•</span>
-                        <span>
-                          {t("box.stats.total")}:{" "}
-                          <span className="text-white font-medium">
-                            {stats?.maxSuperPrizeBoxes || 0}
-                          </span>
-                        </span>
-                      </div>
-                    )}
-                    {isCrypto && !statsLoading && (
-                      <div className="flex flex-col sm:flex-row gap-2 text-xs text-[#B4B4B4]">
-                        <span>
-                          {t("box.stats.opened")}:{" "}
-                          <span className="text-white font-medium">
-                            {stats?.totalCryptoBoxesOpened || 0}
-                          </span>
-                        </span>
-                        <span className="hidden sm:inline">•</span>
-                        <span>
-                          {t("box.stats.remaining")}:{" "}
-                          <span className="text-[#28D939] font-medium">
-                            {stats?.remainingCryptoBoxes || 0}
-                          </span>
-                        </span>
-                        <span className="hidden sm:inline">•</span>
-                        <span>
-                          {t("box.stats.total")}:{" "}
-                          <span className="text-white font-medium">
-                            {stats?.maxCryptoBoxes || 0}
-                          </span>
-                        </span>
-                      </div>
-                    )}
-                  </div>
                 </div>
               </div>
               <div className="flex flex-col items-start md:items-end gap-2 w-full md:w-auto mt-4 md:mt-0">
@@ -383,7 +262,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
                   >
                     <Button
                       className="w-full sm:w-[209px] h-[44px] sm:h-[52px]"
-                      variant="secondary"
+                      variant="outline"
                       onClick={handleSimulation}
                     >
                       <SimulationIcon className="w-5 h-5" />
@@ -398,32 +277,12 @@ export function BoxSection({ boxName }: { boxName: string }) {
                   >
                     <Button
                       className="w-full sm:w-[209px] h-[44px] sm:h-[52px]"
-                      variant="primary"
+                      variant="default"
                       onClick={handlePurchase}
-                      disabled={true}
                     >
-                      <PurchaseIcon
-                        fill={
-                          "#B4B4B4"
-                          /*  isCrypto
-                            ? stats?.remainingCryptoBoxes <= 0
-                              ? "#B4B4B4"
-                              : "#FFF7A8"
-                            : stats?.remainingSuperPrizeBoxes <= 0
-                            ? "#B4B4B4"
-                            : "#FFF7A8"
-                         */
-                        }
-                        className="w-5 h-5"
-                      />
+                      <PurchaseIcon className="w-5 h-5" />
                       <span className="ml-1 text-sm sm:text-base">
-                        {isCrypto
-                          ? stats?.remainingCryptoBoxes <= 0
-                            ? t("box.soldOut")
-                            : t("box.purchase")
-                          : stats?.remainingSuperPrizeBoxes <= 0
-                          ? t("box.soldOut")
-                          : t("box.purchase")}
+                        {t("box.purchase")}
                       </span>
                     </Button>
                   </motion.div>
@@ -439,20 +298,15 @@ export function BoxSection({ boxName }: { boxName: string }) {
             duration={0.7}
           >
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-10">
-              {!isCrypto &&
-                itens.map((box, index) => (
-                  <motion.div
-                    key={Number(box.id) + index}
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <ItemCard
-                      key={box.id}
-                      item={box}
-                      currentStock={currentStock}
-                    />
-                  </motion.div>
-                ))}
+              {itens.map((box, index) => (
+                <motion.div
+                  key={Number(box.id) + index}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ItemCard key={box.id} item={box} />
+                </motion.div>
+              ))}
             </div>
           </ScrollAnimation>
         </div>

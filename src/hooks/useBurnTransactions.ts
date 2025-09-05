@@ -55,7 +55,7 @@ export function useBurnTransactions() {
     }
   }, [lastTimestamp]);
 
-  useEffect(() => {
+ /*  useEffect(() => {
     fetchInitialTransactions();
   }, []);
 
@@ -68,7 +68,7 @@ export function useBurnTransactions() {
     return () => {
       clearInterval(interval);
     };
-  }, [checkForNewTransactions, lastTimestamp]);
+  }, [checkForNewTransactions, lastTimestamp]); */
 
   return {
     transactions,

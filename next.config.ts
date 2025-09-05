@@ -37,29 +37,16 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "imperadortoken.com",
-      },
-      {
-        protocol: "https",
-        hostname: "www.imperadortoken.com",
-      },
-      {
-        protocol: "https",
-        hostname: "adr-token.vercel.app",
-      },
-      {
-        protocol: "https",
-        hostname: "adriano-imperador.gitbook.io",
-      },
-    ],
+    unoptimized: true,
+    domains: ["localhost"],
   },
   compress: true,
   poweredByHeader: false,
   experimental: {
-    optimizePackageImports: ['@fortawesome/react-fontawesome', '@fortawesome/free-solid-svg-icons'],
+    optimizePackageImports: [
+      "@fortawesome/react-fontawesome",
+      "@fortawesome/free-solid-svg-icons",
+    ],
   },
 };
 

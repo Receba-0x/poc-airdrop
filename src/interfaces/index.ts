@@ -4,3 +4,12 @@ export enum StakingPeriod {
   Minutes5 = "minutes5",
   Minutes10 = "minutes10",
 }
+
+export interface ILeaderboard {
+  id: number;
+  avatar: string;
+  username: string;
+  rank: number;
+  winnings: number;
+  last_win: number;
+}
