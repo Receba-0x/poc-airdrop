@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useAccount } from "wagmi";
 import axios from "axios";
 import { Button } from "../Button";
 import Image from "next/image";
@@ -42,7 +41,6 @@ export function ClaimFlow({
   onBurnComplete,
 }: ClaimFlowProps) {
   const { t } = useLanguage();
-  const { address } = useAccount();
 
   const [currentStep, setCurrentStep] = useState<ClaimStep>("overview");
   const [existingAddresses, setExistingAddresses] = useState<any[]>([]);
@@ -77,16 +75,11 @@ export function ClaimFlow({
   const currentStepIndex = steps.indexOf(currentStep);
   const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
-  useEffect(() => {
-    if (isOpen && address) {
-      fetchExistingAddresses();
-    }
-  }, [isOpen, address]);
 
   const fetchExistingAddresses = async () => {
     try {
       const response = await axios.get(
-        `/api/check-shipping-address?wallet=${address}`
+        `/api/check-shipping-address?wallet=ddd`
       );
       if (response.data.success && response.data.hasAddress) {
         const addresses = Array.isArray(response.data.data)
@@ -137,7 +130,7 @@ export function ClaimFlow({
 
     try {
       const payload: any = {
-        walletAddress: address,
+        walletAddress: "ddd",
         transactionId: nft.tokenId,
         itemName: nft.name,
         timestamp: new Date().toISOString(),

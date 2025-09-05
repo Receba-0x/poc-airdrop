@@ -397,13 +397,13 @@ export function TransactionPurchaseModal({
             )}
             <Button
               className={status === "error" ? "flex-1" : "w-full"}
-              variant={status === "success" ? "secondary" : "primary"}
+              variant={status === "success" ? "secondary" : "default"}
               onClick={onClose}
             >
               {status === "success" ? t("common.done") : t("purchase.tryAgain")}
             </Button>
             {status === "success" && (
-              <Button className="w-full" variant="primary" onClick={onBuyAgain}>
+              <Button className="w-full" variant="default" onClick={onBuyAgain}>
                 {t("common.buyAgain")}
               </Button>
             )}

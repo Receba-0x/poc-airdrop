@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { ethers } from "ethers";
 
 import chuteiraMetadata from "../../public/metadata/chuteira.json";
 import iphoneMetadata from "../../public/metadata/iphone.json";

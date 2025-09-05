@@ -103,11 +103,7 @@ export function NFTModal({ nft, isOpen, onClose, onClaim }: NFTModalProps) {
                 Your physical item is being processed for delivery.
               </p>
             </div>
-            <Button
-              onClick={handleModalClose}
-              className="w-full bg-green-500 hover:bg-green-600 py-2"
-              variant="primary"
-            >
+            <Button onClick={handleModalClose} variant="default">
               {t("common.done") || "Done"}
             </Button>
           </div>
@@ -131,11 +127,7 @@ export function NFTModal({ nft, isOpen, onClose, onClaim }: NFTModalProps) {
                 "This NFT can be exchanged for a physical item. Starting the claim process will permanently burn this NFT."}
             </p>
           </div>
-          <Button
-            onClick={handleClaimClick}
-            variant="primary"
-            className="w-full  text-white font-semibold py-2 rounded-lg transition-all duration-300 transform hover:scale-105"
-          >
+          <Button onClick={handleClaimClick} variant="default">
             {t("nfts.claimItem") || "Claim Physical Item"}
           </Button>
         </div>

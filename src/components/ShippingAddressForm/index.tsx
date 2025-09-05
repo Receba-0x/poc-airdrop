@@ -5,7 +5,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import axios from "axios";
 import { TeamSelectionModal } from "../TeamSelectionModal";
 import { Button } from "../Button";
-import { useAccount } from "wagmi";
 
 interface ShippingAddressFormProps {
   isOpen: boolean;
@@ -27,7 +26,6 @@ export function ShippingAddressForm({
   onBurnComplete,
 }: ShippingAddressFormProps) {
   const { t } = useLanguage();
-  const { address } = useAccount();
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -54,6 +52,8 @@ export function ShippingAddressForm({
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
 
   const isJersey = prizeId === 5;
+
+  const address = "ddd";
 
   useEffect(() => {
     if (isOpen && address) {
