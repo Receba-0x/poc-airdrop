@@ -1,8 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
-import { ERC721__factory } from "@/contracts";
-import { ERC721Address } from "@/constants";
 import { ethers } from "ethers";
 
 import chuteiraMetadata from "../../public/metadata/chuteira.json";
@@ -13,6 +10,7 @@ import tshirt1Metadata from "../../public/metadata/t-shirt1.json";
 import tshirt2Metadata from "../../public/metadata/t-shirt2.json";
 import tshirt3Metadata from "../../public/metadata/t-shirt3.json";
 import tshirt4Metadata from "../../public/metadata/t-shirt4.json";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 interface NFTMetadata {
   name: string;
@@ -57,7 +55,7 @@ interface NFT {
 }
 
 export function useNFTs() {
-  const { address, isConnected } = useAccount();
+  const { publicKey, connected } = useWallet();
   const [nfts, setNfts] = useState<NFT[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -128,7 +126,8 @@ export function useNFTs() {
   };
 
   const fetchNFTs = async () => {
-    if (!address) return;
+    return;
+    /*  if (!address) return;
 
     setIsLoading(true);
     setError(null);
@@ -172,7 +171,7 @@ export function useNFTs() {
       setNfts([]);
     } finally {
       setIsLoading(false);
-    }
+    } */
   };
 
   const refreshNFTs = () => {
@@ -180,13 +179,13 @@ export function useNFTs() {
   };
 
   useEffect(() => {
-    if (isConnected && address) {
+    if (connected && publicKey) {
       fetchNFTs();
     } else {
       setNfts([]);
       setError(null);
     }
-  }, [address, isConnected]);
+  }, [publicKey, connected]);
 
   return {
     nfts,

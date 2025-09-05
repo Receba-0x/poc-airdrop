@@ -1,41 +1,68 @@
-"use client";
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
 
-import React from "react";
-import { motion, HTMLMotionProps } from "framer-motion";
+import { cn } from "@/utils/cn";
+import { ChevronRightIcon } from "lucide-react";
 
-interface ButtonProps extends Omit<HTMLMotionProps<"button">, "disabled"> {
-  className?: string;
-  children: React.ReactNode;
-  variant?: "primary" | "secondary";
-  disabled?: boolean;
-}
+const buttonVariants = cva(
+  "cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  {
+    variants: {
+      variant: {
+        default:
+          "bg-primary-9 text-primary-12 shadow-xs hover:bg-primary-7 active:bg-primary-5 hover:text-primary-11",
+        destructive:
+          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        outline:
+          "border border-neutral-6 bg-transparent hover:bg-neutral-4 active:bg-neutral-6 shadow-xs",
+        secondary:
+          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+        ghost:
+          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-9 px-4 py-2 has-[>svg]:px-3",
+        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        icon: "size-9",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
 
-export const Button = ({
-  className = "",
-  children,
-  variant = "primary",
-  disabled = false,
+function Button({
+  className,
+  variant,
+  size,
+  asChild = false,
   ...props
-}: ButtonProps) => {
-  const baseStyles =
-    "px-6 py-2 rounded-md font-bold transition-all duration-300 ease-in-out flex justify-center items-center gap-2";
-  const variantStyles = {
-    primary:
-      "bg-gradient-to-br hover:from-[#24682B] hover:to-[#0B3B10] from-[#0B3B10] to-[#24682B] text-[#ADF0B4] border-[1.5px] border-[#28D939] hover:scale-[1.02]",
-    secondary:
-      "bg-transparent hover:bg-[#222] active:bg-[#313131] text-[#B4B4B4] border-[1.5px] border-[#484848] hover:scale-[1.02]",
-    disabled: "cursor-not-allowed bg-[#2A2A2A] text-[#7B7B7B]",
-  };
+}: React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+  }) {
+  const Comp = asChild ? Slot : "button";
 
   return (
-    <motion.button
-      className={`${baseStyles} ${
-        variantStyles[disabled ? "disabled" : variant]
-      } ${className}`}
-      disabled={disabled}
+    <Comp
+      data-slot="button"
+      className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    >
-      {children}
-    </motion.button>
+    />
   );
-};
+}
+
+function ButtonIcon() {
+  return (
+    <Button variant="secondary" size="icon" className="size-8">
+      <ChevronRightIcon />
+    </Button>
+  );
+}
+
+export { Button, buttonVariants, ButtonIcon };

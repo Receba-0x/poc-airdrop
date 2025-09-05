@@ -11,26 +11,6 @@
     {
       "trait_type": "Rarity",
       "value": "Rare"
-    },
-    {
-      "trait_type": "Signed",
-      "value": "Yes"
-    },
-    {
-      "trait_type": "Size",
-      "value": "Official"
-    },
-    {
-      "trait_type": "Condition",
-      "value": "New"
-    },
-    {
-      "trait_type": "Material",
-      "value": "100% TPU (Thermoplastic Polyurethane)"
-    },
-    {
-      "trait_type": "Type",
-      "value": "Match Ball"
     }
   ]
 }

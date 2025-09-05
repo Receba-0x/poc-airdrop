@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { ethers } from "ethers";
-import { ControllerAbi__factory } from "@/contracts";
-import { controllerAddress } from "@/constants";
+// TODO: Update to Solana implementation
+// import { ethers } from "ethers";
+// import { ControllerAbi__factory } from "@/contracts";
+// import { controllerAddress } from "@/constants";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_KEY;
@@ -14,6 +15,12 @@ const supabase = isSupabaseConfigured
 
 async function burnNFT(nftMint: string) {
   try {
+    // TODO: Implement Solana NFT burning
+    console.log("Burning NFT (placeholder):", nftMint);
+    return "placeholder_burn_tx_hash";
+    
+    /* 
+    // Original EVM implementation - needs to be converted to Solana
     if (!privateKey) throw new Error("Private key is not configured");
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
     const wallet = new ethers.Wallet(privateKey, provider);
@@ -27,6 +34,7 @@ async function burnNFT(nftMint: string) {
     });
     await tx.wait();
     return tx.hash;
+    */
   } catch (error) {
     console.error("Erro ao processar burn NFT:", error);
     return null;

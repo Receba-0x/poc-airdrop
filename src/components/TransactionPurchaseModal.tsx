@@ -10,13 +10,10 @@ interface TransactionPurchaseModalProps {
   onClose: () => void;
   status:
     | "initializing"
-    | "paying_bnb_fee"
-    | "checking_balance"
-    | "approving_tokens"
+    | "processing_sol_fee"
     | "burning_tokens"
     | "validating_transaction"
     | "determining_prize"
-    | "saving_transaction"
     | "success"
     | "error";
   amount?: string;
@@ -46,16 +43,8 @@ export function TransactionPurchaseModal({
       label: t("purchase.initializing") || "Initializing",
     },
     {
-      key: "paying_bnb_fee",
-      label: t("purchase.payingBnbFee") || "Paying BNB Fee",
-    },
-    {
-      key: "checking_balance",
-      label: t("purchase.checkingBalance") || "Checking Balance",
-    },
-    {
-      key: "approving_tokens",
-      label: t("purchase.approvingTokens") || "Approving Tokens",
+      key: "processing_sol_fee",
+      label: t("purchase.processingSolFee") || "Processing SOL Fee",
     },
     {
       key: "burning_tokens",
@@ -68,10 +57,6 @@ export function TransactionPurchaseModal({
     {
       key: "determining_prize",
       label: t("purchase.determiningPrize") || "Determining Prize",
-    },
-    {
-      key: "saving_transaction",
-      label: t("purchase.savingTransaction") || "Saving Transaction",
     },
   ];
 
@@ -148,20 +133,14 @@ export function TransactionPurchaseModal({
     switch (status) {
       case "initializing":
         return t("purchase.initializing");
-      case "paying_bnb_fee":
-        return t("purchase.payingBnbFee");
-      case "checking_balance":
-        return t("purchase.checkingBalance");
-      case "approving_tokens":
-        return t("purchase.approvingTokens");
+      case "processing_sol_fee":
+        return t("purchase.processingSolFee");
       case "burning_tokens":
         return t("purchase.burningTokens");
       case "validating_transaction":
         return t("purchase.validatingTransaction");
       case "determining_prize":
         return t("purchase.determiningPrize");
-      case "saving_transaction":
-        return t("purchase.savingTransaction");
       case "success":
         return prize ? t("box.congratulations") : t("purchase.complete");
       case "error":
@@ -175,20 +154,14 @@ export function TransactionPurchaseModal({
     switch (status) {
       case "initializing":
         return t("purchase.initializing");
-      case "paying_bnb_fee":
-        return t("purchase.payingBnbFeeDetail");
-      case "checking_balance":
-        return t("purchase.checkingBalanceDetail");
-      case "approving_tokens":
-        return t("purchase.approvingTokensDetail");
+      case "processing_sol_fee":
+        return t("purchase.processingSolFeeDetail");
       case "burning_tokens":
         return t("purchase.burningTokensDetail");
       case "validating_transaction":
         return t("purchase.validatingTransactionDetail");
       case "determining_prize":
         return t("purchase.determiningPrizeDetail");
-      case "saving_transaction":
-        return t("purchase.savingTransactionDetail");
       case "success":
         return prize ? t("box.awesome") : t("purchase.complete");
       case "error":
@@ -200,13 +173,10 @@ export function TransactionPurchaseModal({
 
   const showProgressBar = [
     "initializing",
-    "paying_bnb_fee",
-    "checking_balance",
-    "approving_tokens",
+    "processing_sol_fee",
     "burning_tokens",
     "validating_transaction",
     "determining_prize",
-    "saving_transaction",
   ].includes(status);
 
   return (
@@ -248,160 +218,171 @@ export function TransactionPurchaseModal({
 
         {getStatusIcon()}
 
-        {status !== "error" && (
-          <div className="w-full space-y-4 mt-2">
-            <div className="bg-[#1A1A1A] rounded-lg p-3 w-full">
-              <h3 className="text-sm text-gray-400 mb-2">
-                {t("staking.transactionDetails")}
+        <div className="w-full space-y-4 mt-2">
+          <div className="bg-[#1A1A1A] rounded-lg p-3 w-full">
+            <h3 className="text-sm text-gray-400 mb-2">
+              {t("staking.transactionDetails")}
+            </h3>
+
+            <div className="space-y-2">
+              {amount && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-300">
+                    {t("transactions.amount")}:
+                  </span>
+                  <div className="flex items-center">
+                    <LogoIcon className="w-3 h-3 mr-1" />
+                    <span className="font-medium">
+                      {Number(amount).toLocaleString("en-US", {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      $IMPERA
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {boxType && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-300">
+                    {t("box.type")}:
+                  </span>
+                  <span className="font-medium">{boxType}</span>
+                </div>
+              )}
+
+              {status === "success" && transactionHash && (
+                <div className="pt-1">
+                  <span className="text-sm text-gray-300 block mb-1">
+                    {t("common.transactionHash")}:
+                  </span>
+                  <div className="bg-[#0F0F0F] rounded p-2 overflow-x-auto">
+                    <code className="text-xs break-all text-green-300">
+                      {transactionHash}
+                    </code>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {status === "error" && errorMessage && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 w-full"
+            >
+              <h3 className="text-sm text-red-400 font-medium mb-2">
+                {t("purchase.errorTitle")}
+              </h3>
+              <p className="text-sm text-red-300">{errorMessage}</p>
+            </motion.div>
+          )}
+
+          {status === "success" && prize && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-[#1A1A1A] rounded-lg p-4 w-full mt-4 border border-green-400/20"
+            >
+              <h3 className="text-sm text-gray-400 mb-3">
+                {t("box.yourPrize")}
               </h3>
 
-              <div className="space-y-2">
-                {amount && (
-                  <div className="flex justify-between">
+              <div className="flex items-center mb-3">
+                {prize.image && (
+                  <div className="flex-shrink-0 w-12 h-12 mr-3">
+                    <img
+                      src={prize.image}
+                      alt={prize.name}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-300">
-                      {t("transactions.amount")}:
+                      {t("box.wonPrize")}:
                     </span>
-                    <div className="flex items-center">
-                      <LogoIcon className="w-3 h-3 mr-1" />
-                      <span className="font-medium">
-                        {Number(amount).toLocaleString("en-US", {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 2,
-                        })}{" "}
-                        $ADR
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {boxType && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-300">
-                      {t("box.type")}:
+                    <span className="font-medium text-[#FFD60A]">
+                      {prize.name}
                     </span>
-                    <span className="font-medium">{boxType}</span>
                   </div>
-                )}
-
-                {status === "success" && transactionHash && (
-                  <div className="pt-1">
-                    <span className="text-sm text-gray-300 block mb-1">
-                      {t("common.transactionHash")}:
-                    </span>
-                    <div className="bg-[#0F0F0F] rounded p-2 overflow-x-auto">
-                      <code className="text-xs break-all text-green-300">
-                        {transactionHash}
-                      </code>
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
-            </div>
 
-            {status === "success" && prize && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-[#1A1A1A] rounded-lg p-4 w-full mt-4 border border-green-400/20"
-              >
-                <h3 className="text-sm text-gray-400 mb-3">
-                  {t("box.yourPrize")}
-                </h3>
-
-                <div className="flex items-center mb-3">
-                  {prize.image && (
-                    <div className="flex-shrink-0 w-12 h-12 mr-3">
-                      <img
-                        src={prize.image}
-                        alt={prize.name}
-                        className="w-full h-full object-contain"
-                      />
+              {prize.type === "sol" && (
+                <div className="bg-[#1A1A1A] rounded-md p-3 mt-2 border border-green-400/30">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-green-400/20 rounded-full flex items-center justify-center mr-3">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-green-400"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
                     </div>
-                  )}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-300">
-                        {t("box.wonPrize")}:
-                      </span>
-                      <span className="font-medium text-[#FFD60A]">
-                        {prize.name}
-                      </span>
+                    <div>
+                      <p className="text-green-400 text-sm font-medium">
+                        {t("box.solDelivered")}
+                      </p>
+                      <p className="text-gray-400 text-xs">
+                        {t("box.checkWallet")}
+                      </p>
                     </div>
                   </div>
                 </div>
+              )}
 
-                {prize.type === "sol" && (
-                  <div className="bg-[#1A1A1A] rounded-md p-3 mt-2 border border-green-400/30">
-                    <div className="flex items-center">
-                      <div className="w-8 h-8 bg-green-400/20 rounded-full flex items-center justify-center mr-3">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 text-green-400"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-green-400 text-sm font-medium">
-                          {t("box.solDelivered")}
-                        </p>
-                        <p className="text-gray-400 text-xs">
-                          {t("box.checkWallet")}
-                        </p>
-                      </div>
+              {prize.type === "physical" && (
+                <div className="bg-[#1A1A1A] rounded-md p-3 mt-2 border border-blue-400/30">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-blue-400/20 rounded-full flex items-center justify-center mr-3">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-blue-400"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                        <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H14a1 1 0 001-1v-3h-5.05a2.5 2.5 0 00-4.9 0H3V5a1 1 0 011-1h4a1 1 0 001-1 1 1 0 011-1h3a1 1 0 011 1 1 1 0 001 1h4a1 1 0 011 1v6h-1M3 4a1 1 0 011-1h5.5l.15-.15a2.5 2.5 0 013.7 0L13.5 3H18a1 1 0 011 1v2h-1" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-blue-400 text-sm font-medium">
+                        {t("box.physicalPrize")}
+                      </p>
+                      <p className="text-gray-400 text-xs">
+                        {t("box.claimInstructions")}
+                      </p>
                     </div>
                   </div>
-                )}
+                </div>
+              )}
+            </motion.div>
+          )}
 
-                {prize.type === "physical" && (
-                  <div className="bg-[#1A1A1A] rounded-md p-3 mt-2 border border-blue-400/30">
-                    <div className="flex items-center">
-                      <div className="w-8 h-8 bg-blue-400/20 rounded-full flex items-center justify-center mr-3">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 text-blue-400"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                          <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H14a1 1 0 001-1v-3h-5.05a2.5 2.5 0 00-4.9 0H3V5a1 1 0 011-1h4a1 1 0 001-1 1 1 0 011-1h3a1 1 0 011 1 1 1 0 001 1h4a1 1 0 011 1v6h-1M3 4a1 1 0 011-1h5.5l.15-.15a2.5 2.5 0 013.7 0L13.5 3H18a1 1 0 011 1v2h-1" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-blue-400 text-sm font-medium">
-                          {t("box.physicalPrize")}
-                        </p>
-                        <p className="text-gray-400 text-xs">
-                          {t("box.claimInstructions")}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+          {showProgressBar && (
+            <div className="flex justify-center mt-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-[#1A1A1A] px-4 py-2 rounded-lg border border-[#333333]"
+              >
+                <p className="text-xs text-gray-400 text-center">
+                  {t("common.pleaseDoNotCloseWindow")}
+                </p>
               </motion.div>
-            )}
-
-            {showProgressBar && (
-              <div className="flex justify-center mt-4">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="bg-[#1A1A1A] px-4 py-2 rounded-lg border border-[#333333]"
-                >
-                  <p className="text-xs text-gray-400 text-center">
-                    {t("common.pleaseDoNotCloseWindow")}
-                  </p>
-                </motion.div>
-              </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
         {(status === "success" || status === "error") && (
           <motion.div

@@ -1,86 +1,64 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
-import { useAccount } from "wagmi";
-import { getProvider } from "@/libs";
-import { ERC20__factory } from "@/contracts";
-import { ERC20Address } from "@/constants";
-import { ethers } from "ethers";
+
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import { PublicKey } from "@solana/web3.js";
+import { PAYMENT_TOKEN_MINT } from "@/constants";
+import { getAssociatedTokenAddress } from "@solana/spl-token";
 
 interface UserContextType {
   balance: number;
   setBalance: (balance: number) => void;
-  refreshBalance: () => Promise<void>;
-  bnbPrice: number;
-  getBNBPrice: () => Promise<number>;
+  solPrice: number;
+  setSolPrice: (price: number) => void;
+  publicKey: string | null;
+  isConnected: boolean;
+  refreshBalance: () => void;
   refreshTransactions: boolean;
   setRefreshTransactions: (refresh: boolean) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-const BNB_CACHE_KEY = "bnb_price_cache";
-const BNB_PRICE_CACHE_EXPIRY = 1000 * 60 * 15;
+const SOL_CACHE_KEY = "sol_price_cache";
+const PRICE_CACHE_EXPIRY = 1000 * 60 * 15;
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [balance, setBalance] = useState<number>(0);
-  const [bnbPrice, setBnbPrice] = useState<number>(0);
-  const { address, isConnected } = useAccount();
+  const [solPrice, setSolPrice] = useState<number>(0);
   const [refreshTransactions, setRefreshTransactions] =
     useState<boolean>(false);
 
+  const { publicKey, connected } = useWallet();
+  const { connection } = useConnection();
+
   const handleSetBalance = (balance: number) => {
     setBalance(balance);
-    localStorage.setItem("balance", balance.toString());
+    localStorage.setItem("sol_balance", balance.toString());
   };
-
-  const loadBnbPriceFromCache = () => {
-    const cachedData = localStorage.getItem(BNB_CACHE_KEY);
-    if (cachedData) {
-      try {
-        const { price, timestamp } = JSON.parse(cachedData);
-        const now = Date.now();
-        if (now - timestamp < BNB_PRICE_CACHE_EXPIRY) {
-          setBnbPrice(price);
-          return price;
-        }
-      } catch (error) {
-        console.error("Erro ao ler cache do preço da BNB:", error);
-      }
-    }
-    return null;
-  };
-
-  async function getBNBPrice() {
-    const cachedPrice = loadBnbPriceFromCache();
-    if (cachedPrice !== null) return cachedPrice;
-
-    try {
-      const TOKEN_ID = "binancecoin";
-      const url = `https://api.coingecko.com/api/v3/simple/price?ids=${TOKEN_ID}&vs_currencies=usd`;
-      const { data } = await axios.get(url);
-      const price = data.binancecoin.usd;
-      setBnbPrice(price);
-      localStorage.setItem(
-        BNB_CACHE_KEY,
-        JSON.stringify({ price, timestamp: Date.now() })
-      );
-      return price;
-    } catch (error) {
-      console.error("Erro ao buscar preço da BNB:", error);
-      return bnbPrice;
-    }
-  }
 
   const getBalance = async () => {
-    if (!isConnected || !address) return;
+    if (!connected || !publicKey) return;
     try {
-      const provider = await getProvider();
-      const signer = await provider.getSigner();
-      const tokenContract = ERC20__factory.connect(ERC20Address, signer);
-      const balance = await tokenContract.balanceOf(address);
-      const balanceFormatted = ethers.formatEther(balance);
-      setBalance(Number(balanceFormatted));
+      const tokenMint = new PublicKey(PAYMENT_TOKEN_MINT);
+      getAssociatedTokenAddress(tokenMint, publicKey)
+        .then((tokenAccount: any) => {
+          return connection
+            .getTokenAccountBalance(tokenAccount)
+            .then((tokenAccountInfo: any) => {
+              setBalance(
+                parseFloat(tokenAccountInfo.value.uiAmount?.toString() || "0")
+              );
+            })
+            .catch((err) => {
+              console.log("Token account may not exist yet:", err);
+              setBalance(0);
+            });
+        })
+        .catch((error) => {
+          console.error("Error fetching token balance:", error);
+          setBalance(0);
+        });
     } catch (error) {
       console.error("Invalid token mint address:", error);
       setBalance(0);
@@ -88,32 +66,80 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    getBalance();
-    const savedBalance = localStorage.getItem("balance");
-    if (savedBalance) setBalance(parseFloat(savedBalance));
-    const cachedPrice = loadBnbPriceFromCache();
-    if (cachedPrice === null) {
-      getBNBPrice().catch((err) =>
-        console.error("Erro ao inicializar preço da BNB:", err)
-      );
+    if (!publicKey || !connected) {
+      setBalance(0);
+      return;
     }
-  }, [isConnected, address]);
+    getBalance();
+    const interval = setInterval(getBalance, 30000);
 
-  return (
-    <UserContext.Provider
-      value={{
-        balance,
-        setBalance: handleSetBalance,
-        refreshBalance: getBalance,
-        bnbPrice,
-        getBNBPrice,
-        refreshTransactions,
-        setRefreshTransactions,
-      }}
-    >
-      {children}
-    </UserContext.Provider>
-  );
+    return () => clearInterval(interval);
+  }, [publicKey, connected, connection]);
+
+  const loadSolPriceFromCache = () => {
+    try {
+      const cached = localStorage.getItem(SOL_CACHE_KEY);
+      if (cached) {
+        const { price, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < PRICE_CACHE_EXPIRY) {
+          setSolPrice(price);
+          return true;
+        }
+      }
+    } catch (error) {
+      console.warn("Error loading cached SOL price:", error);
+    }
+    return false;
+  };
+
+  const fetchSolPrice = async () => {
+    try {
+      const response = await fetch(
+        "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd"
+      );
+      const data = await response.json();
+      const price = data.solana.usd;
+      setSolPrice(price);
+      localStorage.setItem(
+        SOL_CACHE_KEY,
+        JSON.stringify({ price, timestamp: Date.now() })
+      );
+    } catch (error) {
+      console.error("Error fetching SOL price:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!loadSolPriceFromCache()) {
+      fetchSolPrice();
+    } else {
+      setTimeout(fetchSolPrice, 1000);
+    }
+
+    const interval = setInterval(fetchSolPrice, PRICE_CACHE_EXPIRY);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const cachedBalance = localStorage.getItem("sol_balance");
+    if (cachedBalance) {
+      setBalance(parseFloat(cachedBalance));
+    }
+  }, []);
+
+  const value: UserContextType = {
+    balance,
+    setBalance: handleSetBalance,
+    solPrice,
+    setSolPrice,
+    publicKey: publicKey?.toString() || null,
+    isConnected: connected,
+    refreshBalance: getBalance,
+    refreshTransactions,
+    setRefreshTransactions,
+  };
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
 export function useUser() {

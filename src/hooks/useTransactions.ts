@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import apiClient from "@/libs/axios";
-import { useAccount } from "wagmi";
+import { useUser } from "@/contexts/UserContext";
 
 export type Transaction = {
   id: string;
@@ -28,7 +28,7 @@ const transactionCache = new Map<
 const CACHE_DURATION = 30000;
 
 export function useTransactions(initialLimit = 10) {
-  const { address, isConnected } = useAccount();
+  const { publicKey, isConnected } = useUser();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -92,10 +92,10 @@ export function useTransactions(initialLimit = 10) {
 
   const fetchTransactions = useCallback(
     async (force = false) => {
-      if (!address) return;
+      if (!publicKey) return;
 
       // Check cache first (unless forced refresh)
-      const cacheKey = address;
+      const cacheKey = publicKey;
       const cached = transactionCache.get(cacheKey);
       const now = Date.now();
 
@@ -111,7 +111,7 @@ export function useTransactions(initialLimit = 10) {
 
       try {
         const { data } = await apiClient.get("/api/get-transactions", {
-          params: { wallet: address },
+          params: { wallet: publicKey },
           timeout: 10000, // 10 second timeout
         });
 
@@ -162,7 +162,7 @@ export function useTransactions(initialLimit = 10) {
         setIsLoading(false);
       }
     },
-    [address, formatTransaction, limit]
+    [publicKey, formatTransaction, limit]
   );
 
   // Load more transactions
@@ -186,7 +186,7 @@ export function useTransactions(initialLimit = 10) {
   }, [fetchTransactions, initialLimit]);
 
   useEffect(() => {
-    if (isConnected && address) {
+    if (isConnected && publicKey) {
       fetchTransactions(false);
     } else {
       setTransactions([]);
@@ -194,7 +194,7 @@ export function useTransactions(initialLimit = 10) {
       setError(null);
       setHasMore(true);
     }
-  }, [isConnected, address, fetchTransactions]);
+  }, [isConnected, publicKey, fetchTransactions]);
 
   // Memoize return value to prevent unnecessary re-renders
   return useMemo(

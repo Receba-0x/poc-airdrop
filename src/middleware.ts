@@ -153,6 +153,7 @@ export async function middleware(request: NextRequest) {
     "https://imperadortoken.com",
     "https://www.imperadortoken.com",
     "https://adr-token.vercel.app",
+    "https://adr-token-git-staging-imperador-token.vercel.app",
     "https://adriano-imperador.gitbook.io",
     "https://api.coingecko.com",
     "https://bnb-testnet.g.alchemy.com",
@@ -163,6 +164,14 @@ export async function middleware(request: NextRequest) {
     "wss://relay.walletconnect.org",
     "https://registry.walletconnect.com",
     "https://explorer-api.walletconnect.com",
+    // Solana API URLs
+    
+    "https://api.devnet.solana.com",
+    "https://api.mainnet-beta.solana.com",
+    "https://solana-devnet.g.alchemy.com",
+    "https://solana-mainnet.g.alchemy.com",
+    "https://rpc.helius.xyz",
+    "https://api.solana.fm",
   ];
 
   if (isDev) {

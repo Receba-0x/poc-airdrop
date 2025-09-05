@@ -1,69 +1,60 @@
 "use client";
 
-import { useWeb3Modal } from "@web3modal/wagmi/react";
-import { useAccount, useDisconnect } from "wagmi";
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { createPortal } from "react-dom";
-import { useUser } from "@/contexts/UserContext";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 interface WalletConnectButtonProps {
   className?: string;
   style?: React.CSSProperties;
 }
 
-export function WalletConnectButton({
-  className = "",
-  style,
-}: WalletConnectButtonProps) {
-  const { open } = useWeb3Modal();
-  const { address, isConnected } = useAccount();
-  const { disconnect } = useDisconnect();
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({
-    top: 0,
-    right: 0,
+interface DropdownMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+  buttonRef: React.RefObject<HTMLButtonElement | null>;
+  publicKey: string;
+  balance: number;
+}
+
+// Utility functions
+const truncateAddress = (address: string): string => {
+  if (!address) return "";
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+};
+
+const formatBalance = (balance: number): string => {
+  return balance.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
   });
-  const { balance } = useUser();
-  const buttonRef = useRef<HTMLButtonElement>(null);
+};
+
+// Dropdown Menu Component
+function DropdownMenu({
+  isOpen,
+  onClose,
+  buttonRef,
+  publicKey,
+  balance,
+}: DropdownMenuProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ top: 0, right: 0 });
+  const { disconnect } = useWallet();
+  const { setVisible } = useWalletModal();
 
-  const truncateAddress = (addr: string) => {
-    if (!addr) return "";
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  };
-
-  const handleConnect = () => {
-    open();
-  };
-
-  const handleDisconnect = () => {
-    disconnect();
-    setShowDropdown(false);
-  };
-
-  const handleClearCache = () => {
-    import("@/libs").then(({ clearWalletCache }) => {
-      const success = clearWalletCache();
-      if (success) {
-        window.location.reload();
-      } else {
-        alert("❌ Erro ao limpar cache. Tente manualmente.");
-      }
-    });
-    setShowDropdown(false);
-  };
-
-  const toggleDropdown = () => {
-    if (!showDropdown && buttonRef.current) {
+  useEffect(() => {
+    if (isOpen && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      setDropdownPosition({
+      setPosition({
         top: rect.bottom + window.scrollY + 8,
         right: window.innerWidth - rect.right,
       });
     }
-    setShowDropdown(!showDropdown);
-  };
+  }, [isOpen, buttonRef]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -73,41 +64,71 @@ export function WalletConnectButton({
         buttonRef.current &&
         !buttonRef.current.contains(event.target as Node)
       ) {
-        setShowDropdown(false);
+        onClose();
       }
     };
 
-    if (showDropdown) {
+    if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showDropdown]);
+  }, [isOpen, onClose, buttonRef]);
 
-  if (!address) {
-    return (
-      <motion.button
-        ref={buttonRef}
-        onClick={handleConnect}
-        className={`${className}`}
-        style={style}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        Connect Wallet
-      </motion.button>
-    );
-  }
+  const handleDisconnect = async () => {
+    try {
+      await disconnect();
+      onClose();
+    } catch (error) {
+      console.error("Error disconnecting wallet:", error);
+    }
+  };
 
-  const DropdownContent = () => (
+  const handleSwitchWallet = () => {
+    setVisible(true);
+    onClose();
+  };
+
+  const handleClearCache = () => {
+    try {
+      // Clear Solana wallet cache
+      localStorage.removeItem("walletName");
+      localStorage.removeItem("walletAdapter");
+
+      // Clear any wallet-related localStorage keys
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (
+          key &&
+          (key.includes("solana") ||
+            key.includes("wallet") ||
+            key.includes("phantom") ||
+            key.includes("solflare"))
+        ) {
+          localStorage.removeItem(key);
+        }
+      }
+
+      console.log("✅ Cache de wallet limpa com sucesso!");
+      window.location.reload();
+    } catch (error) {
+      console.error("❌ Erro ao limpar cache:", error);
+      alert("❌ Erro ao limpar cache. Tente manualmente.");
+    }
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return createPortal(
     <div
       ref={dropdownRef}
       style={{
         position: "fixed",
         top: 64,
-        right: dropdownPosition.right - 20,
+        right: position.right - 20,
         width: "256px",
         backgroundColor: "#1A1A1A",
         border: "1px solid #333",
@@ -115,14 +136,10 @@ export function WalletConnectButton({
         boxShadow:
           "0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1)",
         zIndex: 999999999,
-        opacity: 1,
-        visibility: "visible" as const,
-        pointerEvents: "auto" as const,
-        transform: "none",
-        filter: "none",
         overflow: "hidden",
       }}
     >
+      {/* Wallet Info */}
       <div
         style={{
           padding: "16px",
@@ -135,31 +152,28 @@ export function WalletConnectButton({
             style={{
               fontSize: "14px",
               color: "#9CA3AF",
-              opacity: 1,
               fontFamily: "inherit",
             }}
           >
-            Wallet:
+            Address:
           </p>
           <p
             style={{
               color: "#FFFFFF",
               fontWeight: 500,
               fontSize: "14px",
-              opacity: 1,
               fontFamily: "inherit",
             }}
           >
-            {truncateAddress(address)}
+            {truncateAddress(publicKey)}
           </p>
         </div>
 
-        <div className="flex items-center w-full justify-between gap-2">
+        <div className="flex items-center w-full justify-between gap-2 mt-2">
           <p
             style={{
               fontSize: "14px",
               color: "#9CA3AF",
-              opacity: 1,
               fontFamily: "inherit",
             }}
           >
@@ -170,21 +184,18 @@ export function WalletConnectButton({
               color: "#FFFFFF",
               fontWeight: 500,
               fontSize: "14px",
-              opacity: 1,
               fontFamily: "inherit",
             }}
           >
-            {balance.toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            {formatBalance(balance)} SOL
           </p>
         </div>
       </div>
 
+      {/* Menu Items */}
       <div style={{ padding: "8px", backgroundColor: "#1A1A1A" }}>
         <button
-          onClick={handleConnect}
+          onClick={handleSwitchWallet}
           style={{
             width: "100%",
             textAlign: "left",
@@ -196,7 +207,6 @@ export function WalletConnectButton({
             fontSize: "14px",
             cursor: "pointer",
             transition: "background-color 0.2s",
-            opacity: 1,
             fontFamily: "inherit",
           }}
           onMouseEnter={(e) => {
@@ -206,8 +216,9 @@ export function WalletConnectButton({
             e.currentTarget.style.backgroundColor = "transparent";
           }}
         >
-          Switch Network
+          Switch Wallet
         </button>
+
         <button
           onClick={handleClearCache}
           style={{
@@ -221,7 +232,6 @@ export function WalletConnectButton({
             fontSize: "14px",
             cursor: "pointer",
             transition: "background-color 0.2s",
-            opacity: 1,
             fontFamily: "inherit",
           }}
           onMouseEnter={(e) => {
@@ -231,8 +241,9 @@ export function WalletConnectButton({
             e.currentTarget.style.backgroundColor = "transparent";
           }}
         >
-          Clean Cache
+          Clear Cache
         </button>
+
         <button
           onClick={handleDisconnect}
           style={{
@@ -246,7 +257,6 @@ export function WalletConnectButton({
             fontSize: "14px",
             cursor: "pointer",
             transition: "background-color 0.2s",
-            opacity: 1,
             fontFamily: "inherit",
           }}
           onMouseEnter={(e) => {
@@ -259,20 +269,96 @@ export function WalletConnectButton({
           Disconnect
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
+}
+
+// Custom hook for wallet balance
+function useWalletBalance() {
+  const { publicKey } = useWallet();
+  const { connection } = useConnection();
+  const [balance, setBalance] = useState<number>(0);
+
+  useEffect(() => {
+    if (!publicKey) {
+      setBalance(0);
+      return;
+    }
+
+    const getBalance = async () => {
+      try {
+        const lamports = await connection.getBalance(publicKey);
+        const solBalance = lamports / LAMPORTS_PER_SOL;
+        setBalance(solBalance);
+      } catch (error) {
+        console.error("Error fetching balance:", error);
+        setBalance(0);
+      }
+    };
+
+    getBalance();
+
+    // Update balance every 30 seconds
+    const interval = setInterval(getBalance, 30000);
+
+    return () => clearInterval(interval);
+  }, [publicKey, connection]);
+
+  return balance;
+}
+
+// Main Component
+export function WalletConnectButton({
+  className = "",
+  style,
+}: WalletConnectButtonProps) {
+  const { publicKey, connected } = useWallet();
+  const { setVisible } = useWalletModal();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const balance = useWalletBalance();
+
+  const handleConnect = () => {
+    setVisible(true);
+  };
+
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
+
+  const baseStyles =
+    "px-6 py-2 rounded-md font-bold transition-all duration-300 ease-in-out flex justify-center items-center gap-2";
+  const primaryStyles =
+    "bg-gradient-to-br hover:from-[#24682B] hover:to-[#0B3B10] from-[#0B3B10] to-[#24682B] text-[#ADF0B4] border-[1.5px] border-[#28D939] hover:scale-[1.02]";
+  const buttonClassName = `${baseStyles} ${primaryStyles} ${className}`;
+
+  if (!connected || !publicKey) {
+    return (
+      <motion.button
+        ref={buttonRef}
+        onClick={handleConnect}
+        className={buttonClassName}
+        style={style}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        Connect Wallet
+      </motion.button>
+    );
+  }
 
   return (
     <>
       <motion.button
         ref={buttonRef}
         onClick={toggleDropdown}
-        className={`${className} flex items-center gap-2`}
+        className={buttonClassName}
         style={style}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
-        <span>{truncateAddress(address)}</span>
+        <span>{truncateAddress(publicKey.toString())}</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className={`h-4 w-4 transition-transform ${
@@ -291,9 +377,13 @@ export function WalletConnectButton({
         </svg>
       </motion.button>
 
-      {showDropdown &&
-        typeof window !== "undefined" &&
-        createPortal(<DropdownContent />, document.body)}
+      <DropdownMenu
+        isOpen={showDropdown}
+        onClose={() => setShowDropdown(false)}
+        buttonRef={buttonRef}
+        publicKey={publicKey.toString()}
+        balance={balance}
+      />
     </>
   );
 }
@@ -303,9 +393,5 @@ export function StyledWalletConnectButton({
 }: {
   className?: string;
 }) {
-  return (
-    <WalletConnectButton
-      className={`px-6 py-2 bg-gradient-to-r from-[#0B3B10] to-[#24682B] text-[#ADF0B4] font-bold text-sm border border-[#28D939] rounded-md hover:from-[#0F4114] hover:to-[#2A7A31] transition-all duration-200 ${className}`}
-    />
-  );
+  return <WalletConnectButton className={className} />;
 }

@@ -12,13 +12,12 @@ import Link from "next/link";
 import { BoxIcon } from "../Icons/BoxIcon";
 import { HistoricIcon } from "../Icons/HistoricIcon";
 import { WhitepaperIcon } from "../Icons/WhitepaperIcon";
-import { BurnTicker } from "../BurnTicker";
-import { StakingIcon } from "../Icons/StakingIcon";
 import { LanguageToggle } from "../LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WalletConnectButton } from "../WalletConnectButton";
-import { useAccount } from "wagmi";
-import { useUser } from "@/contexts/UserContext";
+import { LeaderBoardIcon } from "../Icons/LeaderBoardIcon";
+import { HomeIcon } from "../Icons/HomeIcon";
+import { MoneyIcon } from "../Icons/MoneyIcon";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -26,8 +25,6 @@ export function Header() {
   const { scrollY } = useScroll();
   const headerOpacity = useTransform(scrollY, [0, 50], [0.8, 1]);
   const { t, language } = useLanguage();
-  const { isConnected } = useAccount();
-  const { balance } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -86,12 +83,8 @@ export function Header() {
   };
 
   const burgerVariants = {
-    closed: {
-      rotate: 0,
-    },
-    open: {
-      rotate: 0,
-    },
+    closed: { rotate: 0 },
+    open: { rotate: 0 },
   };
 
   const topLineVariants = {
@@ -113,121 +106,80 @@ export function Header() {
     open: { opacity: 1, y: 0, x: 0, transition: { duration: 0.4 } },
   };
 
-  const BalanceDisplay = ({ className }: { className?: string }) => {
-    if (!isConnected || !balance) return null;
-
-    return (
-      <div className={`flex items-center gap-2 text-sm mr-2 ${className}`}>
-        <div className="flex items-center text-white">
-          <span>
-            {balance.toLocaleString("en-US", {
-              maximumFractionDigits: 4,
-              minimumFractionDigits: 2,
-            })}{" "}
-            Tokens
-          </span>
-        </div>
-      </div>
-    );
-  };
+  const links = [
+    {
+      href: "/",
+      label: t("header.home"),
+      key: "home",
+      icon: <HomeIcon />,
+    },
+    {
+      href: "/boxes",
+      label: t("header.boxes"),
+      key: "boxes",
+      icon: <BoxIcon />,
+    },
+    {
+      href: "/leaderboard",
+      label: t("header.leaderboard"),
+      key: "leaderboard",
+      icon: <LeaderBoardIcon />,
+    },
+    {
+      href: "/transactions",
+      label: t("header.transactions"),
+      key: "transactions",
+      icon: <WhitepaperIcon />,
+    },
+  ];
 
   return (
     <>
       <motion.header
-        className={`w-full fixed top-0 left-0 z-[99999] h-[56px] md:h-[64px] transition-all duration-300 flex items-center justify-center ${
-          scrolled ? "shadow-md" : ""
+        className={`w-full fixed top-0 left-0 p-[14px] px-6 z-[99999] h-[64px] md:h-[80px] border-b transition-all duration-300 flex items-center justify-center bg-neutral-2 ${
+          scrolled ? "shadow-md border-neutral-6" : "border-transparent"
         }`}
-        style={{
-          backgroundColor: scrolled ? "rgba(15, 15, 15, 0.7)" : "transparent",
-          backdropFilter: scrolled ? "blur(8px)" : "blur(0px)",
-          opacity: headerOpacity,
-        }}
       >
-        <div className="max-w-[1280px] w-full flex items-center justify-between px-6 md:px-0">
+        <div className="max-w-[1280px] h-full w-full flex items-center justify-between px-6 md:px-0">
           <div className="flex items-center gap-4">
-            <motion.div
-              className="flex items-center gap-1 md:gap-2 cursor-pointer"
-              initial="hidden"
-              animate="visible"
-              variants={logoVariants}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Link href="/">
-                <div className="md:flex items-center gap-1 md:gap-2 hidden">
-                  <motion.div
-                    className="w-8 h-8 md:w-auto md:h-auto"
-                    whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <LogoIcon />
-                  </motion.div>
-                  <motion.span
-                    className="text-white text-base sm:text-lg xl:text-[25px] font-medium"
-                    whileHover={{
-                      color: "#28D939",
-                      transition: { duration: 0.2 },
-                    }}
-                  >
-                    Imperador Token
-                  </motion.span>
-                </div>
-              </Link>
-            </motion.div>
-
-            <div className="hidden lg:flex items-center gap-4 ml-10">
-              <motion.nav
-                className="flex items-center gap-2"
+            <Link href="/">
+              <motion.div
+                className="flex items-center gap-1 md:gap-2 cursor-pointer"
                 initial="hidden"
                 animate="visible"
-                variants={buttonVariants}
+                variants={logoVariants}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Link
-                  href="/boxes"
-                  className="text-white hover:text-[#28D939] transition-colors flex items-center gap-2"
-                >
-                  <BoxIcon /> {t("header.boxes")}
-                </Link>
-              </motion.nav>
+                <LogoIcon />
+              </motion.div>
+            </Link>
 
-              <motion.nav
-                className="flex items-center gap-6"
-                initial="hidden"
-                animate="visible"
-                variants={buttonVariants}
-              >
-                <Link
-                  href="/transactions"
-                  className="text-white hover:text-[#28D939] transition-colors flex items-center gap-2"
-                >
-                  <HistoricIcon /> {t("header.historic")}
-                </Link>
-              </motion.nav>
-
-              <motion.nav
-                className="flex items-center gap-6"
-                initial="hidden"
-                animate="visible"
-                variants={buttonVariants}
-              >
-                <Link
-                  href={`https://adriano-imperador.gitbook.io/${
-                    language === "en" ? "en" : "pt-br"
-                  }`}
-                  target="_blank"
-                  className="text-white hover:text-[#28D939] transition-colors flex items-center gap-2"
-                >
-                  <WhitepaperIcon /> {t("header.whitepaper")}
-                </Link>
-              </motion.nav>
-            </div>
-          </div>
-
-          <div className="hidden md:flex items-center gap-4">
             <motion.div
               initial="hidden"
               animate="visible"
               variants={buttonVariants}
+              className="hidden lg:flex items-center ml-6 text-neutral-11"
+            >
+              {links.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="flex items-center gap-2 p-2 fill-neutral-11 hover:fill-primary-12 hover:bg-primary-3 hover:text-primary-12 border border-transparent hover:border-primary-6 rounded-md transition-all duration-300"
+                >
+                  {link.icon}
+                  {link.label}
+                </Link>
+              ))}
+            </motion.div>
+          </div>
+
+          <div className="hidden md:flex items-center h-full gap-2">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={buttonVariants}
+              className="h-full rounded-lg"
             >
               <LanguageToggle />
             </motion.div>
@@ -235,37 +187,16 @@ export function Header() {
               initial="hidden"
               animate="visible"
               variants={buttonVariants}
-              className="flex items-center gap-2"
+              className="flex items-center gap-6 bg-neutral-3 border border-neutral-6 p-2 h-full rounded-lg"
             >
-              <WalletConnectButton
-                style={{
-                  width: "100%",
-                  height: "40px",
-                  background:
-                    "linear-gradient(135deg, #0B3B10 0%, #24682B 100%)",
-                  color: "#ADF0B4",
-                  fontWeight: "bold",
-                  fontSize: "14px",
-                  border: "1.5px solid #28D939",
-                  borderRadius: "6px",
-                  padding: "8px 24px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                }}
-              />
+              <h1 className="text-neutral-12 font-bold flex items-center gap-1">
+                <MoneyIcon /> 100,00
+              </h1>
+              <div className="flex items-center gap-2">
+                <Button variant="default">Deposit</Button>
+                <Button variant="outline">Withdraw</Button>
+              </div>
             </motion.div>
-            {/* <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={buttonVariants}
-            >
-              <Button className="text-sm sm:text-base py-2 px-3 sm:px-4 md:py-2 md:px-6">
-                {t("header.buyToken")}
-              </Button>
-            </motion.div> */}
           </div>
           <motion.div
             className="md:hidden flex items-center z-50"
@@ -317,7 +248,6 @@ export function Header() {
           </motion.div>
         </div>
       </motion.header>
-      <BurnTicker />
 
       <AnimatePresence>
         {mobileMenuOpen && (
@@ -364,7 +294,7 @@ export function Header() {
                   <motion.div variants={menuItemVariants}>
                     <Link
                       href="/boxes"
-                      className="text-white hover:text-[#28D939] transition-colors text-xl py-3 border-b border-[#222222] flex items-center gap-3"
+                      className="text-neutral-11 hover:text-neutral-11 transition-colors text-xl py-3 border-b border-[#222222] flex items-center gap-3"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <BoxIcon /> {t("header.boxes")}
@@ -374,7 +304,7 @@ export function Header() {
                   <motion.div variants={menuItemVariants}>
                     <Link
                       href="/transactions"
-                      className="text-white hover:text-[#28D939] transition-colors text-xl py-3 border-b border-[#222222] flex items-center gap-4"
+                      className="text-neutral-11 hover:text-neutral-11 transition-colors text-xl py-3 border-b border-[#222222] flex items-center gap-4"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <HistoricIcon /> {t("header.historic")}
@@ -387,7 +317,7 @@ export function Header() {
                         language === "en" ? "en" : "pt-br"
                       }`}
                       target="_blank"
-                      className="text-white hover:text-[#28D939] transition-colors text-xl py-3 border-b border-[#222222] flex items-center gap-4"
+                      className="text-neutral-11 hover:text-neutral-11 transition-colors text-xl py-3 border-b border-[#222222] flex items-center gap-4"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <WhitepaperIcon /> {t("header.whitepaper")}
@@ -395,34 +325,16 @@ export function Header() {
                   </motion.div>
                 </motion.div>
 
+                {/* ThemeToggle removed - using dark theme only */}
                 <motion.div className="flex flex-col gap-4 mt-4 w-full">
                   <motion.div className="w-full" variants={menuItemVariants}>
                     <div className="flex items-center justify-between border-b border-[#222222] pb-3 mb-3">
-                      <span className="text-white text-sm">
+                      <span className="text-neutral-11 text-sm">
                         {t("common.language")}
                       </span>
                       <LanguageToggle />
                     </div>
-                    {isConnected && <BalanceDisplay className="mb-4" />}
-                    <WalletConnectButton
-                      style={{
-                        width: "100%",
-                        height: "40px",
-                        background:
-                          "linear-gradient(135deg, #0B3B10 0%, #24682B 100%)",
-                        color: "#ADF0B4",
-                        fontWeight: "bold",
-                        fontSize: "14px",
-                        border: "1.5px solid #28D939",
-                        borderRadius: "6px",
-                        padding: "8px 24px",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
-                      }}
-                    />
+                    <WalletConnectButton />
                   </motion.div>
                   <motion.div variants={menuItemVariants}>
                     <Button
