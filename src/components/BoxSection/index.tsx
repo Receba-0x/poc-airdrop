@@ -69,48 +69,9 @@ export function BoxSection({ boxName }: { boxName: string }) {
     }
   };
 
-  const generateRandomNumber = () => {
-    const buffer = crypto.randomBytes(4);
-    const hexNumber = buffer.toString("hex").substring(0, 8);
-    return parseInt(hexNumber, 16) / 0xffffffff;
-  };
-
-  const checkStock = (prizeId: number): boolean => {
-    const prize = PRIZE_TABLE.find((p) => p.id === prizeId);
-    if (!prize?.stockRequired) return true;
-    return (currentStock[prizeId] || 0) > 0;
-  };
-
-  const simulateDeterminePrize = (
-    randomNumber: number,
-    isCrypto: boolean = false
-  ) => {
-    if (isCrypto) {
-      let cumulativeProbability = 0;
-      for (const prize of CRYPTO_PRIZE_TABLE) {
-        cumulativeProbability += prize.probability;
-        if (randomNumber < cumulativeProbability) return prize;
-      }
-      return CRYPTO_PRIZE_TABLE[0];
-    } else {
-      let cumulativeProbability = 0;
-      for (const prize of PRIZE_TABLE) {
-        cumulativeProbability += prize.probability;
-        if (randomNumber < cumulativeProbability) {
-          if (prize.stockRequired && !checkStock(prize.id)) continue;
-          return prize;
-        }
-      }
-      const fallbackPrize = PRIZE_TABLE.find(
-        (p) => p.type === "sol" && !p.stockRequired
-      );
-      if (fallbackPrize) return fallbackPrize;
-      return PRIZE_TABLE[0];
-    }
-  };
-
   const handleSimulation = async () => {
-    setSimulationModalOpen(true);
+    handleTestSpin();
+    /*  setSimulationModalOpen(true);
     setSimulationStatus("initializing");
     setTimeout(() => {
       setSimulationStatus("processing_sol_fee");
@@ -124,7 +85,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
           }, 1500);
         }, 1500);
       }, 1500);
-    }, 1000);
+    }, 1000); */
   };
 
   const closeSimulationModal = () => {
@@ -140,7 +101,6 @@ export function BoxSection({ boxName }: { boxName: string }) {
     if (carouselRef.current && !isSpinning) {
       setIsSpinning(true);
       const randomIndex = Math.floor(Math.random() * itens.length);
-      console.log("🎰 Starting spin with random winner index:", randomIndex);
       carouselRef.current.startSpin(randomIndex);
     }
   };
@@ -160,32 +120,10 @@ export function BoxSection({ boxName }: { boxName: string }) {
           type="fade"
           direction="up"
           duration={0.8}
-          className="bg-neutral-2 flex flex-col items-center justify-center border-b border-neutral-6 w-full h-[250px] sm:h-[280px] md:h-[318px] relative overflow-hidden"
+          className="bg-neutral-2 flex flex-col items-center justify-center border-b border-neutral-6 w-full h-[250px] sm:h-[280px] md:h-[350px] relative overflow-hidden"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center z-0">
-            <motion.div
-              className="bg-[#6E6E6E]/50 w-[20rem] sm:w-[30rem] md:w-[40rem] h-[20rem] sm:h-[30rem] md:h-[40rem] rounded-full blur-[80px] md:blur-[140px]"
-              animate={{
-                scale: isHovered ? 1.1 : 1,
-                opacity: isHovered ? 0.7 : 0.5,
-                transition: { duration: 1.2, ease: "easeInOut" },
-              }}
-            />
-          </div>
-
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center z-0">
-            <motion.div
-              className="w-[20rem] sm:w-[30rem] md:w-[40rem] h-[20rem] sm:h-[30rem] md:h-[40rem] rounded-full border-[2px] md:border-[3px] border-[rgb(58,58,58)]"
-              animate={{
-                scale: isHovered ? 1.05 : 1,
-                borderWidth: isHovered ? "3px" : "2px",
-                transition: { duration: 1, ease: "easeInOut" },
-              }}
-            />
-          </div>
-
           <HorizontalSpinCarousel
             ref={carouselRef}
             items={itens}

@@ -46,10 +46,7 @@ export default function ItemCard({ item }: ItemCardProps) {
   return (
     <motion.div
       className={`${itemColor.bg} group flex flex-col justify-between h-[259px] border relative p-4 ${itemColor.border} rounded-lg overflow-hidden transition-colors duration-300 ease-in-out`}
-      whileHover={{
-        y: -8,
-        boxShadow: "0 10px 20px rgba(0, 0, 0, 0.2)",
-      }}
+      whileHover={{ y: -8, boxShadow: "0 10px 20px rgba(0, 0, 0, 0.2)" }}
       transition={{ duration: 0.3 }}
     >
       <div
@@ -66,8 +63,8 @@ export default function ItemCard({ item }: ItemCardProps) {
         <Image
           src={item.image}
           alt={item.title}
-          width={177}
-          height={150}
+          width={130}
+          height={130}
           className="object-cover z-10 group-hover:-rotate-6 transition-all duration-300 ease-in-out"
         />
 

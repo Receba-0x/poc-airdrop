@@ -434,12 +434,4 @@ export const leadersMock = [
     last_win: 1,
     winnings: 1000,
   },
-  {
-    id: 5,
-    avatar: "/images/avatar_default.png",
-    username: "John Doe",
-    rank: 5,
-    last_win: 1,
-    winnings: 1000,
-  },
 ];

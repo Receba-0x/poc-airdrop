@@ -57,7 +57,7 @@ export function TopLeaders() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
         {leadersMock.map((leader) => {
           const userColor = getColours(leader.rank);
           return (
