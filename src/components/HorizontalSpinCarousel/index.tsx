@@ -220,10 +220,8 @@ const HorizontalSpinCarousel = forwardRef<
           carousel.style.contain = "layout style paint";
 
           // Forçar reflow de forma otimizada
-          carousel.offsetWidth;
+          void carousel.offsetWidth;
 
-          // Pré-aquecer cálculos críticos e cache
-          const containerRect = containerRef.current.getBoundingClientRect();
           const itemsPerCycle = items.length;
 
           // Warm-up: pré-calcular primeira detecção
