@@ -19,14 +19,18 @@ import {
   CONFIG_ACCOUNT,
   COLLECTION_METADATA,
   COLLECTION_URI,
+  boxesData,
 } from "@/constants";
 import crypto from "crypto";
+import bs58 from "bs58";
+import nacl from "tweetnacl";
 import {
   withRateLimit,
   purchaseRateLimiter,
   apiRateLimiter,
 } from "@/utils/rateLimiter";
 import { InputValidator } from "@/utils/inputValidator";
+import { generateProvablyFairNumber } from "@/utils/probablyFair";
 import { TimestampValidator } from "@/utils/timestampValidator";
 import { withAPIProtection } from "@/utils/apiProtection";
 import { SecurityLogger } from "@/utils/securityLogger";
@@ -117,8 +121,6 @@ export const POST = withAPIProtection(
       );
 
       switch (action) {
-        case "purchase":
-          return await handlePurchaseWithSecurity(params, req);
         case "get-stock":
           return await handleGetStock();
         case "get-stats":
@@ -152,126 +154,6 @@ export const POST = withAPIProtection(
   })
 );
 
-async function handlePurchaseWithSecurity(params: any, req: NextRequest) {
-  try {
-    const validation = InputValidator.validatePurchaseData(params);
-
-    if (!validation.valid) {
-      console.error("❌ [DEBUG] Purchase data validation failed:", {
-        error: validation.error,
-        params: JSON.stringify(params, null, 2),
-        requiredFields: ["boxType", "wallet", "clientSeed"],
-        receivedFields: Object.keys(params || {}),
-      });
-
-      securityLogger.logInvalidInput(
-        "purchase_data",
-        JSON.stringify(params),
-        req
-      );
-      return NextResponse.json(
-        { success: false, error: validation.error },
-        { status: 400 }
-      );
-    }
-
-    const sanitizedParams = validation.sanitized!;
-    return await handlePurchase(sanitizedParams, req);
-  } catch (error) {
-    console.error("❌ [DEBUG] Exception in handlePurchaseWithSecurity:", error);
-    securityLogger.logEvent(
-      "invalid_input" as any,
-      `Erro na validação de dados de compra: ${
-        error instanceof Error ? error.message : "Unknown error"
-      }`,
-      { params },
-      "medium",
-      req
-    );
-    return NextResponse.json(
-      { success: false, error: "Invalid purchase data" },
-      { status: 400 }
-    );
-  }
-}
-
-async function handlePurchase(params: any, req?: NextRequest) {
-  const { boxType, wallet, clientSeed, solFeeTransactionHash, solPrice } =
-    params;
-  let privateKey: string;
-  try {
-    privateKey = await getPrivateKey();
-  } catch (error) {
-    console.error("❌ [DEBUG] Error getting private key:", error);
-    securityLogger.logEvent(
-      "private_key_access" as any,
-      "Erro ao acessar chave privada",
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      "critical",
-      req
-    );
-    return NextResponse.json(
-      { success: false, error: "Server configuration error" },
-      { status: 500 }
-    );
-  }
-
-  securityLogger.logPrivateKeyAccess("signature_generation", req);
-
-  const isCrypto = boxType === 1;
-  const priceUSD = isCrypto ? 17.5 : 45;
-  const tokenPrice = 0.002;
-  const amountInTokens = priceUSD / tokenPrice;
-  const amountInLamports = Math.floor(amountInTokens * LAMPORTS_PER_SOL);
-  const timestamp = Math.floor(Date.now() / 1000);
-
-  const timestampValidation = purchaseTimestampValidator.validateTimestamp(
-    timestamp,
-    wallet,
-    amountInLamports.toString()
-  );
-
-  if (!timestampValidation.valid) {
-    console.error("❌ [DEBUG] Timestamp validation failed:", {
-      error: timestampValidation.error,
-      timestamp,
-      wallet,
-      amount: amountInLamports.toString(),
-    });
-    securityLogger.logEvent(
-      "replay_attack" as any,
-      timestampValidation.error || "Timestamp validation failed",
-      { wallet, timestamp, amount: amountInLamports.toString() },
-      "high",
-      req
-    );
-    return NextResponse.json(
-      { success: false, error: timestampValidation.error },
-      { status: 400 }
-    );
-  }
-
-  const tokenAmount = amountInLamports;
-  securityLogger.logEvent(
-    "contract_interaction" as any,
-    "Assinatura gerada com sucesso para compra",
-    { wallet, boxType, amount: tokenAmount.toString() },
-    "low",
-    req
-  );
-
-  return NextResponse.json({
-    success: true,
-    step: "signature_generated",
-    data: {
-      amountToBurn: tokenAmount.toString(),
-      timestamp,
-      clientSeed,
-      solFeeTransactionHash,
-    },
-  });
-}
-
 export const PUT = withAPIProtection(
   withRateLimit(purchaseRateLimiter)(async (req: NextRequest) => {
     try {
@@ -294,10 +176,10 @@ export const PUT = withAPIProtection(
 
       const body = await req.json();
 
-      const validation = InputValidator.validateBurnTransactionData(body);
+      const validation = InputValidator.validateLootboxProcessingData(body);
       if (!validation.valid) {
         securityLogger.logInvalidInput(
-          "burn_transaction_data",
+          "lootbox_processing_data",
           JSON.stringify(body),
           req
         );
@@ -313,11 +195,11 @@ export const PUT = withAPIProtection(
         amount,
         timestamp,
         txHash,
-        signature,
         clientSeed,
         solFeeTransactionHash,
         solPrice,
-        boxType,
+        boxId,
+        prizeData,
       } = sanitizedData;
 
       const timestampValidation = purchaseTimestampValidator.validateTimestamp(
@@ -335,63 +217,58 @@ export const PUT = withAPIProtection(
         );
       }
 
-      const burnValidation = await validateSolanaTransaction(
-        txHash,
+      const feeValidation = await validateSolFeeTransaction(
+        solFeeTransactionHash,
         wallet,
         amount,
-        timestamp
+        timestamp,
+        solPrice
       );
 
-      if (!burnValidation.isValid) {
+      if (!feeValidation.isValid) {
         securityLogger.logTransactionValidationFailed(
-          txHash,
-          burnValidation.error || "Unknown validation error",
+          solFeeTransactionHash,
+          feeValidation.error || "Unknown validation error",
           req
         );
         return NextResponse.json(
           {
             success: false,
-            error: `Transaction validation failed: ${burnValidation.error}`,
+            error: `SOL fee validation failed: ${feeValidation.error}`,
           },
           { status: 400 }
         );
       }
 
-      const serverSeed = crypto.randomBytes(32).toString("hex");
-      const randomNumber = generateProvablyFairNumber(
-        clientSeed,
-        serverSeed,
-        0
-      );
-      const isCrypto = boxType === 1;
-      const { prizeId, wonPrize } = await determinePrize(
-        randomNumber,
-        isCrypto
+      // Usar dados do prizeData gerado no frontend
+      const { prizeId, serverSeed, randomNumber } = prizeData;
+      const randomNumberValue = Number(randomNumber);
+      const { prizeId: finalPrizeId, wonPrize } = await determinePrize(
+        randomNumberValue,
+        boxId
       );
 
-      await updateBoxStock(isCrypto);
+      /* await updateBoxStock(isCrypto); */
       const prizeDeliveryResult = await deliverPrizeToWallet(wallet, wonPrize);
 
       await savePurchaseRecord({
         wallet,
         txHash,
-        prizeId,
+        prizeId: finalPrizeId,
         wonPrize: wonPrize.name,
-        randomNumber,
+        randomNumber: randomNumberValue,
         clientSeed,
         serverSeed,
         nonce: prizeDeliveryResult.tokenId,
         amount,
-        isCrypto,
-        boxType,
+        boxId,
         solFeeTransactionHash,
-        signature,
         prizeDeliveryResult,
-        burnValidation,
+        feeValidation,
         solPrice,
       });
 
-      await updatePrizeStock(prizeId);
+      await updatePrizeStock(finalPrizeId);
 
       securityLogger.logEvent(
         "contract_interaction" as any,
@@ -538,11 +415,12 @@ async function handleGetStats() {
   }
 }
 
-async function validateSolanaTransaction(
+async function validateSolFeeTransaction(
   txHash: string,
   wallet: string,
   amount: string,
-  timestamp: number
+  timestamp: number,
+  solPrice: number
 ) {
   try {
     const connection = new Connection(SOLANA_RPC_URL);
@@ -563,73 +441,57 @@ async function validateSolanaTransaction(
     if (!firstSigner || !firstSigner.equals(expectedWalletPubkey)) {
       return { isValid: false, error: "Invalid transaction signer" };
     }
-    const programPubkey = new PublicKey(PROGRAM_ID);
-
+    const systemProgramId = new PublicKey("11111111111111111111111111111111");
     const compiledInstructions =
       transaction.transaction.message.compiledInstructions;
-    const hasOurProgramInstruction = compiledInstructions.some(
-      (instruction: any) => {
-        const programId = accountKeys.get(instruction.programIdIndex);
-        return programId?.equals(programPubkey);
-      }
+
+    const hasSystemTransfer = compiledInstructions.some((instruction: any) => {
+      const programId = accountKeys.get(instruction.programIdIndex);
+      return programId?.equals(systemProgramId);
+    });
+
+    if (!hasSystemTransfer) {
+      return { isValid: false, error: "Missing SOL transfer instruction" };
+    }
+
+    // Validar se tem memo instruction (para identificação única)
+    const memoProgramId = new PublicKey(
+      "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
     );
+    const hasMemoInstruction = compiledInstructions.some((instruction: any) => {
+      const programId = accountKeys.get(instruction.programIdIndex);
+      return programId?.equals(memoProgramId);
+    });
 
-    if (!hasOurProgramInstruction) {
-      return { isValid: false, error: "Invalid program interaction" };
-    }
-
-    const ED25519_PROGRAM_ID = "Ed25519SigVerify111111111111111111111111111";
-    const ed25519ProgramPubkey = new PublicKey(ED25519_PROGRAM_ID);
-
-    const hasEd25519Instruction = compiledInstructions.some(
-      (instruction: any) => {
-        const programId = accountKeys.get(instruction.programIdIndex);
-        return programId?.equals(ed25519ProgramPubkey);
-      }
-    );
-
-    if (!hasEd25519Instruction) {
-      return { isValid: false, error: "Missing signature verification" };
-    }
-
-    const preTokenBalances = transaction.meta?.preTokenBalances || [];
-    const postTokenBalances = transaction.meta?.postTokenBalances || [];
-
-    let tokensBurned = 0;
-    for (const preBalance of preTokenBalances) {
-      if (
-        preBalance.mint === PAYMENT_TOKEN_MINT &&
-        preBalance.owner === wallet
-      ) {
-        const postBalance = postTokenBalances.find(
-          (post) => post.accountIndex === preBalance.accountIndex
-        );
-        if (postBalance) {
-          const preBal = parseFloat(preBalance.uiTokenAmount.amount);
-          const postBal = parseFloat(postBalance.uiTokenAmount.amount);
-          tokensBurned = preBal - postBal;
-          break;
-        }
-      }
-    }
-
-    const expectedAmount = parseFloat(amount);
-    const tolerance = expectedAmount * 0.001;
-
-    if (Math.abs(tokensBurned - expectedAmount) > tolerance) {
+    if (!hasMemoInstruction) {
       return {
         isValid: false,
-        error: `Invalid burn amount. Expected: ${expectedAmount}, Got: ${tokensBurned}`,
+        error: "Missing memo instruction for transaction identification",
       };
     }
 
+    // Calcular valor transferido
+    const preBalances = transaction.meta?.preBalances || [];
+    const postBalances = transaction.meta?.postBalances || [];
+
+    if (preBalances.length === 0 || postBalances.length === 0) {
+      return { isValid: false, error: "Unable to verify SOL fee amount" };
+    }
+
+    const payerPreBalance = preBalances[0];
+    const payerPostBalance = postBalances[0];
+    const solTransferred =
+      (payerPreBalance - payerPostBalance) / LAMPORTS_PER_SOL;
+
+    // Validar timestamp da transação
     const txTimestamp = transaction.blockTime;
     if (txTimestamp) {
       const timeDiff = Math.abs(txTimestamp - timestamp);
       if (timeDiff > 300) {
+        // 5 minutos de tolerância
         return {
           isValid: false,
-          error: `Transaction timestamp too far from expected. Difference: ${timeDiff}s`,
+          error: `SOL fee transaction timestamp too old. Difference: ${timeDiff}s`,
         };
       }
     }
@@ -637,12 +499,12 @@ async function validateSolanaTransaction(
     return {
       isValid: true,
       sender: wallet,
-      amount: tokensBurned.toString(),
+      amount: solTransferred.toString(),
       timestamp: txTimestamp || timestamp,
       txSignature: txHash,
     };
   } catch (error) {
-    console.error(`❌ Error validating burn transaction: ${error}`);
+    console.error(`❌ Error validating SOL fee transaction: ${error}`);
     return {
       isValid: false,
       error: `Validation error: ${
@@ -652,17 +514,7 @@ async function validateSolanaTransaction(
   }
 }
 
-function generateProvablyFairNumber(
-  clientSeed: string,
-  serverSeed: string,
-  nonce: number
-): number {
-  const combined = `${clientSeed}:${serverSeed}:${nonce}`;
-  const hash = crypto.createHash("sha256").update(combined).digest("hex");
-  return parseInt(hash.substring(0, 8), 16) / 0xffffffff;
-}
-
-async function determinePrize(randomNumber: number, isCrypto: boolean) {
+async function determinePrize(randomNumber: number, boxId: number) {
   const stock: { [key: number]: number } = {};
 
   if (isSupabaseConfigured && supabase) {
@@ -683,8 +535,6 @@ async function determinePrize(randomNumber: number, isCrypto: boolean) {
     return (stock[prizeId] || 0) > 0;
   };
 
-  const prizeTable = isCrypto ? CRYPTO_PRIZE_TABLE : PRIZE_TABLE;
-
   for (let attempt = 0; attempt < 10; attempt++) {
     let cumulativeProbability = 0;
     const currentRandom = attempt === 0 ? randomNumber : Math.random();
@@ -693,7 +543,7 @@ async function determinePrize(randomNumber: number, isCrypto: boolean) {
       `🎲 Attempt ${attempt + 1}: Random number = ${currentRandom.toFixed(6)}`
     );
 
-    for (const prize of prizeTable) {
+    for (const prize of PRIZE_TABLE) {
       cumulativeProbability += prize.probability;
       if (currentRandom < cumulativeProbability) {
         if (PHYSICAL_PRIZES.includes(prize.id) && !checkStock(prize.id)) {
@@ -711,7 +561,7 @@ async function determinePrize(randomNumber: number, isCrypto: boolean) {
   console.log(
     `⚠️ Fallback triggered after 10 attempts - looking for BNB prize`
   );
-  const fallbackPrize = prizeTable.find((p) => p.type === "sol");
+  const fallbackPrize = PRIZE_TABLE.find((p) => p.type === "sol");
   if (fallbackPrize) {
     console.log(
       `🎁 Fallback prize: ${fallbackPrize.name} (ID: ${fallbackPrize.id})`
@@ -720,56 +570,7 @@ async function determinePrize(randomNumber: number, isCrypto: boolean) {
   }
 
   console.log(`⚠️ Last resort: returning first prize`);
-  return { prizeId: prizeTable[0].id, wonPrize: prizeTable[0] };
-}
-
-async function updateBoxStock(isCrypto: boolean) {
-  let supabase;
-  try {
-    supabase = await createSupabaseClient();
-  } catch (error) {
-    console.log(
-      "⚠️ Error creating Supabase client for box stock update:",
-      error
-    );
-    return;
-  }
-
-  const boxType = isCrypto ? "crypto" : "super_prize";
-  console.log(`📦 Updating box stock for type: ${boxType}`);
-
-  const { data: boxStockData, error } = await supabase
-    .from("box_stock")
-    .select("*")
-    .eq("box_type", boxType)
-    .single();
-
-  if (error) {
-    console.error("❌ Error fetching box stock:", error);
-    return;
-  }
-
-  console.log("📊 Current box stock data:", boxStockData);
-
-  if (boxStockData && boxStockData.current_stock > 0) {
-    const newStock = boxStockData.current_stock - 1;
-    console.log(
-      `🔄 Updating box stock from ${boxStockData.current_stock} to ${newStock}`
-    );
-
-    const { error: updateError } = await supabase
-      .from("box_stock")
-      .update({ current_stock: newStock })
-      .eq("box_type", boxType);
-
-    if (updateError) {
-      console.error("❌ Error updating box stock:", updateError);
-    } else {
-      console.log("✅ Box stock updated successfully");
-    }
-  } else {
-    console.log("⚠️ No box stock data found for type:", boxType);
-  }
+  return { prizeId: PRIZE_TABLE[0].id, wonPrize: PRIZE_TABLE[0] };
 }
 
 async function deliverPrizeToWallet(
@@ -795,7 +596,7 @@ async function deliverPrizeToWallet(
 
   try {
     const connection = new Connection(SOLANA_RPC_URL);
-    const privateKeyBytes: any = "0x" + privateKey;
+    const privateKeyBytes = bs58.decode(privateKey);
     const keypair = Keypair.fromSecretKey(privateKeyBytes);
 
     if (wonPrize.type === "sol" && wonPrize.amount) {
@@ -988,12 +789,12 @@ async function savePurchaseRecord(data: any) {
       amount_purchased: Number(data.amount) / 1e9,
       token_amount_burned: Number(data.amount) / 1e9,
       purchase_timestamp: new Date().toISOString(),
-      box_type: data.boxType,
+      box_type: data.boxId,
       status: "completed",
       fee_transaction_hash: data.solFeeTransactionHash,
       fee_validation_amount: solFeeValidationAmount,
       server_signature: data.signature,
-      validation_amount: data.burnValidation.amount,
+      validation_amount: data.feeValidation.amount,
     };
 
     console.log(`📝 Purchase record to save:`, purchaseRecord);

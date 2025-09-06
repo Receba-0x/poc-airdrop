@@ -11,9 +11,8 @@ interface TransactionPurchaseModalProps {
   status:
     | "initializing"
     | "processing_sol_fee"
-    | "burning_tokens"
     | "validating_transaction"
-    | "determining_prize"
+    | "processing"
     | "success"
     | "error";
   amount?: string;
@@ -47,16 +46,12 @@ export function TransactionPurchaseModal({
       label: t("purchase.processingSolFee") || "Processing SOL Fee",
     },
     {
-      key: "burning_tokens",
-      label: t("purchase.burningTokens") || "Burning Tokens",
-    },
-    {
       key: "validating_transaction",
       label: t("purchase.validatingTransaction") || "Validating Transaction",
     },
     {
-      key: "determining_prize",
-      label: t("purchase.determiningPrize") || "Determining Prize",
+      key: "processing",
+      label: t("purchase.processing") || "Processing",
     },
   ];
 
@@ -135,12 +130,10 @@ export function TransactionPurchaseModal({
         return t("purchase.initializing");
       case "processing_sol_fee":
         return t("purchase.processingSolFee");
-      case "burning_tokens":
-        return t("purchase.burningTokens");
       case "validating_transaction":
         return t("purchase.validatingTransaction");
-      case "determining_prize":
-        return t("purchase.determiningPrize");
+      case "processing":
+        return t("purchase.processing");
       case "success":
         return prize ? t("box.congratulations") : t("purchase.complete");
       case "error":
@@ -156,12 +149,10 @@ export function TransactionPurchaseModal({
         return t("purchase.initializing");
       case "processing_sol_fee":
         return t("purchase.processingSolFeeDetail");
-      case "burning_tokens":
-        return t("purchase.burningTokensDetail");
       case "validating_transaction":
         return t("purchase.validatingTransactionDetail");
-      case "determining_prize":
-        return t("purchase.determiningPrizeDetail");
+      case "processing":
+        return t("purchase.processingDetail");
       case "success":
         return prize ? t("box.awesome") : t("purchase.complete");
       case "error":

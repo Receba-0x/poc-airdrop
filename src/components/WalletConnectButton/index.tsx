@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Button } from "../Button";
 
 interface WalletConnectButtonProps {
   className?: string;
@@ -274,7 +275,6 @@ function DropdownMenu({
   );
 }
 
-// Custom hook for wallet balance
 function useWalletBalance() {
   const { publicKey } = useWallet();
   const { connection } = useConnection();
@@ -296,10 +296,7 @@ function useWalletBalance() {
         setBalance(0);
       }
     };
-
     getBalance();
-
-    // Update balance every 30 seconds
     const interval = setInterval(getBalance, 30000);
 
     return () => clearInterval(interval);
@@ -308,11 +305,7 @@ function useWalletBalance() {
   return balance;
 }
 
-// Main Component
-export function WalletConnectButton({
-  className = "",
-  style,
-}: WalletConnectButtonProps) {
+export function WalletConnectButton() {
   const { publicKey, connected } = useWallet();
   const { setVisible } = useWalletModal();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -327,37 +320,17 @@ export function WalletConnectButton({
     setShowDropdown(!showDropdown);
   };
 
-  const baseStyles =
-    "px-6 py-2 rounded-md font-bold transition-all duration-300 ease-in-out flex justify-center items-center gap-2";
-  const primaryStyles =
-    "bg-gradient-to-br hover:from-[#24682B] hover:to-[#0B3B10] from-[#0B3B10] to-[#24682B] text-[#ADF0B4] border-[1.5px] border-[#28D939] hover:scale-[1.02]";
-  const buttonClassName = `${baseStyles} ${primaryStyles} ${className}`;
-
   if (!connected || !publicKey) {
     return (
-      <motion.button
-        ref={buttonRef}
-        onClick={handleConnect}
-        className={buttonClassName}
-        style={style}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-      >
+      <Button ref={buttonRef} onClick={handleConnect} variant="default">
         Connect Wallet
-      </motion.button>
+      </Button>
     );
   }
 
   return (
     <>
-      <motion.button
-        ref={buttonRef}
-        onClick={toggleDropdown}
-        className={buttonClassName}
-        style={style}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-      >
+      <Button ref={buttonRef} onClick={toggleDropdown} variant="default">
         <span>{truncateAddress(publicKey.toString())}</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -375,7 +348,7 @@ export function WalletConnectButton({
             d="M19 9l-7 7-7-7"
           />
         </svg>
-      </motion.button>
+      </Button>
 
       <DropdownMenu
         isOpen={showDropdown}
@@ -386,12 +359,4 @@ export function WalletConnectButton({
       />
     </>
   );
-}
-
-export function StyledWalletConnectButton({
-  className = "",
-}: {
-  className?: string;
-}) {
-  return <WalletConnectButton className={className} />;
 }

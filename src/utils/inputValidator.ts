@@ -26,7 +26,7 @@ export class InputValidator {
     }
 
     const sanitized = hash.trim();
-    
+
     // Solana transaction signatures are base58 encoded and typically 87-88 characters
     if (sanitized.length < 80 || sanitized.length > 90) {
       return { valid: false, error: "Hash da transação Solana inválido" };
@@ -34,7 +34,10 @@ export class InputValidator {
 
     // Basic base58 character check
     if (!/^[1-9A-HJ-NP-Za-km-z]+$/.test(sanitized)) {
-      return { valid: false, error: "Hash da transação Solana contém caracteres inválidos" };
+      return {
+        valid: false,
+        error: "Hash da transação Solana contém caracteres inválidos",
+      };
     }
 
     return { valid: true, sanitized };
@@ -128,17 +131,11 @@ export class InputValidator {
     return { valid: true, sanitized };
   }
 
-  static validateBoxType(boxType: any): ValidationResult {
-    const numResult = this.validateNumericValue(boxType, "boxType", {
-      min: 1,
-      max: 2,
+  static validateBoxId(boxId: any): ValidationResult {
+    const numResult = this.validateNumericValue(boxId, "boxId", {
       integer: true,
     });
-
-    if (!numResult.valid) {
-      return numResult;
-    }
-
+    if (!numResult.valid) return numResult;
     return { valid: true, sanitized: numResult.sanitized };
   }
 
@@ -150,8 +147,75 @@ export class InputValidator {
     });
   }
 
+  static validateLootboxProcessingData(data: any): ValidationResult {
+    const requiredFields = [
+      "wallet",
+      "timestamp",
+      "txHash",
+      "clientSeed",
+      "solFeeTransactionHash",
+      "solPrice",
+      "boxId",
+      "amount",
+      "prizeData",
+    ];
+    const errors: string[] = [];
+
+    if (!data || typeof data !== "object") {
+      return {
+        valid: false,
+        error: "Dados de processamento devem ser um objeto",
+      };
+    }
+
+    for (const field of requiredFields) {
+      if (!(field in data)) {
+        errors.push(`Campo ${field} é obrigatório`);
+      }
+    }
+
+    if (errors.length > 0) {
+      return {
+        valid: false,
+        error: `Campos obrigatórios faltando: ${errors.join(", ")}`,
+      };
+    }
+
+    // Validações específicas
+    if (typeof data.timestamp !== "number" || data.timestamp <= 0) {
+      return { valid: false, error: "Timestamp deve ser um número válido" };
+    }
+
+    if (typeof data.solPrice !== "number" || data.solPrice <= 0) {
+      return { valid: false, error: "Preço do SOL deve ser um número válido" };
+    }
+
+    if (typeof data.boxId !== "number" || data.boxId < 0) {
+      return { valid: false, error: "BoxId deve ser um número válido" };
+    }
+
+    if (typeof data.amount !== "number" || data.amount <= 0) {
+      return { valid: false, error: "Amount deve ser um número válido" };
+    }
+
+    return {
+      valid: true,
+      sanitized: {
+        wallet: data.wallet,
+        timestamp: data.timestamp,
+        txHash: data.txHash,
+        clientSeed: data.clientSeed,
+        solFeeTransactionHash: data.solFeeTransactionHash,
+        solPrice: data.solPrice,
+        boxId: data.boxId,
+        amount: data.amount,
+        prizeData: data.prizeData,
+      },
+    };
+  }
+
   static validatePurchaseData(data: any): ValidationResult {
-    const requiredFields = ["boxType", "wallet", "clientSeed"];
+    const requiredFields = ["boxId", "wallet", "clientSeed"];
     const errors: string[] = [];
 
     console.log("🔍 [DEBUG] validatePurchaseData called with:", {
@@ -162,7 +226,10 @@ export class InputValidator {
     });
 
     if (!data || typeof data !== "object") {
-      console.error("❌ [DEBUG] Data is not an object:", { data, type: typeof data });
+      console.error("❌ [DEBUG] Data is not an object:", {
+        data,
+        type: typeof data,
+      });
       return { valid: false, error: "Dados de compra devem ser um objeto" };
     }
 
@@ -171,7 +238,9 @@ export class InputValidator {
         console.error(`❌ [DEBUG] Required field missing: ${field}`);
         errors.push(`Campo ${field} é obrigatório`);
       } else {
-        console.log(`✅ [DEBUG] Required field present: ${field} = ${data[field]}`);
+        console.log(
+          `✅ [DEBUG] Required field present: ${field} = ${data[field]}`
+        );
       }
     }
 
@@ -183,25 +252,34 @@ export class InputValidator {
     console.log("🔍 [DEBUG] Validating wallet address:", data.wallet);
     const walletValidation = this.validateSolanaAddress(data.wallet);
     if (!walletValidation.valid) {
-      console.error("❌ [DEBUG] Wallet validation failed:", walletValidation.error);
+      console.error(
+        "❌ [DEBUG] Wallet validation failed:",
+        walletValidation.error
+      );
       errors.push(`Wallet: ${walletValidation.error}`);
     } else {
       console.log("✅ [DEBUG] Wallet validation passed");
     }
 
-    console.log("🔍 [DEBUG] Validating boxType:", data.boxType);
-    const boxTypeValidation = this.validateBoxType(data.boxType);
-    if (!boxTypeValidation.valid) {
-      console.error("❌ [DEBUG] BoxType validation failed:", boxTypeValidation.error);
-      errors.push(`BoxType: ${boxTypeValidation.error}`);
+    console.log("🔍 [DEBUG] Validating boxId:", data.boxId);
+    const boxIdValidation = this.validateBoxId(data.boxId);
+    if (!boxIdValidation.valid) {
+      console.error(
+        "❌ [DEBUG] BoxId validation failed:",
+        boxIdValidation.error
+      );
+      errors.push(`BoxId: ${boxIdValidation.error}`);
     } else {
-      console.log("✅ [DEBUG] BoxType validation passed");
+      console.log("✅ [DEBUG] BoxId validation passed");
     }
 
     console.log("🔍 [DEBUG] Validating clientSeed:", data.clientSeed);
     const seedValidation = this.validateClientSeed(data.clientSeed);
     if (!seedValidation.valid) {
-      console.error("❌ [DEBUG] ClientSeed validation failed:", seedValidation.error);
+      console.error(
+        "❌ [DEBUG] ClientSeed validation failed:",
+        seedValidation.error
+      );
       errors.push(`ClientSeed: ${seedValidation.error}`);
     } else {
       console.log("✅ [DEBUG] ClientSeed validation passed");
@@ -210,10 +288,18 @@ export class InputValidator {
     // Validate optional SOL fields
     let solFeeTransactionHash, solPrice;
     if (data.solFeeTransactionHash) {
-      console.log("🔍 [DEBUG] Validating solFeeTransactionHash:", data.solFeeTransactionHash);
-      const solFeeValidation = this.validateTransactionHash(data.solFeeTransactionHash);
+      console.log(
+        "🔍 [DEBUG] Validating solFeeTransactionHash:",
+        data.solFeeTransactionHash
+      );
+      const solFeeValidation = this.validateTransactionHash(
+        data.solFeeTransactionHash
+      );
       if (!solFeeValidation.valid) {
-        console.error("❌ [DEBUG] SOL fee transaction hash validation failed:", solFeeValidation.error);
+        console.error(
+          "❌ [DEBUG] SOL fee transaction hash validation failed:",
+          solFeeValidation.error
+        );
         errors.push(`SOL Fee Transaction Hash: ${solFeeValidation.error}`);
       } else {
         console.log("✅ [DEBUG] SOL fee transaction hash validation passed");
@@ -223,9 +309,16 @@ export class InputValidator {
 
     if (data.solPrice) {
       console.log("🔍 [DEBUG] Validating solPrice:", data.solPrice);
-      const solPriceValidation = this.validateNumericValue(data.solPrice, "solPrice", { min: 0 });
+      const solPriceValidation = this.validateNumericValue(
+        data.solPrice,
+        "solPrice",
+        { min: 0 }
+      );
       if (!solPriceValidation.valid) {
-        console.error("❌ [DEBUG] SOL price validation failed:", solPriceValidation.error);
+        console.error(
+          "❌ [DEBUG] SOL price validation failed:",
+          solPriceValidation.error
+        );
         errors.push(`SOL Price: ${solPriceValidation.error}`);
       } else {
         console.log("✅ [DEBUG] SOL price validation passed");
@@ -243,7 +336,7 @@ export class InputValidator {
       valid: true,
       sanitized: {
         wallet: walletValidation.sanitized,
-        boxType: boxTypeValidation.sanitized,
+        boxId: boxIdValidation.sanitized,
         clientSeed: seedValidation.sanitized,
         solFeeTransactionHash,
         solPrice,
@@ -311,9 +404,11 @@ export class InputValidator {
     }
 
     // Validate optional SOL fields
-    let solFeeTransactionHash, solPrice, boxType;
+    let solFeeTransactionHash, solPrice, boxId;
     if (data.solFeeTransactionHash) {
-      const solFeeValidation = this.validateTransactionHash(data.solFeeTransactionHash);
+      const solFeeValidation = this.validateTransactionHash(
+        data.solFeeTransactionHash
+      );
       if (!solFeeValidation.valid) {
         errors.push(`SOL Fee Transaction Hash: ${solFeeValidation.error}`);
       } else {
@@ -322,7 +417,11 @@ export class InputValidator {
     }
 
     if (data.solPrice) {
-      const solPriceValidation = this.validateNumericValue(data.solPrice, "solPrice", { min: 0 });
+      const solPriceValidation = this.validateNumericValue(
+        data.solPrice,
+        "solPrice",
+        { min: 0 }
+      );
       if (!solPriceValidation.valid) {
         errors.push(`SOL Price: ${solPriceValidation.error}`);
       } else {
@@ -330,12 +429,12 @@ export class InputValidator {
       }
     }
 
-    if (data.boxType) {
-      const boxTypeValidation = this.validateBoxType(data.boxType);
-      if (!boxTypeValidation.valid) {
-        errors.push(`BoxType: ${boxTypeValidation.error}`);
+    if (data.boxId) {
+      const boxIdValidation = this.validateBoxId(data.boxId);
+      if (!boxIdValidation.valid) {
+        errors.push(`BoxId: ${boxIdValidation.error}`);
       } else {
-        boxType = boxTypeValidation.sanitized;
+        boxId = boxIdValidation.sanitized;
       }
     }
 
@@ -354,7 +453,7 @@ export class InputValidator {
         clientSeed: clientSeedValidation.sanitized,
         solFeeTransactionHash,
         solPrice,
-        boxType,
+        boxId,
       },
     };
   }

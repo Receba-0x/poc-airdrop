@@ -3,8 +3,6 @@ import { BoxSection } from "@/components/BoxSection";
 import { useParams } from "next/navigation";
 
 export default function BoxPage() {
-  const { box } = useParams();
-  const boxName = box as string;
-
-  return <BoxSection boxName={boxName} />;
+  const { box: id } = useParams<{ box: string }>();
+  return <BoxSection id={id as string} />;
 }

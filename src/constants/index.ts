@@ -435,3 +435,126 @@ export const leadersMock = [
     winnings: 1000,
   },
 ];
+
+export const boxesData = [
+  {
+    id: "1",
+    title: "Crypto Box",
+    image: "/images/boxes/cripto.webp",
+    price: 17.5,
+  },
+  {
+    id: "2",
+    title: "Super Prize Box",
+    image: "/images/boxes/super-prize.webp",
+    price: 45,
+  },
+  {
+    id: "3",
+    title: "ADR Prizes Box",
+    image: "/images/boxes/adr-prizes.webp",
+    price: 17.5,
+  },
+  {
+    id: "4",
+    title: "Golden Box",
+    image: "/images/boxes/cripto.webp",
+    price: 17.5,
+  },
+  {
+    id: "5",
+    title: "Diamond Box",
+    image: "/images/boxes/super-prize.webp",
+    price: 17.5,
+  },
+  {
+    id: "6",
+    title: "Platinum Box",
+    image: "/images/boxes/adr-prizes.webp",
+    price: 17.5,
+  },
+  {
+    id: "7",
+    title: "Silver Box",
+    image: "/images/boxes/cripto.webp",
+    price: 17.5,
+  },
+  {
+    id: "8",
+    title: "Bronze Box",
+    image: "/images/boxes/super-prize.webp",
+    price: 17.5,
+  },
+  {
+    id: "9",
+    title: "Premium Box",
+    image: "/images/boxes/adr-prizes.webp",
+    price: 17.5,
+  },
+  {
+    id: "10",
+    title: "Elite Box",
+    image: "/images/boxes/cripto.webp",
+    price: 17.5,
+  },
+  {
+    id: "11",
+    title: "Legendary Box",
+    image: "/images/boxes/super-prize.webp",
+    price: 17.5,
+  },
+  {
+    id: "12",
+    title: "Epic Box",
+    image: "/images/boxes/adr-prizes.webp",
+    price: 17.5,
+  },
+  {
+    id: "13",
+    title: "Rare Box",
+    image: "/images/boxes/cripto.webp",
+    price: 17.5,
+  },
+  {
+    id: "14",
+    title: "Common Box",
+    image: "/images/boxes/super-prize.webp",
+    price: 17.5,
+  },
+  {
+    id: "15",
+    title: "Starter Box",
+    image: "/images/boxes/adr-prizes.webp",
+    price: 17.5,
+  },
+  {
+    id: "16",
+    title: "Mystery Box",
+    image: "/images/boxes/cripto.webp",
+    price: 17.5,
+  },
+  {
+    id: "17",
+    title: "Treasure Box",
+    image: "/images/boxes/super-prize.webp",
+    price: 17.5,
+  },
+  {
+    id: "18",
+    title: "Lucky Box",
+    image: "/images/boxes/adr-prizes.webp",
+    price: 17.5,
+  },
+  {
+    id: "19",
+    title: "Fortune Box",
+    image: "/images/boxes/cripto.webp",
+    price: 17.5,
+  },
+  {
+    id: "20",
+    title: "Champion Box",
+    image: "/images/boxes/super-prize.webp",
+    price: 17.5,
+  },
+];

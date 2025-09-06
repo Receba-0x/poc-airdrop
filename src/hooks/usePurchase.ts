@@ -8,9 +8,10 @@ import {
   TransactionInstruction,
 } from "@solana/web3.js";
 import * as anchor from "@coral-xyz/anchor";
-import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from "@solana/spl-token";
+import { getAssociatedTokenAddress } from "@solana/spl-token";
 import { Program, AnchorProvider } from "@coral-xyz/anchor";
 import {
+  boxesData,
   COLLECTION_METADATA,
   CONFIG_ACCOUNT,
   CRYPTO_PRIZE_TABLE,
@@ -25,13 +26,14 @@ import { useUser } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CSRF_TOKEN_HEADER, getCsrfToken } from "@/utils/getCsrfToken";
 import { getErrorMessage } from "@/utils/purchase";
+import { generateProvablyFairNumber } from "@/utils/probablyFair";
+import bs58 from "bs58";
 
 type PurchaseStatus =
   | "initializing"
   | "processing_sol_fee"
-  | "burning_tokens"
   | "validating_transaction"
-  | "determining_prize"
+  | "processing"
   | "success"
   | "error";
 
@@ -42,7 +44,7 @@ interface PurchaseState {
   errorMessage: string;
   transactionHash: string;
   prize: any;
-  boxType: string;
+  boxId: string;
   amount: string;
 }
 
@@ -68,7 +70,7 @@ export function usePurchase() {
     errorMessage: "",
     transactionHash: "",
     prize: null,
-    boxType: "",
+    boxId: "",
     amount: "",
   });
 
@@ -198,10 +200,7 @@ export function usePurchase() {
     return new AnchorProvider(connection, wallet, { commitment: "confirmed" });
   }
 
-  async function sendSolFeeTransaction(
-    provider: AnchorProvider,
-    isCrypto: boolean
-  ) {
+  async function sendSolFeeTransaction(provider: AnchorProvider, id: string) {
     const maxRetries = 3;
     let lastError: any = null;
 
@@ -212,7 +211,7 @@ export function usePurchase() {
           await new Promise((resolve) => setTimeout(resolve, delayMs));
         }
 
-        const FEE_USD = isCrypto ? 1.65 : 7.65;
+        const FEE_USD = boxesData.find((box) => box.id === id)?.price || 0;
         const FEE_SOL = FEE_USD / solPrice;
         const lamports = Math.ceil(FEE_SOL * LAMPORTS_PER_SOL);
 
@@ -390,166 +389,8 @@ export function usePurchase() {
     );
   }
 
-  async function sendCryptoTransaction(
-    provider: AnchorProvider,
-    program: Program,
-    tokenAmount: number,
-    timestamp: number,
-    arraySignature: Uint8Array | string,
-    backendPubkey: string
-  ) {
-    const sysvarInstructions = new PublicKey(
-      "Sysvar1nstructions1111111111111111111111111"
-    );
-    const uniqueId = `burn_${Date.now()}_${Math.random()
-      .toString(36)
-      .substr(2, 9)}`;
-    const tx = new Transaction();
-    const message = `{"wallet":"${provider.wallet.publicKey.toString()}","amount":${tokenAmount},"timestamp":${timestamp}}`;
-
-    const memoInstruction = new TransactionInstruction({
-      keys: [],
-      programId: new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
-      data: Buffer.from(`${uniqueId}_${message}`, "utf8"),
-    });
-    tx.add(memoInstruction);
-
-    let signatureBytes: Uint8Array;
-
-    if (typeof arraySignature === "string") {
-      try {
-        const base58Decoded: any = "0x" + arraySignature;
-        if (base58Decoded.length === 64) {
-          signatureBytes = new Uint8Array(base58Decoded);
-        } else {
-          const base64Decoded = Buffer.from(arraySignature, "base64");
-          if (base64Decoded.length === 64) {
-            signatureBytes = new Uint8Array(base64Decoded);
-          } else {
-            const hexDecoded = Buffer.from(arraySignature, "hex");
-            if (hexDecoded.length === 64) {
-              signatureBytes = new Uint8Array(hexDecoded);
-            } else {
-              throw new Error(
-                `Invalid signature length: expected 64 bytes, got ${hexDecoded.length} bytes from string "${arraySignature}"`
-              );
-            }
-          }
-        }
-      } catch (error) {
-        throw new Error(
-          `Invalid signature format received from backend: ${
-            error instanceof Error ? error.message : "Unknown error"
-          }`
-        );
-      }
-    } else if (arraySignature instanceof Uint8Array) {
-      if (arraySignature.length !== 64) {
-        throw new Error(
-          `Signature must be 64 bytes but received ${arraySignature.length} bytes`
-        );
-      }
-      signatureBytes = arraySignature;
-    } else {
-      throw new Error("Signature must be either a string or Uint8Array");
-    }
-
-    tx.add(
-      Ed25519Program.createInstructionWithPublicKey({
-        publicKey: new PublicKey(backendPubkey).toBytes(),
-        message: Buffer.from(message),
-        signature: signatureBytes,
-      })
-    );
-
-    const backendAuthority = new PublicKey(backendPubkey);
-    const config = new PublicKey(CONFIG_ACCOUNT);
-    const description = `Solana Box ${message} USD`;
-    const payerPaymentTokenAccount = await getAssociatedTokenAddress(
-      new PublicKey(PAYMENT_TOKEN_MINT),
-      provider.wallet.publicKey,
-      false
-    );
-
-    try {
-      const ix = await program.methods
-        .burnTokens(
-          new anchor.BN(tokenAmount),
-          new anchor.BN(timestamp),
-          signatureBytes,
-          description
-        )
-        .accounts({
-          payer: provider.wallet.publicKey,
-          paymentTokenMint: new PublicKey(PAYMENT_TOKEN_MINT),
-          payerPaymentTokenAccount,
-          backendAuthority,
-          config,
-          sysvarInstructions,
-          tokenProgram: TOKEN_PROGRAM_ID,
-        })
-        .instruction();
-
-      tx.add(ix);
-
-      const { blockhash } = await connection.getLatestBlockhash("confirmed");
-      tx.recentBlockhash = blockhash;
-      tx.feePayer = provider.wallet.publicKey;
-
-      const signedTx = await provider.wallet.signTransaction(tx);
-      const txSig = await connection.sendRawTransaction(signedTx.serialize(), {
-        skipPreflight: false,
-        preflightCommitment: "confirmed",
-        maxRetries: 2,
-      });
-
-      return txSig;
-    } catch (error: any) {
-      if (error.message?.includes("already been processed")) {
-        throw new Error(
-          "A similar burn transaction was recently processed. Please wait a moment and try again."
-        );
-      }
-
-      if (error.message?.includes("insufficient funds")) {
-        throw new Error("Insufficient funds for token burn transaction");
-      }
-
-      if (error.message?.includes("custom program error")) {
-        const match = error.message.match(
-          /custom program error: (0x[0-9a-f]+)/i
-        );
-        if (match) {
-          const errorCode = match[1];
-          throw new Error(
-            `Program error ${errorCode}. Please check if you have enough tokens to burn.`
-          );
-        }
-      }
-
-      if (error.message?.includes("Transaction simulation failed")) {
-        if (error.message?.includes("already been processed")) {
-          throw new Error(
-            "A similar burn transaction was recently processed. Please wait a moment and try again."
-          );
-        }
-        throw new Error(
-          "Transaction simulation failed. Please check your token balance and try again."
-        );
-      }
-
-      if (error.message?.includes("blockhash not found")) {
-        throw new Error(
-          "Network congestion detected. Please try again in a few seconds."
-        );
-      }
-
-      throw error;
-    }
-  }
-
   const onMint = useCallback(
-    async (isCrypto: boolean) => {
+    async (id: string) => {
       if (!address) throw new Error("Wallet not connected");
       if (isTransactionInProgress.current) return;
 
@@ -566,7 +407,6 @@ export function usePurchase() {
         return;
       }
 
-      const boxType = isCrypto ? "Crypto Box" : "Super Prize Box";
       const tokenAmount = 1;
       const amount = tokenAmount.toString();
 
@@ -580,160 +420,197 @@ export function usePurchase() {
         errorMessage: "",
         transactionHash: "",
         prize: null,
-        boxType,
+        boxId: id,
         amount,
       });
 
       try {
         updateState({ status: "processing_sol_fee", transactionHash: "" });
 
-        const provider = await initializeProvider();
-        const { program } = await prepareNftAccounts(provider);
-
-        const solFeeTransactionHash = await sendSolFeeTransaction(
-          provider,
-          isCrypto
+        // Gerar prizeData provably fair ANTES da transação SOL
+        const clientSeed = address + "_" + Date.now();
+        const serverSeed = Array.from(
+          crypto.getRandomValues(new Uint8Array(32))
+        )
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+        const randomNumber = generateProvablyFairNumber(
+          clientSeed,
+          serverSeed,
+          0
         );
 
-        const csrfToken = await getCsrfToken();
-        const { data: purchaseData } = await axios.post(
-          "/api/lootbox",
-          {
-            action: "purchase",
-            boxType: isCrypto ? 1 : 2,
-            wallet: address,
-            clientSeed: address + "_" + Date.now(),
-            solFeeTransactionHash,
-            solPrice,
-          },
-          {
-            headers: { [CSRF_TOKEN_HEADER]: csrfToken },
-            withCredentials: true,
-          }
-        );
+        // Determinar o prêmio baseado no número aleatório
+        let frontendPrizeId: number;
+        const randomValue = randomNumber % 1000000; // 0-999999
 
-        if (!purchaseData.success) {
-          throw new Error(purchaseData.error || "Failed to get purchase data");
+        if (randomValue < 100) {
+          // 0.01% - Item mais raro
+          frontendPrizeId = 1;
+        } else if (randomValue < 1000) {
+          // 0.09% - Muito raro
+          frontendPrizeId = 2;
+        } else if (randomValue < 5000) {
+          // 0.4% - Raro
+          frontendPrizeId = 3;
+        } else if (randomValue < 15000) {
+          // 1% - Incomum
+          frontendPrizeId = 4;
+        } else if (randomValue < 40000) {
+          // 2.5% - Comum
+          frontendPrizeId = 5;
+        } else {
+          // 95.99% - Comum mais frequente
+          frontendPrizeId = 6;
         }
 
-        const { amountToBurn, timestamp, signature, clientSeed } =
-          purchaseData.data;
+        const prizeData = {
+          prizeId: frontendPrizeId,
+          serverSeed,
+          randomNumber: randomNumber.toString(),
+          clientSeed,
+        };
 
-        updateState({ status: "burning_tokens", transactionHash: "" });
-
-        const txSig = await sendCryptoTransaction(
-          provider,
-          program,
-          amountToBurn,
-          timestamp,
-          signature,
-          process.env.NEXT_PUBLIC_TREASURY_WALLET!
-        );
+        const provider = await initializeProvider();
+        const solFeeTransactionHash = await sendSolFeeTransaction(provider, id);
 
         updateState({
           status: "validating_transaction",
-          transactionHash: txSig || "",
+          transactionHash: solFeeTransactionHash || "",
         });
 
-        if (txSig) {
-          try {
-            const confirmation = await connection.confirmTransaction(
-              {
-                signature: txSig,
-                blockhash: (await connection.getLatestBlockhash()).blockhash,
-                lastValidBlockHeight: (
-                  await connection.getLatestBlockhash()
-                ).lastValidBlockHeight,
-              },
-              "confirmed"
+        try {
+          const confirmation = await connection.confirmTransaction(
+            {
+              signature: solFeeTransactionHash,
+              blockhash: (await connection.getLatestBlockhash()).blockhash,
+              lastValidBlockHeight: (
+                await connection.getLatestBlockhash()
+              ).lastValidBlockHeight,
+            },
+            "confirmed"
+          );
+
+          if (confirmation.value.err) {
+            throw new Error(
+              `SOL fee transaction failed: ${JSON.stringify(
+                confirmation.value.err
+              )}`
             );
+          }
 
-            if (confirmation.value.err) {
-              throw new Error(
-                `Transaction failed: ${JSON.stringify(confirmation.value.err)}`
-              );
-            }
-
-            const txInfo = await connection.getTransaction(txSig, {
+          const txInfo = await connection.getTransaction(
+            solFeeTransactionHash,
+            {
               commitment: "confirmed",
               maxSupportedTransactionVersion: 0,
-            });
-
-            if (!txInfo) {
-              throw new Error("Transaction not found after confirmation");
             }
+          );
 
-            if (txInfo.meta?.err) {
-              throw new Error(
-                `Transaction failed with error: ${JSON.stringify(
-                  txInfo.meta.err
-                )}`
-              );
-            }
-          } catch (confirmError) {
+          if (!txInfo) {
+            throw new Error("SOL fee transaction not found after confirmation");
+          }
+
+          if (txInfo.meta?.err) {
             throw new Error(
-              `Transaction confirmation failed: ${
-                confirmError instanceof Error
-                  ? confirmError.message
-                  : "Unknown error"
-              }`
+              `SOL fee transaction failed with error: ${JSON.stringify(
+                txInfo.meta.err
+              )}`
             );
           }
+        } catch (confirmError) {
+          throw new Error(
+            `SOL fee transaction confirmation failed: ${
+              confirmError instanceof Error
+                ? confirmError.message
+                : "Unknown error"
+            }`
+          );
         }
 
         updateState({
-          status: "determining_prize",
-          transactionHash: txSig || "",
+          status: "processing",
+          transactionHash: solFeeTransactionHash || "",
         });
 
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        const csrfTokenPut = await getCsrfToken();
-        const { data } = await axios.put(
-          "/api/lootbox",
-          {
-            wallet: address,
-            amount: amountToBurn,
-            timestamp,
-            txHash: txSig,
-            signature,
-            clientSeed,
-            solFeeTransactionHash,
-            solPrice,
-            boxType: isCrypto ? 1 : 2,
-          },
-          {
-            headers: { [CSRF_TOKEN_HEADER]: csrfTokenPut },
-            withCredentials: true,
+        try {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          const csrfTokenPut = await getCsrfToken();
+          const boxPrice = boxesData.find((box) => box.id === id)?.price || 0;
+          const amountInLamports = Math.floor(
+            (boxPrice / solPrice) * LAMPORTS_PER_SOL
+          );
+
+          const { data } = await axios.put(
+            "/api/lootbox",
+            {
+              wallet: address,
+              timestamp: Math.floor(Date.now() / 1000),
+              txHash: solFeeTransactionHash,
+              clientSeed,
+              solFeeTransactionHash,
+              solPrice,
+              boxId: Number(id),
+              amount: amountInLamports,
+              prizeData,
+            },
+            {
+              headers: { [CSRF_TOKEN_HEADER]: csrfTokenPut },
+              withCredentials: true,
+            }
+          );
+          if (!data.success) {
+            throw new Error(getErrorMessage(data.error));
           }
-        );
+          const prizeId = data.prizeId;
+          const wonPrize =
+            prizeId >= 100 && prizeId <= 111
+              ? CRYPTO_PRIZE_TABLE.find((p) => p.id === prizeId)
+              : PRIZE_TABLE.find((p) => p.id === prizeId);
 
-        if (!data.success) {
-          throw new Error(getErrorMessage(data.error));
+          updateState({
+            status: "success",
+            prize: wonPrize,
+            modalOpen: false,
+            transactionHash: data.txSignature || solFeeTransactionHash || "",
+          });
+
+          refreshBalance();
+          return {
+            tx: solFeeTransactionHash,
+            prizeTx: data.txSignature,
+            nftMint: data.nftMint,
+            nftMetadata: data.nftMetadata,
+            prize: wonPrize,
+            isCrypto: prizeId >= 100 && prizeId <= 111,
+            prizeId,
+            provablyFair: data.randomData,
+          };
+        } catch (backgroundError: any) {
+          console.error("❌ Erro no processamento em background:", {
+            error: backgroundError?.message || backgroundError,
+            stack: backgroundError?.stack,
+            response: backgroundError?.response?.data,
+            status: backgroundError?.response?.status,
+          });
+          if (backgroundError?.response?.data?.error) {
+            console.error(
+              "📝 Detalhes do erro da API:",
+              backgroundError.response.data.error
+            );
+          }
+
+          return {
+            tx: solFeeTransactionHash,
+            prizeTx: "",
+            nftMint: "",
+            nftMetadata: "",
+            prize: null,
+            isCrypto: false,
+            prizeId: 0,
+            provablyFair: null,
+          };
         }
-
-        const prizeId = data.prizeId;
-        const wonPrize =
-          prizeId >= 100 && prizeId <= 111
-            ? CRYPTO_PRIZE_TABLE.find((p) => p.id === prizeId)
-            : PRIZE_TABLE.find((p) => p.id === prizeId);
-
-        updateState({
-          status: "success",
-          prize: wonPrize,
-          transactionHash: data.txSignature || txSig || "",
-        });
-
-        refreshBalance();
-        return {
-          tx: txSig,
-          prizeTx: data.txSignature,
-          nftMint: data.nftMint,
-          nftMetadata: data.nftMetadata,
-          prize: wonPrize,
-          isCrypto: prizeId >= 100 && prizeId <= 111,
-          prizeId,
-          provablyFair: data.randomData,
-        };
       } catch (error: any) {
         let errorMsg: string;
 
@@ -823,7 +700,7 @@ export function usePurchase() {
       errorMessage: purchaseState.errorMessage,
       transactionHash: purchaseState.transactionHash,
       currentPrize: purchaseState.prize,
-      currentBoxType: purchaseState.boxType,
+      currentBoxId: purchaseState.boxId,
       currentAmount: purchaseState.amount,
       closeModal,
     }),

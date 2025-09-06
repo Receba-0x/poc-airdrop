@@ -189,6 +189,7 @@ export function Header() {
               variants={buttonVariants}
               className="flex items-center gap-6 bg-neutral-3 border border-neutral-6 p-2 h-full rounded-lg"
             >
+              <WalletConnectButton />
               <h1 className="text-neutral-12 font-bold flex items-center gap-1">
                 <MoneyIcon /> 100,00
               </h1>

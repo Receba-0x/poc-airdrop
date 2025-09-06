@@ -9,15 +9,13 @@ import { PurchaseIcon } from "../Icons/PurchaseIcon";
 import ItemCard from "../ItemCard";
 import { ScrollAnimation } from "../ScrollAnimation";
 import { motion } from "framer-motion";
-import { CRYPTO_PRIZE_TABLE, PRIZE_TABLE, getItensData } from "@/constants";
+import { boxesData, getItensData } from "@/constants";
 import { usePurchase } from "@/hooks/usePurchase";
-import { useBoxStats } from "@/hooks/useBoxStats";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { TransactionPurchaseModal } from "../TransactionPurchaseModal";
 import HorizontalSpinCarousel from "../HorizontalSpinCarousel";
-import crypto from "crypto";
 
-export function BoxSection({ boxName }: { boxName: string }) {
+export function BoxSection({ id }: { id: string }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -29,26 +27,23 @@ export function BoxSection({ boxName }: { boxName: string }) {
     errorMessage: purchaseErrorMessage,
     transactionHash,
     currentPrize,
-    currentBoxType,
     closeModal,
-    currentStock,
   } = usePurchase();
-  const { stats, isLoading: statsLoading, refetch } = useBoxStats();
+
+  const [wonPrize, setWonPrize] = useState<any>(null);
+  const [shouldSpin, setShouldSpin] = useState(false);
   const { t } = useLanguage();
 
   const [simulationModalOpen, setSimulationModalOpen] = useState(false);
   const [simulationStatus, setSimulationStatus] = useState<
     | "initializing"
     | "processing_sol_fee"
-    | "burning_tokens"
     | "validating_transaction"
-    | "determining_prize"
+    | "processing"
     | "success"
     | "error"
   >("initializing");
   const [simulationPrize, setSimulationPrize] = useState<any>(null);
-
-  const isCrypto = boxName === "cryptos";
   const itens = getItensData(t).slice(3, 10);
 
   useEffect(() => {
@@ -62,8 +57,11 @@ export function BoxSection({ boxName }: { boxName: string }) {
 
   const handlePurchase = async () => {
     try {
-      await onMint(boxName === "cryptos");
-      refetch();
+      const result = await onMint(id);
+      if (result?.prize) {
+        setWonPrize(result.prize);
+        setShouldSpin(true);
+      }
     } catch (error: any) {
       console.error("Erro ao processar compra:", error);
     }
@@ -71,21 +69,6 @@ export function BoxSection({ boxName }: { boxName: string }) {
 
   const handleSimulation = async () => {
     handleTestSpin();
-    /*  setSimulationModalOpen(true);
-    setSimulationStatus("initializing");
-    setTimeout(() => {
-      setSimulationStatus("processing_sol_fee");
-      setTimeout(() => {
-        setSimulationStatus("burning_tokens");
-        setTimeout(() => {
-          setSimulationStatus("validating_transaction");
-          setTimeout(() => {
-            handleTestSpin();
-            setSimulationModalOpen(false);
-          }, 1500);
-        }, 1500);
-      }, 1500);
-    }, 1000); */
   };
 
   const closeSimulationModal = () => {
@@ -95,6 +78,8 @@ export function BoxSection({ boxName }: { boxName: string }) {
 
   const handleSpinComplete = (winningItem: any) => {
     setIsSpinning(false);
+    setWonPrize(null);
+    setShouldSpin(false);
   };
 
   const handleTestSpin = () => {
@@ -105,13 +90,32 @@ export function BoxSection({ boxName }: { boxName: string }) {
     }
   };
 
-  const boxImage =
-    boxName === "cryptos"
-      ? "/images/boxes/cripto.webp"
-      : "/images/boxes/super-prize.webp";
-  const boxPrice = boxName === "cryptos" ? 17.5 : 45;
-  const tokenPrice = 0.002;
-  const boxPriceInToken = boxPrice / tokenPrice;
+  // Efeito para fazer o spin automático após a compra
+  useEffect(() => {
+    if (
+      shouldSpin &&
+      wonPrize &&
+      carouselRef.current &&
+      !isSpinning &&
+      !modalOpen
+    ) {
+      // Aguardar um pouco para garantir que o modal fechou completamente
+      setTimeout(() => {
+        setIsSpinning(true);
+        // Mapear o prizeId para o index correto no array de itens
+        const prizeIndex = itens.findIndex((item) => item.id === wonPrize.id);
+        const targetIndex =
+          prizeIndex >= 0
+            ? prizeIndex
+            : Math.floor(Math.random() * itens.length);
+        carouselRef.current?.startSpin(targetIndex);
+      }, 500);
+    }
+  }, [shouldSpin, wonPrize, isSpinning, modalOpen, itens]);
+
+  const boxImage = boxesData.find((box) => box.id === id)?.image || "";
+  const boxPrice = boxesData.find((box) => box.id === id)?.price || 0;
+  const boxPriceInToken = boxPrice;
 
   return (
     <>
@@ -168,9 +172,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
                       },
                     }}
                   >
-                    {boxName === "cryptos"
-                      ? t("box.cryptos")
-                      : t("box.superPrizes")}
+                    {t("box.superPrizes")}
                   </motion.h1>
                   <p className="text-xs sm:text-sm text-[#B4B4B4] max-w-[300px] sm:max-w-none">
                     {t("box.description")}{" "}
@@ -255,7 +257,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
         onClose={closeModal}
         status={modalStatus}
         amount={boxPriceInToken.toString()}
-        boxType={currentBoxType}
+        boxType={t("box.superPrizes")}
         errorMessage={purchaseErrorMessage}
         transactionHash={transactionHash}
         prize={currentPrize}
@@ -267,7 +269,7 @@ export function BoxSection({ boxName }: { boxName: string }) {
         onClose={closeSimulationModal}
         status={simulationStatus}
         amount={boxPriceInToken.toString()}
-        boxType={isCrypto ? t("box.cryptos") : t("box.superPrizes")}
+        boxType={t("box.superPrizes")}
         prize={simulationPrize}
         onBuyAgain={handleSimulation}
       />
