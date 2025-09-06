@@ -44,7 +44,7 @@ export function BoxSection({ id }: { id: string }) {
     | "error"
   >("initializing");
   const [simulationPrize, setSimulationPrize] = useState<any>(null);
-  const itens = getItensData(t).slice(3, 10);
+  const itens = getItensData(t).filter(item => [5, 6, 7, 8, 9].includes(item.id));
 
   useEffect(() => {
     const checkMobile = () => {

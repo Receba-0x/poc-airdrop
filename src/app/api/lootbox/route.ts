@@ -243,10 +243,17 @@ export const PUT = withAPIProtection(
       // Usar dados do prizeData gerado no frontend
       const { prizeId, serverSeed, randomNumber } = prizeData;
       const randomNumberValue = Number(randomNumber);
-      const { prizeId: finalPrizeId, wonPrize } = await determinePrize(
-        randomNumberValue,
-        boxId
-      );
+      
+      // Usar o prizeId do frontend (provably fair) ao invés de recalcular
+      const wonPrize = PRIZE_TABLE.find(p => p.id === prizeId);
+      if (!wonPrize) {
+        return NextResponse.json(
+          { success: false, error: `Prize ID ${prizeId} not found` },
+          { status: 400 }
+        );
+      }
+      
+      console.log(`🎁 Using frontend prize: ${wonPrize.name} (ID: ${prizeId})`);
 
       /* await updateBoxStock(isCrypto); */
       const prizeDeliveryResult = await deliverPrizeToWallet(wallet, wonPrize);
@@ -254,7 +261,7 @@ export const PUT = withAPIProtection(
       await savePurchaseRecord({
         wallet,
         txHash,
-        prizeId: finalPrizeId,
+        prizeId: prizeId,
         wonPrize: wonPrize.name,
         randomNumber: randomNumberValue,
         clientSeed,
@@ -268,7 +275,7 @@ export const PUT = withAPIProtection(
         solPrice,
       });
 
-      await updatePrizeStock(finalPrizeId);
+      await updatePrizeStock(prizeId);
 
       securityLogger.logEvent(
         "contract_interaction" as any,
@@ -276,7 +283,7 @@ export const PUT = withAPIProtection(
         {
           wallet,
           txHash,
-          prizeId,
+          prizeId: prizeId,
           prizeName: wonPrize.name,
           amount,
         },

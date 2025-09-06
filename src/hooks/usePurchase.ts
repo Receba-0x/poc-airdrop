@@ -441,27 +441,29 @@ export function usePurchase() {
         );
 
         // Determinar o prêmio baseado no número aleatório
+        // Mapear para IDs corretos da PRIZE_TABLE (8=MacBook, 9=iPhone, 7=Chuteira, 5=Camisa, 6=Bola)
         let frontendPrizeId: number;
         const randomValue = randomNumber % 1000000; // 0-999999
 
         if (randomValue < 100) {
-          // 0.01% - Item mais raro
-          frontendPrizeId = 1;
+          // 0.01% - MacBook (mais raro)
+          frontendPrizeId = 8;
         } else if (randomValue < 1000) {
-          // 0.09% - Muito raro
-          frontendPrizeId = 2;
+          // 0.09% - iPhone (muito raro)
+          frontendPrizeId = 9;
         } else if (randomValue < 5000) {
-          // 0.4% - Raro
-          frontendPrizeId = 3;
+          // 0.4% - Chuteira (raro)
+          frontendPrizeId = 7;
         } else if (randomValue < 15000) {
-          // 1% - Incomum
-          frontendPrizeId = 4;
+          // 1% - Bola (incomum)
+          frontendPrizeId = 6;
         } else if (randomValue < 40000) {
-          // 2.5% - Comum
+          // 2.5% - Camisa 1 (comum)
           frontendPrizeId = 5;
         } else {
-          // 95.99% - Comum mais frequente
-          frontendPrizeId = 6;
+          // 95.99% - Camisa variada (comum mais frequente)
+          const camisas = [5]; // Por enquanto só camisa 1, adicione mais se tiver
+          frontendPrizeId = camisas[Math.floor(Math.random() * camisas.length)];
         }
 
         const prizeData = {
