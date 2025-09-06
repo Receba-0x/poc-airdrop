@@ -37,7 +37,6 @@ export async function middleware(request: NextRequest) {
   }
 
   if (request.method === "OPTIONS" && pathname.startsWith("/api/")) {
-    console.log("✅ Allowing OPTIONS request");
     return new NextResponse(null, {
       status: 204,
       headers: {
@@ -66,8 +65,6 @@ export async function middleware(request: NextRequest) {
     }
 
     if (pathname.includes("/lootbox")) {
-      console.log("🎯 Lootbox endpoint detected");
-
       const botPatterns = [
         /curl/i,
         /wget/i,
@@ -150,22 +147,14 @@ export async function middleware(request: NextRequest) {
 
   const trustedDomains = [
     "'self'",
-    "https://imperadortoken.com",
-    "https://www.imperadortoken.com",
-    "https://adr-token.vercel.app",
-    "https://adr-token-git-staging-imperador-token.vercel.app",
-    "https://adriano-imperador.gitbook.io",
+    "https://loot-for-fun.vercel.app",
     "https://api.coingecko.com",
-    "https://bnb-testnet.g.alchemy.com",
     "https://t.me",
     "https://x.com",
-    "https://imperadortoken.com",
     "wss://relay.walletconnect.com",
     "wss://relay.walletconnect.org",
     "https://registry.walletconnect.com",
     "https://explorer-api.walletconnect.com",
-    // Solana API URLs
-    
     "https://api.devnet.solana.com",
     "https://api.mainnet-beta.solana.com",
     "https://solana-devnet.g.alchemy.com",
@@ -174,9 +163,7 @@ export async function middleware(request: NextRequest) {
     "https://api.solana.fm",
   ];
 
-  if (isDev) {
-    trustedDomains.push("http://localhost:*", "https://localhost:*");
-  }
+  if (isDev) trustedDomains.push("http://localhost:*", "https://localhost:*");
 
   const cspDirectives = [
     `default-src ${trustedDomains.join(" ")}`,
@@ -201,8 +188,6 @@ export async function middleware(request: NextRequest) {
   ];
 
   response.headers.set("Content-Security-Policy", cspDirectives.join("; "));
-
-  console.log("✅ Request allowed to proceed");
   return response;
 }
 

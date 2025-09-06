@@ -187,9 +187,8 @@ export function Header() {
               initial="hidden"
               animate="visible"
               variants={buttonVariants}
-              className="flex items-center gap-6 bg-neutral-3 border border-neutral-6 p-2 h-full rounded-lg"
+              className="flex items-center gap-2 bg-neutral-3 border border-neutral-6 p-2 h-full rounded-lg"
             >
-              <WalletConnectButton />
               <h1 className="text-neutral-12 font-bold flex items-center gap-1">
                 <MoneyIcon /> 100,00
               </h1>
@@ -197,6 +196,7 @@ export function Header() {
                 <Button variant="default">Deposit</Button>
                 <Button variant="outline">Withdraw</Button>
               </div>
+              <WalletConnectButton />
             </motion.div>
           </div>
           <motion.div

@@ -1,8 +1,29 @@
 {
   "name": "Imperador Soccer Jersey",
+  "symbol": "IMPERADOR",
   "description": "Exclusive autographed soccer jersey from Adriano Imperador. A rare collectible item celebrating the legend of Brazilian football. Part of the official Imperador Token collection.",
-  "image": "https://imperadortoken.com/images/itens/camisa1.webp",
-  "external_url": "https://imperadortoken.com",
+  "image": "https://loot-for-fun.vercel.app/images/itens/camisa1.webp",
+  "external_url": "https://loot-for-fun.vercel.app/images/itens",
+  "seller_fee_basis_points": 500,
+  "collection": {
+    "name": "Imperador Token Collection",
+    "family": "Imperador"
+  },
+  "properties": {
+    "files": [
+      {
+        "uri": "https://loot-for-fun.vercel.app/images/itens/camisa1.webp",
+        "type": "image/webp"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "ImperadorTokenAddress123456789",
+        "share": 100
+      }
+    ]
+  },
   "attributes": [
     {
       "trait_type": "Category",
@@ -11,6 +32,10 @@
     {
       "trait_type": "Edition",
       "value": "Limited"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Common"
     }
   ]
 }

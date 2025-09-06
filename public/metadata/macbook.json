@@ -1,12 +1,37 @@
 {
   "name": "Imperador MacBook Gift Card",
+  "symbol": "IMPERADOR",
   "description": "Premium Amazon gift card for MacBook purchase, sponsored by the Imperador Token community. The ultimate digital prize bringing cutting-edge technology to Vila Cruzeiro. Part of the official Imperador Token collection.",
-  "image": "https://imperadortoken.com/images/itens/macbook.webp",
-  "external_url": "https://imperadortoken.com",
+  "image": "https://loot-for-fun.vercel.app/images/itens/macbook.webp",
+  "external_url": "https://loot-for-fun.vercel.app/images/itens",
+  "seller_fee_basis_points": 500,
+  "collection": {
+    "name": "Imperador Token Collection",
+    "family": "Imperador"
+  },
+  "properties": {
+    "files": [
+      {
+        "uri": "https://loot-for-fun.vercel.app/images/itens/macbook.webp",
+        "type": "image/webp"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "ImperadorTokenAddress123456789",
+        "share": 100
+      }
+    ]
+  },
   "attributes": [
     {
       "trait_type": "Category",
       "value": "Digital Gift"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Legendary"
     }
   ]
 }
