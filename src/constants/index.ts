@@ -1,6 +1,6 @@
 export const COLLECTION_NAME = "Imperador Collection";
 export const COLLECTION_SYMBOL = "IMPERADOR";
-export const COLLECTION_URI = "https://loot-for-fun.vercel.app/images/itens/metadata";
+export const COLLECTION_URI = "https://loot-for-fun.vercel.app/metadata";
 export const COLLECTION_MINT = "B3js6wNMcDdQsNv2UsP3zd4zps7tAVS9cxu3aSFZ5Mth";
 export const COLLECTION_METADATA =
   "6UAq8sFKccmxTXtRtHKbEc19BFGxrvfSvDVRuJ33NikD";
