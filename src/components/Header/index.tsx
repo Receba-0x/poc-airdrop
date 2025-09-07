@@ -18,11 +18,13 @@ import { WalletConnectButton } from "../WalletConnectButton";
 import { LeaderBoardIcon } from "../Icons/LeaderBoardIcon";
 import { HomeIcon } from "../Icons/HomeIcon";
 import { MoneyIcon } from "../Icons/MoneyIcon";
+import { useModalStore } from "@/stores/modalStore";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t, language } = useLanguage();
+  const { openModal } = useModalStore();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -134,7 +136,7 @@ export function Header() {
   return (
     <>
       <motion.header
-        className={`w-full fixed top-0 left-0 p-[14px] px-6 z-[99999] h-[64px] md:h-[80px] border-b transition-all duration-300 flex items-center justify-center bg-neutral-2 ${
+        className={`w-full fixed top-0 left-0 p-[14px] px-6 z-[100] h-[64px] md:h-[80px] border-b transition-all duration-300 flex items-center justify-center bg-neutral-2 ${
           scrolled ? "shadow-md border-neutral-6" : "border-transparent"
         }`}
       >
@@ -191,8 +193,8 @@ export function Header() {
                 <MoneyIcon /> 100,00
               </h1>
               <div className="flex items-center gap-2">
-                <Button variant="default">Deposit</Button>
-                <Button variant="outline">Withdraw</Button>
+                <Button variant="default" onClick={() => openModal("deposit")}>Deposit</Button>
+                <Button variant="outline" onClick={() => openModal("withdraw")}>Withdraw</Button>
               </div>
               <WalletConnectButton />
             </motion.div>

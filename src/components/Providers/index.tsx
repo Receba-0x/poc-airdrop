@@ -7,6 +7,7 @@ import { SolanaWalletProvider } from "@/contexts/SolanaWalletContext";
 import { Header } from "../Header";
 import { Footer } from "../Footer";
 import { OnLive } from "../OnLive";
+import { TransactionModalsProvider } from "../TransactionModals";
 
 const Providers = ({ children }: PropsWithChildren) => {
   return (
@@ -23,6 +24,9 @@ const Providers = ({ children }: PropsWithChildren) => {
             <FloatingTransactionButton />
             <Footer />
           </div>
+
+          {/* Transaction Modals Provider */}
+          <TransactionModalsProvider />
         </UserProvider>
       </SolanaWalletProvider>
     </LanguageProvider>

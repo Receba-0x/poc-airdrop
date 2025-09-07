@@ -11,6 +11,8 @@ export const PAYMENT_TOKEN_MINT =
   "6fWhJxuTjoUgYNx5NJpb8w8AyonmVbHhhdmN2AfwUTMH";
 export const NETWORK = "devnet";
 export const CONFIG_ACCOUNT = "GAnjrKx377NS9ceg6k4nB7vaDX8bAo9yWfJSD4vhrecr";
+
+export const PROJECT_DEPOSIT_WALLET = "11111111111111111111111111111112";
 export const TOKEN_METADATA_PROGRAM = [
   11, 112, 101, 177, 227, 209, 124, 69, 56, 157, 82, 127, 107, 4, 195, 205, 88,
   184, 108, 115, 26, 160, 253, 181, 73, 182, 209, 188, 3, 248, 41, 70,

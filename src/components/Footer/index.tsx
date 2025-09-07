@@ -33,21 +33,25 @@ const FooterLink = ({ href, children, external = false }: FooterLinkProps) => (
 );
 
 const FooterSection = ({ title, links }: FooterSectionProps) => (
-  <div className="flex flex-col items-center justify-between text-neutral-11 h-full">
-    <h3 className="text-neutral-12 font-medium">{title}</h3>
-    {links.map((link) => (
-      <FooterLink key={link.href} href={link.href} external={link.external}>
-        {link.label}
-      </FooterLink>
-    ))}
+  <div className="flex flex-col items-start sm:items-center justify-start text-neutral-11 space-y-2 sm:space-y-3">
+    <h3 className="text-neutral-12 font-medium text-sm sm:text-base mb-1 sm:mb-2">
+      {title}
+    </h3>
+    <div className="flex flex-col space-y-1 sm:space-y-2">
+      {links.map((link) => (
+        <FooterLink key={link.href} href={link.href} external={link.external}>
+          <span className="text-xs sm:text-sm">{link.label}</span>
+        </FooterLink>
+      ))}
+    </div>
   </div>
 );
 
 const SideDecoration = ({ image, side }: SideDecorProps) => (
   <div
-    className={`w-[5%] h-full relative bg-cover bg-center overflow-hidden ${
+    className={`w-[3%] sm:w-[4%] lg:w-[5%] h-full relative bg-cover bg-center overflow-hidden ${
       side === "right" ? "border-l border-neutral-6" : ""
-    }`}
+    } hidden sm:block`}
     style={{ backgroundImage: `url('/images/${image}')` }}
   >
     <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-primary-10 h-1 w-1/2 rounded-b-xl" />
@@ -94,19 +98,19 @@ export function Footer() {
   ];
 
   return (
-    <footer className="w-full h-[252px] flex flex-col items-center justify-start overflow-hidden bg-neutral-3 border-t border-neutral-6">
+    <footer className="w-full sm:h-[252px] flex flex-col items-center justify-start overflow-hidden bg-neutral-3 border-t border-neutral-6">
       <ScrollAnimation
         type="slide"
         direction="up"
         duration={0.7}
         delay={0.1}
-        className="w-full h-full flex items-center justify-between"
+        className="w-full h-full flex flex-col sm:flex-row items-center justify-between"
       >
         <SideDecoration image="footer_side.png" side="left" />
 
-        <div className="flex items-center justify-between w-full h-full p-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between w-full h-full p-8 sm:p-8 gap-8 sm:gap-0">
           {/* Brand Section */}
-          <div className="flex flex-col items-start justify-between h-full w-1/2">
+          <div className="flex flex-col items-start justify-between h-full w-full sm:w-1/2">
             <Image
               src="/images/logo_loot.png"
               alt="Loot4Fun Logo"
@@ -116,13 +120,13 @@ export function Footer() {
               draggable={false}
             />
 
-            <p className="text-neutral-11 leading-relaxed">
+            <p className="text-neutral-11 leading-relaxed mt-2 sm:mt-0">
               Loot4Fun é uma plataforma Web3 de caixas surpresa que combina
               colecionáveis digitais e físicos, com transparência on-chain e
               foco em comunidade.
             </p>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mt-4 sm:mt-0">
               {socialLinks.map(({ href, icon: Icon }) => (
                 <Link
                   key={href}
@@ -137,7 +141,7 @@ export function Footer() {
           </div>
 
           {/* Navigation Sections */}
-          <div className="grid grid-cols-3 gap-4 h-full w-1/3">
+          <div className="grid grid-cols-3 gap-4 h-full w-full sm:w-1/3">
             {footerSections.map((section) => (
               <FooterSection key={section.title} {...section} />
             ))}
