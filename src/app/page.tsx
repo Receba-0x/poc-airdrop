@@ -3,6 +3,7 @@ import { HomeBanners } from "@/components/HomeBanners";
 import { BoxIcon } from "@/components/Icons/BoxIcon";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { TopLeaders } from "@/components/TopLeaders";
+import { boxesData } from "@/constants";
 import Link from "next/link";
 
 export default function Home() {
@@ -24,15 +25,8 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-4">
-            {Array.from({ length: 10 }).map((_, index) => (
-              <BoxCard
-                key={index}
-                box={{
-                  id: index.toString(),
-                  title: `Box ${index + 1}`,
-                  image: "/images/boxes/cripto.webp",
-                }}
-              />
+            {boxesData.map((box, index) => (
+              <BoxCard key={index} box={box} />
             ))}
           </div>
         </div>
