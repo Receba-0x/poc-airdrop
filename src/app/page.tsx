@@ -1,4 +1,5 @@
 import BoxCard from "@/components/BoxCard";
+import { HomeBanners } from "@/components/HomeBanners";
 import { BoxIcon } from "@/components/Icons/BoxIcon";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { TopLeaders } from "@/components/TopLeaders";
@@ -7,16 +8,7 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="min-h-screen bg-neutral-2 space-y-10 mt-10">
-      <div className="max-w-[1280px] mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-          {[1, 2, 3].map((item) => (
-            <div
-              key={item}
-              className="bg-neutral-6 rounded-xl p-4 h-[262px] w-full"
-            />
-          ))}
-        </div>
-      </div>
+      <HomeBanners />
 
       <TopLeaders />
 
@@ -32,7 +24,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-4">
-            {Array.from({ length: 20 }).map((_, index) => (
+            {Array.from({ length: 10 }).map((_, index) => (
               <BoxCard
                 key={index}
                 box={{

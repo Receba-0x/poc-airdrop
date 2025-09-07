@@ -9,7 +9,6 @@ type Props = {
 };
 
 export function Avatar({ avatar, color, borderColor }: Props) {
-  console.log(color);
   return (
     <div className={`relative h-[74px] w-[74px] ${color}`}>
       <AvatarBorderIcon className={`absolute top-0 left-0 h-full w-full`} />
