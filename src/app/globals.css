@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 * {
-  font-family: var(--font-Be_Vietnam_Pro);
+  font-family: var(--font-sora);
 }
 
 :root {
@@ -179,30 +179,30 @@
   --link-12: #b6ecf7;
 
   --green-1: #0b161a;
-  --green-2: #121B17;
-  --green-3: #132D21;
-  --green-4: #113B29;
+  --green-2: #121b17;
+  --green-3: #132d21;
+  --green-4: #113b29;
   --green-5: #004558;
-  --green-6: #20573E;
-  --green-7: #28684A;
-  --green-8: #2F7C57;
-  --green-9: #30A46C;
+  --green-6: #20573e;
+  --green-7: #28684a;
+  --green-8: #2f7c57;
+  --green-9: #30a46c;
   --green-10: #23afd0;
-  --green-11: #3DD68C;
-  --green-12: #B1F1CB;
+  --green-11: #3dd68c;
+  --green-12: #b1f1cb;
 
   --purple-1: #0b161a;
   --purple-2: #201320;
-  --purple-3: #351A35;
-  --purple-4: #451D47;
+  --purple-3: #351a35;
+  --purple-4: #451d47;
   --purple-5: #004558;
-  --purple-6: #5E3061;
+  --purple-6: #5e3061;
   --purple-7: #734079;
-  --purple-8: #92549C;
-  --purple-9: #AB4ABA;
+  --purple-8: #92549c;
+  --purple-9: #ab4aba;
   --purple-10: #23afd0;
-  --purple-11: #E796F3;
-  --purple-12: #F4D4F4;
+  --purple-11: #e796f3;
+  --purple-12: #f4d4f4;
 
   /* Semantic Color Mapping - Dark */
   --background: var(--neutral-2);

@@ -22,8 +22,6 @@ import { MoneyIcon } from "../Icons/MoneyIcon";
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { scrollY } = useScroll();
-  const headerOpacity = useTransform(scrollY, [0, 50], [0.8, 1]);
   const { t, language } = useLanguage();
 
   useEffect(() => {

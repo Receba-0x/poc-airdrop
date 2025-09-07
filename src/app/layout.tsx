@@ -20,8 +20,35 @@ const beVietnamPro = Be_Vietnam_Pro({
 const nunito = Nunito_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Boxes",
-  description: "Boxes",
+  title: "Loot4Fun",
+  description:
+    "The next big thing in crypto - Loot4Fun is here to rule the meme world!",
+  keywords: ["meme coin", "crypto", "solana", "rat", "rodolfo"],
+  authors: [{ name: "Loot4Fun Team" }],
+  creator: "Loot4Fun",
+  publisher: "Loot4Fun",
+  robots: "index, follow",
+  openGraph: {
+    title: "Loot4Fun - Boxes",
+    description: "The next big thing in crypto!",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Loot4Fun - Boxes",
+    description: "The next big thing in crypto!",
+  },
+  icons: {
+    icon: [
+      { url: "/images/logo_token.png", sizes: "64x64", type: "image/png" },
+      { url: "/images/logo_token.png", sizes: "192x192", type: "image/png" },
+      { url: "/images/logo_token.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/images/logo_token.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
 };
 
 type RootLayoutProps = {
@@ -33,7 +60,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`scroll-smooth dark antialiased ${nunito.className} ${sora.variable} ${beVietnamPro.variable}`}
+      className={`scroll-smooth dark antialiased ${sora.variable} ${beVietnamPro.variable}`}
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
