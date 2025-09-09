@@ -47,13 +47,15 @@ export function TopLeaders() {
   };
 
   return (
-    <div className="max-w-[1280px] mx-auto">
+    <div className="max-w-screen-2xl mx-auto">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <h1 className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-neutral-12">
-          <LeaderBoardIcon className="h-6 w-6 sm:h-8 sm:w-8" /> Top leaders
+        <h1 className="flex items-center gap-2 text-xl font-bold text-neutral-12">
+          <LeaderBoardIcon className="h-6 w-6" /> Top leaders
         </h1>
         <Link href="/leaderboard">
-          <span className="text-neutral-11 font-medium text-sm sm:text-base hover:text-primary-10 transition-colors">View All</span>
+          <span className="text-neutral-11 font-medium text-sm sm:text-base hover:text-primary-10 transition-colors">
+            View All
+          </span>
         </Link>
       </div>
 
@@ -82,14 +84,18 @@ export function TopLeaders() {
               <div
                 className={`absolute w-8 h-8 sm:w-10 sm:h-10 top-6 sm:top-7 right-6 sm:right-8 text-neutral-12 border ${userColor.border} ${userColor.bg} rounded-lg flex items-center justify-center`}
               >
-                <MedalIcon className={`${userColor.medal} h-4 w-4 sm:h-5 sm:w-5`} />
+                <MedalIcon
+                  className={`${userColor.medal} h-4 w-4 sm:h-5 sm:w-5`}
+                />
                 <p
                   className={`${userColor.text} font-semibold font-sora absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 mt-0.5 sm:mt-1 text-xs sm:text-sm`}
                 >
                   {leader.rank}
                 </p>
               </div>
-              <h2 className="text-sm sm:text-base font-medium text-neutral-12">{leader.username}</h2>
+              <h2 className="text-sm sm:text-base font-medium text-neutral-12">
+                {leader.username}
+              </h2>
               <div className="flex items-center justify-between">
                 <div className="leading-none">
                   <h1 className="font-bold text-neutral-12 text-sm sm:text-base">

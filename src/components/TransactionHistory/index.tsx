@@ -220,7 +220,7 @@ export function TransactionHistory() {
       <section className="w-full bg-[#0F0F0F] min-h-screen">
         <Header />
 
-        <div className="w-full max-w-[1280px] mx-auto px-4 py-6 pt-20">
+        <div className="w-full max-w-screen-2xl mx-auto px-4 py-6 pt-20">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
             <h1 className="text-2xl font-bold text-white">
               {activeTab === "transactions"

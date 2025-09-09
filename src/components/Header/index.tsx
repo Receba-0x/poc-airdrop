@@ -1,12 +1,7 @@
 "use client";
 import { Button } from "../Button";
 import { LogoIcon } from "../Icons/LogoIcon";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  AnimatePresence,
-} from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { BoxIcon } from "../Icons/BoxIcon";
@@ -14,26 +9,46 @@ import { HistoricIcon } from "../Icons/HistoricIcon";
 import { WhitepaperIcon } from "../Icons/WhitepaperIcon";
 import { LanguageToggle } from "../LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { WalletConnectButton } from "../WalletConnectButton";
 import { LeaderBoardIcon } from "../Icons/LeaderBoardIcon";
 import { HomeIcon } from "../Icons/HomeIcon";
 import { MoneyIcon } from "../Icons/MoneyIcon";
-import { useModalStore } from "@/stores/modalStore";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../DropDown";
+import Image from "next/image";
+import { SettingsIcon, UserIcon } from "lucide-react";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const { t, language } = useLanguage();
-  const { openModal } = useModalStore();
+  const { push } = useRouter();
+  const { isAuthenticated, user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (dropdownOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "auto";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [dropdownOpen]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -126,7 +141,7 @@ export function Header() {
       icon: <LeaderBoardIcon />,
     },
     {
-      href: "/transactions",
+      href: "/profile#transactions",
       label: t("header.transactions"),
       key: "transactions",
       icon: <WhitepaperIcon />,
@@ -136,11 +151,11 @@ export function Header() {
   return (
     <>
       <motion.header
-        className={`w-full fixed top-0 left-0 p-[14px] px-6 z-[100] h-[64px] md:h-[80px] border-b transition-all duration-300 flex items-center justify-center bg-neutral-2 ${
+        className={`w-full fixed top-0 left-0 p-[14px] px-6 z-[100] h-[64px] md:h-[72px] border-b transition-all duration-300 flex items-center justify-center bg-neutral-2 ${
           scrolled ? "shadow-md border-neutral-6" : "border-transparent"
         }`}
       >
-        <div className="max-w-[1280px] h-full w-full flex items-center justify-between px-6 md:px-0">
+        <div className="max-w-screen-2xl h-full w-full flex items-center justify-between px-6 md:px-0">
           <div className="flex items-center gap-4">
             <Link href="/">
               <motion.div
@@ -165,7 +180,7 @@ export function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="flex items-center gap-2 p-2 fill-neutral-11 hover:fill-primary-12 hover:bg-primary-3 hover:text-primary-12 border border-transparent hover:border-primary-6 rounded-md transition-all duration-300"
+                  className="flex items-center text-sm gap-2 p-2 fill-neutral-11 hover:fill-primary-12 hover:bg-primary-3 hover:text-primary-12 border border-transparent hover:border-primary-6 rounded-md transition-all duration-300"
                 >
                   {link.icon}
                   {link.label}
@@ -187,16 +202,146 @@ export function Header() {
               initial="hidden"
               animate="visible"
               variants={buttonVariants}
-              className="flex items-center gap-2 bg-neutral-3 border border-neutral-6 p-2 h-full rounded-lg"
+              className="flex items-center gap-2 h-full rounded-lg"
             >
-              <h1 className="text-neutral-12 font-bold flex items-center gap-1">
-                <MoneyIcon /> 100,00
+              <h1 className="text-neutral-12 rounded-lg border border-neutral-6 bg-neutral-3 hover:bg-neutral-4 h-full px-2 flex items-center gap-1">
+                <MoneyIcon /> $100.00
               </h1>
-              <div className="flex items-center gap-2">
-                <Button variant="default" onClick={() => openModal("deposit")}>Deposit</Button>
-                <Button variant="outline" onClick={() => openModal("withdraw")}>Withdraw</Button>
-              </div>
-              <WalletConnectButton />
+              {/*  <div className="flex items-center gap-2">
+                <Button variant="default" onClick={() => openModal("deposit")}>
+                  Deposit
+                </Button>
+                <Button variant="outline" onClick={() => openModal("withdraw")}>
+                  Withdraw
+                </Button>
+              </div> */}
+              {isAuthenticated && user ? (
+                <DropdownMenu
+                  modal={false}
+                  open={dropdownOpen}
+                  onOpenChange={setDropdownOpen}
+                >
+                  <DropdownMenuTrigger asChild>
+                    <button className="relative group">
+                      <div className="w-12 h-w-12 rounded-full overflow-hidden border-2 border-neutral-6 transition-all duration-200 group-hover:border-primary-10">
+                        <Image
+                          src={user.avatar || "/images/profile.png"}
+                          alt="Profile"
+                          width={48}
+                          height={48}
+                          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-110"
+                        />
+                      </div>
+                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-1"></div>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className="w-64 bg-neutral-2 border-neutral-6 shadow-lg"
+                    align="end"
+                    sideOffset={8}
+                    onCloseAutoFocus={(event: any) => {
+                      event.preventDefault();
+                    }}
+                  >
+                    <div className="px-4 py-3 border-b border-neutral-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-neutral-6">
+                          <Image
+                            src={user.avatar || "/images/profile.png"}
+                            alt="Profile"
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-neutral-12 truncate">
+                            {user.firstName && user.lastName
+                              ? `${user.firstName} ${user.lastName}`
+                              : user.username || "User"}
+                          </p>
+                          <p className="text-xs text-neutral-10 truncate">
+                            {user.email}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Menu items */}
+                    <DropdownMenuItem
+                      className="px-4 py-3 hover:bg-neutral-3 cursor-pointer transition-colors"
+                      onClick={() => push("/profile")}
+                    >
+                      <div className="flex items-center gap-3 w-full">
+                        <UserIcon />
+                        <span className="text-sm text-neutral-12">
+                          Meu Perfil
+                        </span>
+                      </div>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      className="px-4 py-3 hover:bg-neutral-3 cursor-pointer transition-colors"
+                      onClick={() => push("/profile#settings")}
+                    >
+                      <div className="flex items-center gap-3 w-full">
+                        <SettingsIcon />
+                        <span className="text-sm text-neutral-12">
+                          Configurações
+                        </span>
+                      </div>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      className="px-4 py-3 hover:bg-neutral-3 cursor-pointer transition-colors"
+                      onClick={() => push("/profile#transactions")}
+                    >
+                      <div className="flex items-center gap-3 w-full">
+                        <HistoricIcon />
+                        <span className="text-sm text-neutral-12">
+                          Transações
+                        </span>
+                      </div>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator className="bg-neutral-6" />
+
+                    <DropdownMenuItem
+                      className="px-4 py-3 hover:bg-red-50 cursor-pointer transition-colors"
+                      onClick={() => logout()}
+                    >
+                      <div className="flex items-center gap-3 w-full">
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <svg
+                            className="w-4 h-4 text-red-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                            />
+                          </svg>
+                        </div>
+                        <span className="text-sm text-red-600 font-medium">
+                          Sair
+                        </span>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button
+                  onClick={() => push("/login")}
+                  variant="default"
+                  className="h-full"
+                >
+                  Login
+                </Button>
+              )}
             </motion.div>
           </div>
           <motion.div
@@ -326,7 +471,6 @@ export function Header() {
                   </motion.div>
                 </motion.div>
 
-                {/* ThemeToggle removed - using dark theme only */}
                 <motion.div className="flex flex-col gap-4 mt-4 w-full">
                   <motion.div className="w-full" variants={menuItemVariants}>
                     <div className="flex items-center justify-between border-b border-[#222222] pb-3 mb-3">
@@ -335,7 +479,9 @@ export function Header() {
                       </span>
                       <LanguageToggle />
                     </div>
-                    <WalletConnectButton />
+                    <Button onClick={() => push("/login")} variant="default">
+                      Login
+                    </Button>
                   </motion.div>
                   <motion.div variants={menuItemVariants}>
                     <Button

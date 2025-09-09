@@ -1,5 +1,9 @@
 export * from "./currency";
 
+// API and CSRF exports
+export { default as api } from "./api";
+export { csrfManager } from "./csrf";
+
 export function clearWalletCache() {
   try {
     const keysToRemove = [

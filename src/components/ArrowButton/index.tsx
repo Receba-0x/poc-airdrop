@@ -1,6 +1,6 @@
 export function ArrowButton() {
   return (
-    <div className="p-2 bg-primary-3 border border-primary-10 rounded-md w-6 h-6 flex items-center justify-center cursor-pointer hover:bg-primary-4 transition-all duration-300 active:bg-primary-5 active:scale-95">
+    <span className="p-2 bg-primary-3 border border-primary-10 rounded-md w-6 h-6 flex items-center justify-center cursor-pointer hover:bg-primary-4 transition-all duration-300 active:bg-primary-5 active:scale-95">
       <svg
         width="6"
         height="10"
@@ -16,6 +16,6 @@ export function ArrowButton() {
           strokeLinejoin="round"
         />
       </svg>
-    </div>
+    </span>
   );
 }

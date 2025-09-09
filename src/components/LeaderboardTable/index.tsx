@@ -65,7 +65,7 @@ export function LeaderboardTable() {
   };
 
   return (
-    <div className="max-w-[1280px] mx-auto px-6 md:px-0">
+    <div className="max-w-screen-2xl mx-auto px-6 md:px-0">
       <div className="bg-neutral-3 rounded-lg overflow-hidden border border-neutral-6">
         {/* Header */}
         <div className="bg-neutral-4 border-b border-neutral-6">

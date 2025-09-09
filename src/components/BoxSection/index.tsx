@@ -9,42 +9,26 @@ import { PurchaseIcon } from "../Icons/PurchaseIcon";
 import ItemCard from "../ItemCard";
 import { ScrollAnimation } from "../ScrollAnimation";
 import { motion } from "framer-motion";
-import { boxesData, getItensData } from "@/constants";
-import { usePurchase } from "@/hooks/usePurchase";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { TransactionPurchaseModal } from "../TransactionPurchaseModal";
 import HorizontalSpinCarousel from "../HorizontalSpinCarousel";
+import {
+  useClientSeed,
+  useLootbox,
+  usePurchaseLootbox,
+} from "@/hooks/useLootbox";
 
 export function BoxSection({ id }: { id: string }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const carouselRef = useRef<HorizontalSpinCarouselRef>(null);
-  const {
-    onMint,
-    modalOpen,
-    modalStatus,
-    errorMessage: purchaseErrorMessage,
-    transactionHash,
-    currentPrize,
-    closeModal,
-  } = usePurchase();
-
   const [wonPrize, setWonPrize] = useState<any>(null);
   const [shouldSpin, setShouldSpin] = useState(false);
+  const { lootbox, isLoading } = useLootbox(id);
+  const { purchase } = usePurchaseLootbox();
+  const { generateSeed } = useClientSeed();
   const { t } = useLanguage();
-
-  const [simulationModalOpen, setSimulationModalOpen] = useState(false);
-  const [simulationStatus, setSimulationStatus] = useState<
-    | "initializing"
-    | "processing_sol_fee"
-    | "validating_transaction"
-    | "processing"
-    | "success"
-    | "error"
-  >("initializing");
-  const [simulationPrize, setSimulationPrize] = useState<any>(null);
-  const itens = getItensData(t).filter(item => [5, 6, 7, 8, 9].includes(item.id));
+  const itens = lootbox?.items?.map((item) => item.item) || [];
 
   useEffect(() => {
     const checkMobile = () => {
@@ -57,9 +41,14 @@ export function BoxSection({ id }: { id: string }) {
 
   const handlePurchase = async () => {
     try {
-      const result = await onMint(id);
-      if (result?.prize) {
-        setWonPrize(result.prize);
+      const seed = generateSeed();
+      const purchaseResult = await purchase({
+        action: "purchase",
+        boxId: id,
+        clientSeed: seed,
+      });
+      if (purchaseResult?.data?.wonPrize) {
+        setWonPrize(purchaseResult.data.wonPrize);
         setShouldSpin(true);
       }
     } catch (error: any) {
@@ -71,12 +60,7 @@ export function BoxSection({ id }: { id: string }) {
     handleTestSpin();
   };
 
-  const closeSimulationModal = () => {
-    setSimulationModalOpen(false);
-    setSimulationPrize(null);
-  };
-
-  const handleSpinComplete = (winningItem: any) => {
+  const handleSpinComplete = () => {
     setIsSpinning(false);
     setWonPrize(null);
     setShouldSpin(false);
@@ -90,19 +74,10 @@ export function BoxSection({ id }: { id: string }) {
     }
   };
 
-  // Efeito para fazer o spin automático após a compra
   useEffect(() => {
-    if (
-      shouldSpin &&
-      wonPrize &&
-      carouselRef.current &&
-      !isSpinning &&
-      !modalOpen
-    ) {
-      // Aguardar um pouco para garantir que o modal fechou completamente
+    if (shouldSpin && wonPrize && carouselRef.current && !isSpinning) {
       setTimeout(() => {
         setIsSpinning(true);
-        // Mapear o prizeId para o index correto no array de itens
         const prizeIndex = itens.findIndex((item) => item.id === wonPrize.id);
         const targetIndex =
           prizeIndex >= 0
@@ -111,11 +86,11 @@ export function BoxSection({ id }: { id: string }) {
         carouselRef.current?.startSpin(targetIndex);
       }, 500);
     }
-  }, [shouldSpin, wonPrize, isSpinning, modalOpen, itens]);
+  }, [shouldSpin, wonPrize, isSpinning, itens]);
 
-  const boxImage = boxesData.find((box) => box.id === id)?.image || "";
-  const boxPrice = boxesData.find((box) => box.id === id)?.price || 0;
-  const boxPriceInToken = boxPrice;
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -141,7 +116,7 @@ export function BoxSection({ id }: { id: string }) {
           />
         </ScrollAnimation>
 
-        <div className="flex flex-col w-full max-w-[1280px] px-6 md:px-0 pt-6">
+        <div className="flex flex-col w-full max-w-screen-2xl px-6 md:px-0 pt-6">
           <ScrollAnimation
             type="fade"
             direction="up"
@@ -150,14 +125,16 @@ export function BoxSection({ id }: { id: string }) {
           >
             <div className="flex flex-col md:flex-row items-start md:items-center w-full justify-between gap-4 md:gap-16">
               <div className="flex items-center gap-4 sm:gap-8">
-                <Image
-                  src={boxImage}
-                  alt="random"
-                  height={110}
-                  width={130}
-                  className="object-cover"
-                  priority
-                />
+                {lootbox?.imageUrl && (
+                  <Image
+                    src={lootbox.imageUrl}
+                    alt="random"
+                    height={110}
+                    width={130}
+                    className="object-cover"
+                    priority
+                  />
+                )}
                 <div className="flex flex-col gap-2">
                   <motion.h1
                     className="bg-gradient-to-r from-[#FFF7A8] to-[#FFEB28] bg-clip-text text-transparent font-bold text-xl sm:text-2xl"
@@ -172,7 +149,7 @@ export function BoxSection({ id }: { id: string }) {
                       },
                     }}
                   >
-                    {t("box.superPrizes")}
+                    {lootbox?.name}
                   </motion.h1>
                   <p className="text-xs sm:text-sm text-[#B4B4B4] max-w-[300px] sm:max-w-none">
                     {t("box.description")}{" "}
@@ -189,7 +166,7 @@ export function BoxSection({ id }: { id: string }) {
                 >
                   <LogoIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                   <span className="font-bold text-xl sm:text-2xl">
-                    {boxPriceInToken.toLocaleString("en-US", {
+                    {lootbox?.price.toLocaleString("en-US", {
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 2,
                     })}
@@ -240,7 +217,7 @@ export function BoxSection({ id }: { id: string }) {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-10">
               {itens.map((box, index) => (
                 <motion.div
-                  key={Number(box.id) + index}
+                  key={index}
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.3 }}
                 >
@@ -252,7 +229,7 @@ export function BoxSection({ id }: { id: string }) {
         </div>
       </section>
 
-      <TransactionPurchaseModal
+      {/* <TransactionPurchaseModal
         isOpen={modalOpen}
         onClose={closeModal}
         status={modalStatus}
@@ -272,7 +249,7 @@ export function BoxSection({ id }: { id: string }) {
         boxType={t("box.superPrizes")}
         prize={simulationPrize}
         onBuyAgain={handleSimulation}
-      />
+      /> */}
     </>
   );
 }

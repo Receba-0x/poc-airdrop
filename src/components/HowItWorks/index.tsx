@@ -52,7 +52,7 @@ export function HowItWorks() {
 
   return (
     <ScrollAnimation type="fade" direction="up" delay={0.2} duration={0.8}>
-      <div className="max-w-[1280px] mx-auto min-h-[320px] sm:min-h-[350px] lg:min-h-[385px] bg-neutral-3 rounded-lg border border-neutral-6 p-4 sm:p-5 lg:p-6 pt-6 sm:pt-8 lg:pt-10">
+      <div className="max-w-screen-2xl mx-auto min-h-[320px] sm:min-h-[350px] lg:min-h-[385px] bg-neutral-3 rounded-lg border border-neutral-6 p-4 sm:p-5 lg:p-6 pt-6 sm:pt-8 lg:pt-10">
         <div className="text-center mb-4 sm:mb-6">
           <div className="flex items-center justify-center gap-2 mb-3">
             <ThreeDBoxIcon className="h-6 w-6 sm:h-8 sm:w-8" />

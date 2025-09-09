@@ -104,7 +104,7 @@ export function FAQ() {
 
   return (
     <ScrollAnimation type="fade" direction="up" delay={0.2} duration={0.8}>
-      <div className="max-w-[1280px] mx-auto py-6 pt-0 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-screen-2xl mx-auto">
         <div className="text-center mb-6 sm:mb-8">
           <div className="flex items-center justify-center gap-2 mb-3 sm:mb-4">
             <FAQIcon className="h-6 w-6 sm:h-8 sm:w-8" />

@@ -38,7 +38,13 @@ const nextConfig: NextConfig = {
   },
   images: {
     unoptimized: true,
-    domains: ["localhost"],
+    domains: ["*"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "localhost",
+      },
+    ],
   },
   compress: true,
   poweredByHeader: false,

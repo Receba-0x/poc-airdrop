@@ -2,12 +2,20 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import type { Item } from "@/services";
 
 type ItemCardProps = {
-  item: any;
+  item: Item;
 };
 
 const colors = {
+  common: {
+    bar: "bg-neutral-11",
+    bg: "bg-neutral-2",
+    light: "bg-neutral-9",
+    border: "border-neutral-6",
+    text: "text-neutral-11",
+  },
   uncommon: {
     bar: "bg-green-11",
     bg: "bg-green-2",
@@ -41,7 +49,8 @@ const colors = {
 export default function ItemCard({ item }: ItemCardProps) {
   const { t } = useLanguage();
 
-  const itemColor = colors[item.rarity as keyof typeof colors];
+  const rarity = item.rarity?.toLowerCase() || "common";
+  const itemColor = colors[rarity as keyof typeof colors];
 
   return (
     <motion.div
@@ -56,13 +65,13 @@ export default function ItemCard({ item }: ItemCardProps) {
       <p
         className={`${itemColor.text} text-xs font-medium p-1 px-2 font-sora z-10 mt-1 absolute top-4 left-4 ${itemColor.text} border ${itemColor.border} ${itemColor.bg} rounded`}
       >
-        {item.rarity.toUpperCase()}
+        {rarity?.toUpperCase()}
       </p>
 
       <div className="w-full h-full flex items-center justify-center">
         <Image
-          src={item.image}
-          alt={item.title}
+          src={item.imageUrl || ""}
+          alt={item.name}
           width={130}
           height={130}
           className="object-cover z-10 group-hover:-rotate-6 transition-all duration-300 ease-in-out"
@@ -73,7 +82,7 @@ export default function ItemCard({ item }: ItemCardProps) {
         />
       </div>
 
-      <span className={`${itemColor.text} font-semibold`}>{item.title}</span>
+      <span className={`${itemColor.text} font-semibold`}>{item.name}</span>
     </motion.div>
   );
 }

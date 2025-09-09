@@ -8,22 +8,17 @@ import React, {
 } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import type { Item } from "@/services";
 
-interface CarouselItem {
-  id: string | number;
-  name: string;
-  image: string;
-  [key: string]: any;
-}
 
 interface HorizontalSpinCarouselProps {
-  items: CarouselItem[];
+  items: Item[];
   itemWidth?: number;
   itemHeight?: number;
   speed?: number;
   gap?: number;
-  onSpinComplete?: (winningItem: CarouselItem) => void;
-  onItemInCenter?: (item: CarouselItem, index: number) => void;
+  onSpinComplete?: (winningItem: Item) => void;
+  onItemInCenter?: (item: Item, index: number) => void;
   selectedIndex?: number;
   spinDuration?: number;
   className?: string;
@@ -65,9 +60,17 @@ const HorizontalSpinCarousel = forwardRef<
     const [currentCenterIndex, setCurrentCenterIndex] = useState<number>(-1);
     const highFrequencyDetectionRef = useRef<number | null>(null);
 
+    // Virtualização
+    const [virtualStartIndex, setVirtualStartIndex] = useState(0);
+    const [virtualEndIndex, setVirtualEndIndex] = useState(0);
+    const [currentPosition, setCurrentPosition] = useState(0);
+
     const tickAudioRef = useRef<HTMLAudioElement | null>(null);
     const finishAudioRef = useRef<HTMLAudioElement | null>(null);
     const startAudioRef = useRef<HTMLAudioElement | null>(null);
+
+    const VIRTUAL_BUFFER = 5;
+    const itemFullWidth = itemWidth + gap;
 
     useEffect(() => {
       const startTime = Date.now();
@@ -91,7 +94,6 @@ const HorizontalSpinCarousel = forwardRef<
 
       const checkAudioLoad = () => {
         const loadTime = Date.now() - startTime;
-        console.log(`[AUDIO] Áudios carregados em ${loadTime}ms`);
       };
 
       if (
@@ -367,6 +369,7 @@ const HorizontalSpinCarousel = forwardRef<
         setWinningIndex(selectedIndex);
         setHasSpun(false);
         setFinalPosition(0);
+        setCurrentPosition(0);
         setCurrentCenterIndex(-1);
 
         if (carouselRef.current) {
@@ -403,6 +406,59 @@ const HorizontalSpinCarousel = forwardRef<
       }
     }, [items, isSpinning, hasSpun]);
 
+    // Itens virtuais para renderização otimizada
+    const virtualItems = React.useMemo(() => {
+      if (isSpinning || hasSpun) {
+        // Durante spin ou após spin, renderizar todos os itens para animação completa
+        const allItems = displayItems.map((item, index) => ({
+          item,
+          index,
+          virtualIndex: index,
+        }));
+        return allItems;
+      } else {
+        // Modo virtualizado normal
+        const items = [];
+        for (let i = virtualStartIndex; i <= virtualEndIndex; i++) {
+          if (i < displayItems.length) {
+            items.push({
+              item: displayItems[i],
+              index: i,
+              virtualIndex: i - virtualStartIndex,
+            });
+          }
+        }
+        return items;
+      }
+    }, [displayItems, virtualStartIndex, virtualEndIndex, isSpinning, hasSpun]);
+
+    // Função para calcular itens visíveis para virtualização
+    const calculateVisibleItems = (position: number) => {
+      if (!containerRef.current) {
+        return { start: 0, end: 0 };
+      }
+
+      const containerWidth = containerRef.current.offsetWidth;
+      const totalItems = displayItems.length;
+
+      // Calcular índices baseados na posição atual
+      const startPosition = Math.abs(position);
+      const visibleStartIndex = Math.floor(startPosition / itemFullWidth);
+      const visibleEndIndex = Math.ceil(
+        (startPosition + containerWidth) / itemFullWidth
+      );
+
+      // Adicionar buffer
+      const bufferedStart = Math.max(0, visibleStartIndex - VIRTUAL_BUFFER);
+      const bufferedEnd = Math.min(
+        totalItems - 1,
+        visibleEndIndex + VIRTUAL_BUFFER
+      );
+
+
+      return { start: bufferedStart, end: bufferedEnd };
+    };
+
     // Cache para otimização de detecção
     const detectionCache = useRef({
       lastContainerCenterX: 0,
@@ -427,37 +483,21 @@ const HorizontalSpinCarousel = forwardRef<
         return detectionCache.current.lastResult;
       }
 
-      const itemElements = carouselRef.current.children;
-      let closestIndex = -1;
-      let closestDistance = Infinity;
-      let intersectingIndex = -1;
+      // Calcular posição baseada no transform atual
+      const currentTransform =
+        carouselRef.current.style.transform || "translateX(0px)";
+      const position = parseFloat(
+        currentTransform.replace("translateX(", "").replace("px)", "")
+      );
+      const containerWidth = containerRef.current.offsetWidth;
+      const centerOffset = containerWidth / 2;
 
-      for (let i = 0; i < itemElements.length; i++) {
-        const itemElement = itemElements[i] as HTMLElement;
-        const itemRect = itemElement.getBoundingClientRect();
-
-        if (
-          itemRect.left <= containerCenterX &&
-          containerCenterX <= itemRect.right
-        ) {
-          intersectingIndex = i % items.length;
-          break;
-        }
-
-        const itemCenterX = itemRect.left + itemRect.width / 2;
-        const distance = Math.abs(containerCenterX - itemCenterX);
-
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestIndex = i;
-        }
-      }
-      const result =
-        intersectingIndex >= 0
-          ? intersectingIndex
-          : closestIndex >= 0
-          ? closestIndex % items.length
-          : -1;
+      // Calcular qual item deveria estar no centro baseado na posição
+      const absoluteCenterPosition = Math.abs(position) + centerOffset;
+      const centerItemIndex = Math.round(
+        absoluteCenterPosition / itemFullWidth
+      );
+      const result = centerItemIndex % items.length;
 
       // Atualizar cache
       detectionCache.current = {
@@ -515,12 +555,25 @@ const HorizontalSpinCarousel = forwardRef<
       }
       carouselRef.current.style.transform = `translateX(${position}px)`;
 
+      // Atualizar posição para virtualização
+      setCurrentPosition(position);
+
       animationRef.current = requestAnimationFrame(animate);
     };
+
+    // Atualizar itens virtuais quando posição muda
+    useEffect(() => {
+      if (!isSpinning && !hasSpun) {
+        const { start, end } = calculateVisibleItems(currentPosition);
+        setVirtualStartIndex(start);
+        setVirtualEndIndex(end);
+      }
+    }, [currentPosition, isSpinning, hasSpun]);
 
     useEffect(() => {
       if (carouselRef.current && !isSpinning && !hasSpun) {
         carouselRef.current.style.transform = "translateX(0px)";
+        setCurrentPosition(0);
         animationRef.current = requestAnimationFrame(animate);
         startHighFrequencyDetection();
         return () => {
@@ -530,6 +583,7 @@ const HorizontalSpinCarousel = forwardRef<
         };
       } else if (hasSpun && carouselRef.current) {
         carouselRef.current.style.transform = `translateX(${finalPosition}px)`;
+        setCurrentPosition(finalPosition);
       }
     }, [isSpinning, hasSpun]);
 
@@ -594,54 +648,66 @@ const HorizontalSpinCarousel = forwardRef<
                 willChange: "transform",
                 transformStyle: "preserve-3d",
                 gap: `${gap}px`,
+                ...(isSpinning || hasSpun
+                  ? {}
+                  : {
+                      width: `${displayItems.length * itemFullWidth - gap}px`,
+                      left: `${virtualStartIndex * itemFullWidth}px`,
+                    }),
               }}
             >
-              {displayItems.map((item, index) => {
+              {virtualItems.map(({ item, index, virtualIndex }) => {
                 const itemIndexInOriginal = index % items.length;
                 const isInCenter = itemIndexInOriginal === currentCenterIndex;
-
+                const isWinner = itemIndexInOriginal === winningIndex;
                 return (
                   <div
                     key={`${item.id}-${index}`}
-                    className={`shrink-0 rounded-lg transition-all duration-300 ease-in-out ${
-                      isInCenter
-                        ? "scale-110"
-                        : isInCenter && showResult
-                        ? "scale-100"
-                        : !isInCenter && showResult
-                        ? "scale-90"
-                        : "scale-100"
-                    }`}
+                    className={`shrink-0 rounded-lg transition-all duration-300 ease-in-out flex flex-col items-center justify-center`}
                     style={{
                       width: `${itemWidth}px`,
                       height: `${itemHeight}px`,
+                      ...(isSpinning || hasSpun
+                        ? {}
+                        : {
+                            position: "absolute",
+                            left: `${virtualIndex * itemFullWidth}px`,
+                          }),
                     }}
                   >
-                    <div className="w-full h-full relative flex flex-col items-center justify-center p-[1px]">
+                    {item.imageUrl && (
                       <Image
-                        src={item.image}
+                        src={item.imageUrl}
                         alt={item.name || `Item ${item.id}`}
                         width={1000}
                         height={1000}
-                        className="w-full h-full object-contain"
+                        className={`w-full h-full object-cover transition-all duration-300 ease-in-out ${
+                          isWinner && showResult
+                            ? "scale-75"
+                            : isInCenter
+                            ? "scale-110"
+                            : showResult
+                            ? "scale-90"
+                            : "scale-100"
+                        }`}
                         draggable={false}
                       />
-                      {showResult && isInCenter && (
-                        <motion.div
-                          className="rounded-lg text-center flex flex-col items-center mt-2"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.5 }}
-                        >
-                          <span className="text-neutral-12 font-bold">
-                            {items[winningIndex].name}
-                          </span>
-                          <span className="text-neutral-12 font-bold">
-                            {items[winningIndex].id}
-                          </span>
-                        </motion.div>
-                      )}
-                    </div>
+                    )}
+                    {showResult && isInCenter && (
+                      <motion.div
+                        className="text-center flex flex-col items-center -mt-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <span className="text-neutral-12 font-medium">
+                          {items[winningIndex].name}
+                        </span>
+                        <span className="text-neutral-12 p-1 px-2 bg-neutral-2 rounded-md">
+                          {items[winningIndex].value}
+                        </span>
+                      </motion.div>
+                    )}
                   </div>
                 );
               })}

@@ -3,16 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import type { Lootbox } from "@/services";
 
-interface BoxCardProps {
-  box: {
-    id: string;
-    title: string;
-    image: string;
-  };
-}
-
-export default function BoxCard({ box }: BoxCardProps) {
+export default function BoxCard({ box }: { box: Lootbox }) {
   return (
     <Link href={`/boxes/${box.id}`} className="group">
       <motion.div
@@ -29,8 +22,8 @@ export default function BoxCard({ box }: BoxCardProps) {
 
         <div className="w-full h-full flex items-center justify-center">
           <Image
-            src={box.image}
-            alt={box.title}
+            src={box.imageUrl}
+            alt={box.name}
             width={140}
             height={120}
             className="object-cover z-10 group-hover:-rotate-6 transition-all duration-300 ease-in-out sm:w-[160px] sm:h-[135px] lg:w-[170px] lg:h-[145px] xl:w-[177px] xl:h-[150px]"
@@ -41,7 +34,9 @@ export default function BoxCard({ box }: BoxCardProps) {
           />
         </div>
 
-        <span className="text-neutral-12 font-semibold text-sm sm:text-base">{box.title}</span>
+        <span className="text-neutral-12 font-semibold text-sm sm:text-base">
+          {box.name}
+        </span>
       </motion.div>
     </Link>
   );
