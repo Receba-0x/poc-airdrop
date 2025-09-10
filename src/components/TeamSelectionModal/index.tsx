@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Modal } from "../Modal";
+import { BaseModal } from "../TransactionModals";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "../Button";
 
@@ -10,7 +10,11 @@ interface TeamSelectionModalProps {
   onSelect: (team: string) => void;
 }
 
-export function TeamSelectionModal({ isOpen, onClose, onSelect }: TeamSelectionModalProps) {
+export function TeamSelectionModal({
+  isOpen,
+  onClose,
+  onSelect,
+}: TeamSelectionModalProps) {
   const { t } = useLanguage();
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
 
@@ -18,7 +22,7 @@ export function TeamSelectionModal({ isOpen, onClose, onSelect }: TeamSelectionM
     { id: "corinthians", name: t("teams.corinthians") || "Corinthians" },
     { id: "brasil", name: t("teams.brasil") || "Brasil" },
     { id: "flamengo", name: t("teams.flamengo") || "Flamengo" },
-    { id: "inter", name: t("teams.inter") || "Inter" }
+    { id: "inter", name: t("teams.inter") || "Inter" },
   ];
 
   function onSelectTeam(team: string) {
@@ -30,7 +34,7 @@ export function TeamSelectionModal({ isOpen, onClose, onSelect }: TeamSelectionM
   };
 
   return (
-    <Modal
+    <BaseModal
       isOpen={isOpen}
       onClose={onClose}
       title={t("teams.selectJersey") || "Select Jersey"}
@@ -40,7 +44,8 @@ export function TeamSelectionModal({ isOpen, onClose, onSelect }: TeamSelectionM
       <div className="p-4">
         <div className="mb-4">
           <p className="text-gray-300 text-sm mb-4">
-            {t("teams.jerseySelectionMessage") || "Please select which team jersey you would like to receive:"}
+            {t("teams.jerseySelectionMessage") ||
+              "Please select which team jersey you would like to receive:"}
           </p>
         </div>
 
@@ -48,10 +53,11 @@ export function TeamSelectionModal({ isOpen, onClose, onSelect }: TeamSelectionM
           {teams.map((team) => (
             <div
               key={team.id}
-              className={`p-4 border rounded-lg cursor-pointer transition-colors ${selectedTeam === team.id
-                ? "bg-blue-900/30 border-blue-500"
-                : "bg-gray-800/30 border-gray-700 hover:border-gray-500"
-                }`}
+              className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                selectedTeam === team.id
+                  ? "bg-blue-900/30 border-blue-500"
+                  : "bg-gray-800/30 border-gray-700 hover:border-gray-500"
+              }`}
               onClick={() => onSelectTeam(team.id)}
             >
               <div className="text-center">
@@ -62,21 +68,14 @@ export function TeamSelectionModal({ isOpen, onClose, onSelect }: TeamSelectionM
         </div>
 
         <div className="flex justify-end">
-          <Button 
-            variant="secondary"
-            className="mr-2"
-            onClick={onClose}
-          >
+          <Button variant="secondary" className="mr-2" onClick={onClose}>
             {t("common.cancel") || "Cancel"}
           </Button>
-          <Button
-            disabled={!selectedTeam}
-            onClick={handleSelect}
-          >
+          <Button disabled={!selectedTeam} onClick={handleSelect}>
             {t("common.confirm") || "Confirm"}
           </Button>
         </div>
       </div>
-    </Modal>
+    </BaseModal>
   );
-} 
+}

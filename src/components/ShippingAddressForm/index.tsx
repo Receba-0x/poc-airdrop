@@ -1,10 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Modal } from "../Modal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import axios from "axios";
 import { TeamSelectionModal } from "../TeamSelectionModal";
 import { Button } from "../Button";
+import { BaseModal } from "../TransactionModals";
 
 interface ShippingAddressFormProps {
   isOpen: boolean;
@@ -202,7 +202,7 @@ export function ShippingAddressForm({
 
   if (isCheckingAddress) {
     return (
-      <Modal
+      <BaseModal
         isOpen={isOpen}
         onClose={onClose}
         title={t("shipping.addressForm") || "Shipping Address Form"}
@@ -210,13 +210,13 @@ export function ShippingAddressForm({
         <div className="text-white text-center py-8">
           <p>{t("common.loading") || "Loading..."}</p>
         </div>
-      </Modal>
+      </BaseModal>
     );
   }
 
   return (
     <>
-      <Modal
+      <BaseModal
         isOpen={isOpen}
         onClose={onClose}
         title={t("shipping.addressForm") || "Shipping Address Form"}
@@ -606,7 +606,7 @@ export function ShippingAddressForm({
             </div>
           </form>
         )}
-      </Modal>
+      </BaseModal>
 
       <TeamSelectionModal
         isOpen={showTeamSelection}

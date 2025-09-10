@@ -1,4 +1,4 @@
-import { Modal } from "./Modal";
+import { BaseModal } from "./TransactionModals";
 import { motion } from "framer-motion";
 import { LogoIcon } from "./Icons/LogoIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -171,7 +171,7 @@ export function TransactionPurchaseModal({
   ].includes(status);
 
   return (
-    <Modal
+    <BaseModal
       isOpen={isOpen}
       onClose={() => undefined}
       title={""}
@@ -401,6 +401,6 @@ export function TransactionPurchaseModal({
           </motion.div>
         )}
       </div>
-    </Modal>
+    </BaseModal>
   );
 }
