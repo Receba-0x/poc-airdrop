@@ -148,19 +148,15 @@ export async function middleware(request: NextRequest) {
   const trustedDomains = [
     "'self'",
     "https://loot-for-fun.vercel.app",
-    "https://api.coingecko.com",
     "https://t.me",
     "https://x.com",
     "wss://relay.walletconnect.com",
     "wss://relay.walletconnect.org",
     "https://registry.walletconnect.com",
     "https://explorer-api.walletconnect.com",
-    "https://api.devnet.solana.com",
-    "https://api.mainnet-beta.solana.com",
-    "https://solana-devnet.g.alchemy.com",
-    "https://solana-mainnet.g.alchemy.com",
     "https://rpc.helius.xyz",
     "https://api.solana.fm",
+    "https://api.loot4.fun",
   ];
 
   if (isDev) trustedDomains.push("http://localhost:*", "https://localhost:*");
