@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 import {
@@ -9,10 +9,6 @@ import {
   ReceiptIcon,
   TruckIcon,
   SettingsIcon,
-  CreditCardIcon,
-  TrophyIcon,
-  BarChart3Icon,
-  CalendarIcon,
   MapPinIcon,
   PhoneIcon,
   CreditCard,
@@ -24,11 +20,13 @@ import { AvatarIcon } from "@/components/Icons/AvatarIcon";
 import { Input } from "@/components/Input";
 import { WalletIcon } from "@/components/Icons/WalletIcon";
 import { EarningIcon } from "@/components/Icons/EarningIcon";
+import { BaseModal } from "@/components/TransactionModals";
+import { uploadService, userService } from "@/services";
 
 type TabType = "profile" | "affiliates" | "transactions" | "deliveries";
 
 export default function UserPage() {
-  const { user } = useAuth();
+  const { user, refetchUser } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>("profile");
 
   const tabs = [
@@ -41,7 +39,7 @@ export default function UserPage() {
   const renderContent = () => {
     switch (activeTab) {
       case "profile":
-        return <ProfileTab user={user} />;
+        return <ProfileTab user={user} refetchUser={refetchUser} />;
       case "affiliates":
         return <AffiliatesTab />;
       case "transactions":
@@ -49,7 +47,7 @@ export default function UserPage() {
       case "deliveries":
         return <DeliveriesTab />;
       default:
-        return <ProfileTab user={user} />;
+        return <ProfileTab user={user} refetchUser={refetchUser} />;
     }
   };
 
@@ -98,7 +96,87 @@ export default function UserPage() {
   );
 }
 
-function ProfileTab({ user }: { user: any }) {
+function ProfileTab({
+  user,
+  refetchUser,
+}: {
+  user: any;
+  refetchUser: () => void;
+}) {
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [username, setUsername] = useState(user?.username);
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageUpload = async () => {
+    if (selectedImage) {
+      const formData = new FormData();
+      formData.append("file", selectedImage);
+      try {
+        const response = await uploadService.uploadImage(formData);
+        if (!response.success) throw new Error(response.error);
+        const imageUrl = response.imageUrl;
+        const serverUrl = process.env.NEXT_PUBLIC_API_URL;
+        const avatar = serverUrl + imageUrl;
+        await userService.updateUser(user.id, { avatar });
+        refetchUser();
+        setIsImageModalOpen(false);
+        setSelectedImage(null);
+        setImagePreview(null);
+      } catch (error) {
+        console.error("Upload error:", error);
+        setIsImageModalOpen(false);
+        setSelectedImage(null);
+        setImagePreview(null);
+      }
+    }
+  };
+
+  const handleUpdateUser = async () => {
+    await userService.updateUser(user.id, { username });
+    refetchUser();
+  };
+
+  const handleCancelUpload = () => {
+    setIsImageModalOpen(false);
+    setSelectedImage(null);
+    setImagePreview(null);
+  };
+
+  const openFileDialog = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-neutral-3 rounded-xl border border-neutral-6 p-4 py-6">
@@ -108,7 +186,7 @@ function ProfileTab({ user }: { user: any }) {
 
         <div className="flex items-center gap-8 justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-w-12 rounded-full overflow-hidden border-2 border-neutral-6 transition-all duration-200 group-hover:border-primary-10">
+            <div className="min-w-12 min-h-12 w-12 h-12 rounded-full overflow-hidden border-2 border-neutral-6 transition-all duration-200 group-hover:border-primary-10">
               {user?.avatar ? (
                 <Image
                   src={user?.avatar || "/images/profile.png"}
@@ -129,12 +207,19 @@ function ProfileTab({ user }: { user: any }) {
             </div>
           </div>
 
-          <Button variant="outline">Alterar Imagem</Button>
+          <Button variant="outline" onClick={() => setIsImageModalOpen(true)}>
+            Alterar Imagem
+          </Button>
         </div>
 
         <div className="space-y-1 mt-4">
           <h2 className="text-neutral-12">Apelido</h2>
-          <Input type="text" value={user?.username} placeholder="Apelido" />
+          <Input
+            type="text"
+            onChange={(e) => setUsername(e.target.value)}
+            value={username}
+            placeholder={user?.username || "Apelido"}
+          />
         </div>
 
         <div className="space-y-1 mt-4">
@@ -143,7 +228,9 @@ function ProfileTab({ user }: { user: any }) {
         </div>
 
         <div className="flex justify-start mt-8">
-          <Button variant="default">Salvar Alterações</Button>
+          <Button variant="default" onClick={handleUpdateUser}>
+            Salvar Alterações
+          </Button>
         </div>
       </div>
 
@@ -155,6 +242,115 @@ function ProfileTab({ user }: { user: any }) {
           <Button variant="outline">Alterar Senha</Button>
         </div>
       </div>
+
+      {/* Modal de Upload de Imagem */}
+      <BaseModal
+        isOpen={isImageModalOpen}
+        onClose={handleCancelUpload}
+        title="Alterar Imagem do Perfil"
+        size="lg"
+      >
+        <div className="space-y-6">
+          <div
+            className={`relative border-2 border-dashed rounded-xl p-4 text-center transition-colors ${
+              imagePreview
+                ? "border-neutral-6 bg-neutral-3"
+                : "border-neutral-6 bg-neutral-3 hover:border-primary-6 hover:bg-primary-3"
+            }`}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          >
+            {imagePreview ? (
+              <div className="space-y-4">
+                <div className="relative w-32 h-32 mx-auto">
+                  <Image
+                    src={imagePreview}
+                    alt="Preview da imagem"
+                    width={128}
+                    height={128}
+                    className="w-full h-full object-cover rounded-full border-4 border-neutral-6"
+                  />
+                  <button
+                    onClick={() => {
+                      setImagePreview(null);
+                      setSelectedImage(null);
+                    }}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                  >
+                    ×
+                  </button>
+                </div>
+                <p className="text-sm text-neutral-11">
+                  Imagem selecionada: {selectedImage?.name}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="w-16 h-16 mx-auto">
+                  <svg
+                    className="w-full h-full text-neutral-10"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-lg font-medium text-neutral-12 mb-2">
+                    Arraste uma imagem aqui
+                  </p>
+                  <p className="text-sm text-neutral-10 mb-4">
+                    ou clique para selecionar um arquivo
+                  </p>
+                  <Button variant="outline" onClick={openFileDialog}>
+                    Selecionar Imagem
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              className="hidden"
+            />
+          </div>
+
+          <div className="bg-neutral-4 rounded-lg p-4">
+            <h4 className="text-sm font-medium text-neutral-12 mb-2">
+              Requisitos da imagem:
+            </h4>
+            <ul className="text-xs text-neutral-10 space-y-1">
+              <li>• Formatos aceitos: JPG, PNG, GIF</li>
+              <li>• Tamanho máximo: 5MB</li>
+              <li>• Resolução recomendada: 200x200px ou maior</li>
+              <li>• Formato quadrado recomendado para melhor visualização</li>
+            </ul>
+          </div>
+
+          {/* Botões de ação */}
+          <div className="flex gap-3 justify-end">
+            <Button variant="outline" onClick={handleCancelUpload}>
+              Cancelar
+            </Button>
+            <Button
+              variant="default"
+              onClick={handleImageUpload}
+              disabled={!selectedImage}
+            >
+              {selectedImage ? "Confirmar Upload" : "Selecione uma imagem"}
+            </Button>
+          </div>
+        </div>
+      </BaseModal>
     </div>
   );
 }
@@ -770,6 +966,7 @@ function DeliveriesTab() {
         </div>
       </div>
 
+      {/* 
       <div className="bg-neutral-2 rounded-xl border border-neutral-6 p-8">
         <h1 className="text-3xl font-bold text-neutral-12 mb-2">
           Minhas Deliveries
@@ -778,7 +975,6 @@ function DeliveriesTab() {
           Acompanhe o status das suas entregas
         </p>
 
-        {/* Delivery Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-neutral-3 rounded-lg p-6 text-center">
             <TruckIcon className="w-8 h-8 text-green-500 mx-auto mb-2" />
@@ -799,7 +995,6 @@ function DeliveriesTab() {
           </div>
         </div>
 
-        {/* Delivery List */}
         <div className="space-y-6">
           {deliveries.map((delivery) => (
             <div
@@ -848,6 +1043,8 @@ function DeliveriesTab() {
           ))}
         </div>
       </div>
+      
+      */}
     </div>
   );
 }

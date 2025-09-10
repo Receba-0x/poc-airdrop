@@ -2,6 +2,7 @@ import { FloatingTransactionButton } from "@/components/FloatingTransactionButto
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { OnLive } from "@/components/OnLive";
+import { ModalsProvider } from "@/components/TransactionModals";
 
 export default function UserLayout({
   children,
@@ -11,6 +12,7 @@ export default function UserLayout({
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
+      <ModalsProvider />
       <div className="mt-[64px] md:mt-[72px] mb-12 bg-neutral-2">
         <OnLive />
         {children}

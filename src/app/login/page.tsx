@@ -1,39 +1,21 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/Button";
-import Image from "next/image";
 import { Input } from "@/components/Input";
-import { z } from "zod";
 import { Checkbox } from "@/components/CheckBox";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import { AlertCircle, CheckCircle, Globe, Loader2, Mail } from "lucide-react";
-import { GoogleIcon } from "@/components/Icons/GoogleIcon";
+import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { BackgroundBeams } from "@/components/BackgroundBeams";
-
-const loginSchema = z.object({
-  email: z.string().email("Invalid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-const registerSchema = z
-  .object({
-    username: z.string().min(3, "Username must be at least 3 characters"),
-    email: z.string().email("Invalid email"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string(),
-    firstName: z.string().min(2, "First name must be at least 2 characters"),
-    lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-type LoginFormData = z.infer<typeof loginSchema>;
-type RegisterFormData = z.infer<typeof registerSchema>;
+import {
+  LoginFormData,
+  RegisterFormData,
+  loginSchema,
+  registerSchema,
+} from "@/validators/Auth.validator";
 
 export default function LoginPage() {
   const router = useRouter();

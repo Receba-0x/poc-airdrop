@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import { BaseModal } from "./BaseModal";
 import { WalletAddress } from "./WalletAddress";
@@ -8,13 +9,6 @@ import { Button } from "@/components/Button";
 import { CheckCircle, AlertCircle, Info } from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-
-const currencies: { value: CurrencyType; label: string; minAmount: number }[] =
-  [
-    { value: "SOL", label: "SOL", minAmount: 0.001 },
-    { value: "USDC", label: "USDC", minAmount: 1 },
-    { value: "BUSD", label: "BUSD", minAmount: 1 },
-  ];
 
 export function DepositModal() {
   const { isOpen, closeDepositModal } = useDepositModal();

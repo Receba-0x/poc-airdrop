@@ -88,10 +88,6 @@ export function BoxSection({ id }: { id: string }) {
     }
   }, [shouldSpin, wonPrize, isSpinning, itens]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <>
       <section className="flex flex-col items-center justify-center w-full">

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import { BaseModal } from "./BaseModal";
 import { TransactionForm } from "./TransactionForm";

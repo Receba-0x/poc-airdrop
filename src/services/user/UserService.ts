@@ -94,6 +94,15 @@ export class UserService {
     }
   }
 
+  async updateUser(id: string, data: any): Promise<any> {
+    try {
+      const response = await this.apiClient.patch(`/api/v1/user/${id}`, data);
+      return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
+    }
+  }
+
   async forgotPassword(data: { email: string }): Promise<{ message: string }> {
     try {
       const response = await this.apiClient.post(

@@ -23,9 +23,6 @@ export class ApiClient {
     this.client = axios.create({
       baseURL,
       timeout: 15000,
-      headers: {
-        "Content-Type": "application/json",
-      },
       withCredentials: true,
     });
 
@@ -172,7 +169,6 @@ export class ApiClient {
     });
   }
 
-
   clearTokens(): void {
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
@@ -193,6 +189,20 @@ export class ApiClient {
   ): Promise<AxiosResponse<ApiResponse<T>>> {
     const response = await this.client.request<ApiResponse<T>>(config);
     return response;
+  }
+
+  async patch<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    const response = await this.request<T>({
+      ...config,
+      method: "patch",
+      url,
+      data,
+    });
+    return response.data;
   }
 
   async get<T = any>(

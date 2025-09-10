@@ -21,6 +21,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  refetchUser: () => void;
   isLoading: boolean;
   error: any;
   login: (data: { email: string; password: string }) => Promise<void>;
@@ -81,6 +82,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     userService.logout();
     setUser(null);
     setError(null);
+  };
+
+  const refetchUser = async () => {
+    const profile = await userService.getProfile();
+    localStorage.setItem("user", JSON.stringify(profile));
+    setUser(profile);
   };
 
   const login = async (data: { email: string; password: string }) => {
@@ -182,6 +189,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     register,
     logout,
     clearError,
+    refetchUser,
   };
 
   return React.createElement(AuthContext.Provider, { value }, children);

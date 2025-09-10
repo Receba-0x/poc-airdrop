@@ -205,7 +205,7 @@ export function Header() {
               className="flex items-center gap-2 h-full rounded-lg"
             >
               <h1 className="text-neutral-12 rounded-lg border border-neutral-6 bg-neutral-3 hover:bg-neutral-4 h-full px-2 flex items-center gap-1">
-                <MoneyIcon /> $100.00
+                <MoneyIcon /> 0.00
               </h1>
               {/*  <div className="flex items-center gap-2">
                 <Button variant="default" onClick={() => openModal("deposit")}>
@@ -223,7 +223,7 @@ export function Header() {
                 >
                   <DropdownMenuTrigger asChild>
                     <button className="relative group">
-                      <div className="w-12 h-w-12 rounded-full overflow-hidden border-2 border-neutral-6 transition-all duration-200 group-hover:border-primary-10">
+                      <div className="min-w-12 min-h-12 w-12 h-12 rounded-full overflow-hidden border-2 border-neutral-6 transition-all duration-200 group-hover:border-primary-10">
                         <Image
                           src={user.avatar || "/images/profile.png"}
                           alt="Profile"
@@ -236,7 +236,7 @@ export function Header() {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
-                    className="w-64 bg-neutral-2 border-neutral-6 shadow-lg"
+                    className="w-64 bg-neutral-2 border border-neutral-6 shadow-lg mt-1"
                     align="end"
                     sideOffset={8}
                     onCloseAutoFocus={(event: any) => {
@@ -256,9 +256,7 @@ export function Header() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-neutral-12 truncate">
-                            {user.firstName && user.lastName
-                              ? `${user.firstName} ${user.lastName}`
-                              : user.username || "User"}
+                            {user.username}
                           </p>
                           <p className="text-xs text-neutral-10 truncate">
                             {user.email}

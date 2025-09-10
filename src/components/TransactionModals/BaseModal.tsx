@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
@@ -67,7 +68,7 @@ export function BaseModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+          className="fixed top-0 left-0 right-0 bottom-0 z-[999] flex items-center justify-center bg-black/70 backdrop-blur-sm"
         >
           <motion.div
             ref={modalRef}
