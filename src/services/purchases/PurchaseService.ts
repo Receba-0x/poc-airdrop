@@ -114,6 +114,17 @@ export interface PurchaseError {
   field?: string;
 }
 
+export interface RecentPurchasesResponse {
+  success: boolean;
+  data: {
+    purchases: Purchase[];
+    total: number;
+    hasMore: boolean;
+    lastUpdate: string;
+  };
+  message: "Compras recentes obtidas com sucesso";
+}
+
 export class PurchaseService {
   constructor(private apiClient: ApiClient) {}
 
@@ -140,18 +151,10 @@ export class PurchaseService {
     return this.apiClient.get<Purchase[]>(`/api/v1/purchases/user/${userId}`);
   }
 
-  // ==========================================
-  // ESTATÍSTICAS
-  // ==========================================
-
   async getPurchasesStats(): Promise<ApiResponse<PurchaseStats>> {
     console.log("/api/v1/purchases/stats");
     return this.apiClient.get<PurchaseStats>("/api/v1/purchases/stats");
   }
-
-  // ==========================================
-  // ATUALIZAR STATUS
-  // ==========================================
 
   async updatePurchaseStatus(
     purchaseId: string,
@@ -162,10 +165,6 @@ export class PurchaseService {
       statusUpdate
     );
   }
-
-  // ==========================================
-  // VERIFICAÇÃO DE FAIRNESS
-  // ==========================================
 
   async verifyFairness(
     request: FairnessVerificationRequest
@@ -187,25 +186,8 @@ export class PurchaseService {
     );
   }
 
-  private handleError(error: any): PurchaseError {
-    if (error.response?.data) {
-      return {
-        message: error.response.data.message || "An error occurred",
-        code: error.response.data.code,
-        field: error.response.data.field,
-      };
-    }
-
-    if (error.request) {
-      return {
-        message: "Network error. Please check your connection.",
-        code: "NETWORK_ERROR",
-      };
-    }
-
-    return {
-      message: error.message || "An unexpected error occurred",
-      code: "UNKNOWN_ERROR",
-    };
+  async getRecentPurchases(): Promise<ApiResponse<RecentPurchasesResponse>> {
+    const url = "/api/v1/purchases/recent";
+    return this.apiClient.get<RecentPurchasesResponse>(url);
   }
 }

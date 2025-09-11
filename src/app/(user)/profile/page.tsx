@@ -21,13 +21,15 @@ import { Input } from "@/components/Input";
 import { WalletIcon } from "@/components/Icons/WalletIcon";
 import { EarningIcon } from "@/components/Icons/EarningIcon";
 import { BaseModal } from "@/components/TransactionModals";
-import { uploadService, userService } from "@/services";
+import { uploadService, userService, type Purchase } from "@/services";
+import { usePurchasesByUser } from "@/hooks/usePurchase";
 
 type TabType = "profile" | "affiliates" | "transactions" | "deliveries";
 
 export default function UserPage() {
   const { user, refetchUser } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>("profile");
+  const { purchases = [] } = usePurchasesByUser(user?.id || "");
 
   const tabs = [
     { id: "profile" as TabType, label: "Perfil", icon: UserIcon },
@@ -43,7 +45,7 @@ export default function UserPage() {
       case "affiliates":
         return <AffiliatesTab />;
       case "transactions":
-        return <TransactionsTab />;
+        return <TransactionsTab purchases={purchases} />;
       case "deliveries":
         return <DeliveriesTab />;
       default:
@@ -591,42 +593,7 @@ function AffiliatesTab() {
   );
 }
 
-function TransactionsTab() {
-  const transactions = [
-    {
-      id: 1,
-      type: "Compra",
-      amount: -50,
-      description: "Loot Box Premium",
-      date: "2024-01-15",
-      status: "completed",
-    },
-    {
-      id: 2,
-      type: "Ganho",
-      amount: 150,
-      description: "Vitória no sorteio",
-      date: "2024-01-14",
-      status: "completed",
-    },
-    {
-      id: 3,
-      type: "Saque",
-      amount: -100,
-      description: "Transferência para conta",
-      date: "2024-01-13",
-      status: "pending",
-    },
-    {
-      id: 4,
-      type: "Depósito",
-      amount: 200,
-      description: "Depósito via PIX",
-      date: "2024-01-12",
-      status: "error",
-    },
-  ];
-
+function TransactionsTab({ purchases }: { purchases: Purchase[] }) {
   return (
     <div className="mt-6">
       <h2 className="text-lg font-semibold text-neutral-12 mb-4">
@@ -643,20 +610,20 @@ function TransactionsTab() {
         </div>
 
         <div className="divide-y divide-neutral-6">
-          {transactions.map((item, index) => (
+          {purchases.map((item, index) => (
             <div
               key={item.id}
               className={`grid grid-cols-5 gap-4 p-4 text-sm hover:bg-neutral-4 transition-colors bg-neutral-3`}
             >
               <div className="flex items-center gap-2">
                 <span className="text-neutral-11 font-medium truncate">
-                  {item.type}
+                  {item.rewards[0].item.type}
                 </span>
               </div>
 
               <div className="flex items-center">
                 <span className="text-neutral-11">
-                  {new Date(item.date).toLocaleDateString("pt-BR")}
+                  {new Date(item.createdAt).toLocaleDateString("pt-BR")}
                 </span>
               </div>
 
@@ -668,7 +635,7 @@ function TransactionsTab() {
 
               <div className="flex items-center">
                 <span className="text-neutral-11 font-semibold">
-                  {item.date}
+                  {item.createdAt}
                 </span>
               </div>
 

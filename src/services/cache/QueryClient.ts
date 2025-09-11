@@ -85,6 +85,14 @@ export const queryKeys = {
     list: (filters: any) => [...queryKeys.purchases.lists(), filters] as const,
     detail: (id: string) => [...queryKeys.purchases.all, "detail", id] as const,
   },
+
+  // Leaderboard
+  leaderboard: {
+    all: ["leaderboard"] as const,
+    list: (page?: number, limit?: number) =>
+      [...queryKeys.leaderboard.all, "list", page, limit] as const,
+    top: () => [...queryKeys.leaderboard.all, "top"] as const,
+  },
 };
 
 // Funções utilitárias para invalidação de cache

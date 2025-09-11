@@ -14,15 +14,7 @@ import { HomeIcon } from "../Icons/HomeIcon";
 import { MoneyIcon } from "../Icons/MoneyIcon";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../DropDown";
-import Image from "next/image";
-import { SettingsIcon, UserIcon } from "lucide-react";
+import { HeaderAvatar } from "../HeaderAvatar";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -155,7 +147,7 @@ export function Header() {
           scrolled ? "shadow-md border-neutral-6" : "border-transparent"
         }`}
       >
-        <div className="max-w-screen-2xl h-full w-full flex items-center justify-between px-6 md:px-0">
+        <div className="max-w-screen-2xl h-full w-full flex items-center justify-between md:px-0">
           <div className="flex items-center gap-4">
             <Link href="/">
               <motion.div
@@ -166,7 +158,7 @@ export function Header() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <LogoIcon />
+                <LogoIcon className="w-10 h-10" />
               </motion.div>
             </Link>
 
@@ -216,121 +208,13 @@ export function Header() {
                 </Button>
               </div> */}
               {isAuthenticated && user ? (
-                <DropdownMenu
-                  modal={false}
-                  open={dropdownOpen}
-                  onOpenChange={setDropdownOpen}
-                >
-                  <DropdownMenuTrigger asChild>
-                    <button className="relative group">
-                      <div className="min-w-12 min-h-12 w-12 h-12 rounded-full overflow-hidden border-2 border-neutral-6 transition-all duration-200 group-hover:border-primary-10">
-                        <Image
-                          src={user.avatar || "/images/profile.png"}
-                          alt="Profile"
-                          width={48}
-                          height={48}
-                          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-110"
-                        />
-                      </div>
-                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-1"></div>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="w-64 bg-neutral-2 border border-neutral-6 shadow-lg mt-1"
-                    align="end"
-                    sideOffset={8}
-                    onCloseAutoFocus={(event: any) => {
-                      event.preventDefault();
-                    }}
-                  >
-                    <div className="px-4 py-3 border-b border-neutral-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-neutral-6">
-                          <Image
-                            src={user.avatar || "/images/profile.png"}
-                            alt="Profile"
-                            width={48}
-                            height={48}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-neutral-12 truncate">
-                            {user.username}
-                          </p>
-                          <p className="text-xs text-neutral-10 truncate">
-                            {user.email}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Menu items */}
-                    <DropdownMenuItem
-                      className="px-4 py-3 hover:bg-neutral-3 cursor-pointer transition-colors"
-                      onClick={() => push("/profile")}
-                    >
-                      <div className="flex items-center gap-3 w-full">
-                        <UserIcon />
-                        <span className="text-sm text-neutral-12">
-                          Meu Perfil
-                        </span>
-                      </div>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                      className="px-4 py-3 hover:bg-neutral-3 cursor-pointer transition-colors"
-                      onClick={() => push("/profile#settings")}
-                    >
-                      <div className="flex items-center gap-3 w-full">
-                        <SettingsIcon />
-                        <span className="text-sm text-neutral-12">
-                          Configurações
-                        </span>
-                      </div>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                      className="px-4 py-3 hover:bg-neutral-3 cursor-pointer transition-colors"
-                      onClick={() => push("/profile#transactions")}
-                    >
-                      <div className="flex items-center gap-3 w-full">
-                        <HistoricIcon />
-                        <span className="text-sm text-neutral-12">
-                          Transações
-                        </span>
-                      </div>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuSeparator className="bg-neutral-6" />
-
-                    <DropdownMenuItem
-                      className="px-4 py-3 hover:bg-red-50 cursor-pointer transition-colors"
-                      onClick={() => logout()}
-                    >
-                      <div className="flex items-center gap-3 w-full">
-                        <div className="w-5 h-5 flex items-center justify-center">
-                          <svg
-                            className="w-4 h-4 text-red-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                            />
-                          </svg>
-                        </div>
-                        <span className="text-sm text-red-600 font-medium">
-                          Sair
-                        </span>
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <HeaderAvatar
+                  user={user}
+                  dropdownOpen={dropdownOpen}
+                  setDropdownOpen={setDropdownOpen}
+                  push={push}
+                  logout={logout}
+                />
               ) : (
                 <Button
                   onClick={() => push("/login")}
@@ -350,7 +234,7 @@ export function Header() {
           >
             <motion.button
               className={`flex flex-col items-center justify-center w-10 h-10 rounded-full relative transition-colors ${
-                mobileMenuOpen ? "bg-[#28D939]/20" : "hover:bg-[#222222]/50"
+                mobileMenuOpen ? "bg-primary-10/20" : "hover:bg-neutral-6/50"
               }`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               animate={mobileMenuOpen ? "open" : "closed"}
@@ -363,8 +247,8 @@ export function Header() {
                 <motion.span
                   className={`absolute h-[2px] rounded-full ${
                     mobileMenuOpen
-                      ? "bg-[#28D939]"
-                      : "bg-gradient-to-r from-[#FFF7A8] to-[#FFEB28]"
+                      ? "bg-primary-10"
+                      : "bg-gradient-to-r from-primary-2 to-primary-10"
                   }`}
                   variants={topLineVariants}
                   transition={{ duration: 0.4, ease: [0.6, 0.05, -0.01, 0.9] }}
@@ -372,7 +256,9 @@ export function Header() {
                 />
                 <motion.span
                   className={`absolute h-[2px] rounded-full ${
-                    mobileMenuOpen ? "bg-[#28D939]" : "bg-white"
+                    mobileMenuOpen
+                      ? "bg-primary-10"
+                      : "bg-gradient-to-r from-primary-2 to-primary-10"
                   }`}
                   variants={middleLineVariants}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -380,8 +266,8 @@ export function Header() {
                 <motion.span
                   className={`absolute h-[2px] rounded-full ${
                     mobileMenuOpen
-                      ? "bg-[#28D939]"
-                      : "bg-gradient-to-r from-[#FFEB28] to-[#FFF7A8]"
+                      ? "bg-primary-10"
+                      : "bg-gradient-to-r from-primary-2 to-primary-10"
                   }`}
                   variants={bottomLineVariants}
                   transition={{ duration: 0.4, ease: [0.6, 0.05, -0.01, 0.9] }}
@@ -397,14 +283,14 @@ export function Header() {
         {mobileMenuOpen && (
           <>
             <motion.div
-              className="fixed inset-0 z-40 bg-[#0F0F0F]/30 backdrop-blur-md"
+              className="fixed inset-0 z-40 bg-neutral-2/30 backdrop-blur-md"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenuOpen(false)}
             />
             <motion.div
-              className="fixed inset-y-0 right-0 z-40 w-[85%] max-w-[360px] bg-gradient-to-l from-[#0F0F0F] to-[#0F0F0F] pt-20 px-6 shadow-xl border-l border-[#222222]"
+              className="fixed inset-y-0 right-0 z-40 w-[85%] max-w-[360px] bg-gradient-to-l from-neutral-2 to-neutral-2 pt-20 px-6 shadow-xl border-l border-neutral-6"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
@@ -435,59 +321,45 @@ export function Header() {
                 }}
               >
                 <motion.div className="flex flex-col gap-4">
-                  <motion.div variants={menuItemVariants}>
-                    <Link
-                      href="/boxes"
-                      className="text-neutral-11 hover:text-neutral-11 transition-colors text-xl py-3 border-b border-[#222222] flex items-center gap-3"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <BoxIcon /> {t("header.boxes")}
-                    </Link>
-                  </motion.div>
-
-                  <motion.div variants={menuItemVariants}>
-                    <Link
-                      href="/transactions"
-                      className="text-neutral-11 hover:text-neutral-11 transition-colors text-xl py-3 border-b border-[#222222] flex items-center gap-4"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <HistoricIcon /> {t("header.historic")}
-                    </Link>
-                  </motion.div>
-
-                  <motion.div variants={menuItemVariants}>
-                    <Link
-                      href={`https://adriano-imperador.gitbook.io/${
-                        language === "en" ? "en" : "pt-br"
-                      }`}
-                      target="_blank"
-                      className="text-neutral-11 hover:text-neutral-11 transition-colors text-xl py-3 border-b border-[#222222] flex items-center gap-4"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <WhitepaperIcon /> {t("header.whitepaper")}
-                    </Link>
-                  </motion.div>
+                  {links.map((link) => (
+                    <motion.div key={link.href} variants={menuItemVariants}>
+                      <Link
+                        href={link.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-4 text-neutral-11 hover:text-neutral-11 transition-colors text-xl py-3 border-b border-neutral-6"
+                      >
+                        {link.icon} {link.label}
+                      </Link>
+                    </motion.div>
+                  ))}
                 </motion.div>
 
                 <motion.div className="flex flex-col gap-4 mt-4 w-full">
                   <motion.div className="w-full" variants={menuItemVariants}>
-                    <div className="flex items-center justify-between border-b border-[#222222] pb-3 mb-3">
+                    <div className="flex items-center justify-between border-b border-neutral-6 pb-3 mb-3">
                       <span className="text-neutral-11 text-sm">
                         {t("common.language")}
                       </span>
                       <LanguageToggle />
                     </div>
-                    <Button onClick={() => push("/login")} variant="default">
-                      Login
-                    </Button>
-                  </motion.div>
-                  <motion.div variants={menuItemVariants}>
-                    <Button
-                      className="w-full py-3 flex items-center justify-center gap-2 h-[40px]"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {t("hero.joinCommunity")}
-                    </Button>
+                    {isAuthenticated && user ? (
+                      <HeaderAvatar
+                        user={user}
+                        dropdownOpen={dropdownOpen}
+                        setDropdownOpen={setDropdownOpen}
+                        push={push}
+                        setMobileMenuOpen={setMobileMenuOpen}
+                        logout={logout}
+                      />
+                    ) : (
+                      <Button
+                        onClick={() => push("/login")}
+                        variant="default"
+                        className="w-full"
+                      >
+                        Login
+                      </Button>
+                    )}
                   </motion.div>
                 </motion.div>
               </motion.div>

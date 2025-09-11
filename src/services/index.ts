@@ -59,6 +59,8 @@ import { AdminPurchasesService } from "./admin/AdminPurchasesService";
 import { AdminLootboxService } from "./admin/AdminLootboxService";
 import { ItemService } from "./item/ItemService";
 import { PurchaseService } from "./purchases/PurchaseService";
+import { LeaderboardService } from "./leaderboard/LeaderboardService";
+export type { Leaderboard } from "./leaderboard/LeaderboardService";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
 export const apiClient = new ApiClient(API_BASE_URL);
@@ -70,3 +72,4 @@ export const uploadService = new UploadService(apiClient);
 export const adminItemsService = new AdminItemsService(apiClient);
 export const adminPurchasesService = new AdminPurchasesService(apiClient);
 export const adminLootboxService = new AdminLootboxService(apiClient);
+export const leaderboardService = new LeaderboardService(apiClient);

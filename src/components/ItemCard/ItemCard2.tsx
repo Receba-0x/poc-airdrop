@@ -1,12 +1,14 @@
+import type { Purchase } from "@/services";
 import Image from "next/image";
 
-type Props = {
-  title: string;
-  image: string;
-  rarity: string;
-};
+type Props = { item: Purchase };
 
 const colors = {
+  common: {
+    bar: "bg-neutral-11",
+    bg: "bg-neutral-2",
+    light: "bg-neutral-9",
+  },
   uncommon: {
     bar: "bg-green-11",
     bg: "bg-green-2",
@@ -29,32 +31,35 @@ const colors = {
   },
 };
 
-export function ItemCard2({ item }: { item: Props }) {
-  const itemColor = colors[item.rarity as keyof typeof colors];
+export function ItemCard2({ item }: Props) {
+  const rarity = item.rewards[0]?.item?.rarity?.toLowerCase();
+  const itemColor = colors[rarity as keyof typeof colors];
 
   return (
     <div className="overflow-hidden w-[106px] h-full relative p-[1px] group">
       <div
-        className={`absolute top-1/2 -translate-y-1/2 left-0 w-full ${itemColor.light} group-hover:h-20 transition-all duration-500 ease-in-out h-10 blur-md`}
+        className={`absolute top-1/2 -translate-y-1/2 left-0 w-full ${itemColor?.light} group-hover:h-20 transition-all duration-500 ease-in-out h-10 blur-md`}
       />
       <div
-        className={`relative p-2 flex flex-col items-center justify-center transition-all duration-200 ease-in-out h-full ${itemColor.bg}`}
+        className={`relative p-2 flex flex-col items-center justify-center transition-all duration-200 ease-in-out h-full ${itemColor?.bg}`}
       >
         <div
-          className={`absolute top-0 left-1/2 -translate-x-1/2 inset-0 ${itemColor.bar} h-1 w-[64px] rounded-b-xl`}
+          className={`absolute top-0 left-1/2 -translate-x-1/2 inset-0 ${itemColor?.bar} h-1 w-[64px] rounded-b-xl`}
         />
         <div
-          className={`absolute -top-14 left-1/2 -translate-x-1/2 w-[80%] ${itemColor.light} h-32 group-hover:h-36 transition-all duration-500 ease-in-out blur-xl`}
+          className={`absolute -top-14 left-1/2 -translate-x-1/2 w-[80%] ${itemColor?.light} h-32 group-hover:h-36 transition-all duration-500 ease-in-out blur-xl`}
         />
         <Image
-          src={item.image}
-          alt={item.title}
+          src={item.rewards[0]?.item?.imageUrl}
+          alt={item.rewards[0]?.item?.name}
           width={64}
           height={64}
           className="object-cover z-10 group-hover:-rotate-6 group-hover:scale-110 transition-all duration-200 ease-in-out mb-5"
           draggable={false}
         />
-        <div className="text-neutral-12 text-xs font-medium absolute bottom-2 mx-auto w-full text-center">{item.title}</div>
+        <div className="text-neutral-12 text-xs font-medium absolute bottom-2 mx-auto w-full text-center">
+          {item.rewards[0]?.item?.name}
+        </div>
       </div>
     </div>
   );

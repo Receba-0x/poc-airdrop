@@ -17,7 +17,7 @@ export function LanguageToggle({ className = "" }: LanguageToggleProps) {
   return (
     <motion.button
       onClick={toggleLanguage}
-      className={`relative w-12 flex items-center h-full rounded-lg border border-neutral-6 bg-neutral-3 hover:bg-neutral-4 transition-all duration-200 ${className}`}
+      className={`relative w-12 flex items-center h-full rounded-lg border border-none md:border-neutral-6 bg-transparent md:bg-neutral-3 hover:bg-neutral-4 transition-all duration-200 ${className}`}
       whileTap={{ scale: 0.95 }}
       title={language === "en" ? "Switch to Portuguese" : "Mudar para Inglês"}
     >

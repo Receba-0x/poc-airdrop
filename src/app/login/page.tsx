@@ -143,20 +143,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center justify-center relative bg-neutral-1">
+    <div className="w-full min-h-screen flex flex-col items-center justify-center relative bg-neutral-2 p-8">
       <BackgroundBeams />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[186px] bg-[url('/images/login_bg.png')] bg-cover bg-center z-10 mx-auto" />
-      <div className="flex flex-col items-center justify-center bg-neutral-2 w-full max-w-2xl mx-auto z-20 rounded-3xl border border-neutral-6 py-8 px-6">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full md:w-[500px] md:h-[186px] h-[250px] bg-[url('/images/login_bg.png')] bg-cover bg-center z-10 mx-auto" />
+      <div className="flex flex-col items-center justify-center bg-neutral-2 w-full max-w-2xl mx-auto z-20 rounded-3xl border border-neutral-6 py-8 md:px-6 px-4">
         <Image
           src="/images/logo_loot_orange.png"
           alt="Login"
           width={200}
           height={52}
-          className="mx-auto"
+          className="mx-auto w-24 sm:w-32 md:w-40"
           draggable={false}
         />
 
-        <p className="text-neutral-12 text-center font-bold text-3xl mt-8">
+        <p className="text-neutral-12 text-center font-bold text-lg sm:text-2xl md:text-3xl mt-2 md:mt-8">
           {activeTab === "login" ? "Bem-vindo de volta!" : "Crie sua conta"}
         </p>
 
@@ -201,7 +201,7 @@ export default function LoginPage() {
               )}
             </div>
 
-            <div className="text-center w-full flex items-center justify-between">
+            <div className="text-center w-full flex flex-col md:flex-row gap-4 md:gap-0 items-start md:items-center justify-between">
               <div className="text-sm text-neutral-11 flex items-center gap-2">
                 <Checkbox />
                 Lembrar da minha conta
@@ -366,11 +366,7 @@ export default function LoginPage() {
             </div>
 
             <div className="flex gap-3 pt-2">
-              <Button
-                type="submit"
-                variant="default"
-                className="flex-1 text-2xl font-bold py-6"
-              >
+              <Button type="submit" variant="default" className="flex-1">
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />

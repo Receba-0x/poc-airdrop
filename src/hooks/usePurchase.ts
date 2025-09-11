@@ -1,4 +1,9 @@
-import { purchaseService, queryKeys, type ItemsFilters } from "@/services";
+import {
+  purchaseService,
+  queryKeys,
+  type ItemsFilters,
+  type Purchase,
+} from "@/services";
 import { useQuery } from "@tanstack/react-query";
 
 export function usePurchase(id: string) {
@@ -46,6 +51,39 @@ export function usePurchasesStats() {
   });
   return {
     stats: query.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+  };
+}
+
+export function useRecentPurchases() {
+  const query = useQuery({
+    queryKey: ["recent-purchases"],
+    queryFn: async () => {
+      const response = await purchaseService.getRecentPurchases();
+      return response as any;
+    },
+    refetchInterval: 5000,
+  });
+  return {
+    recentPurchases: query.data?.data?.purchases as Purchase[],
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+  };
+}
+
+export function usePurchasesByUser(userId: string) {
+  const query = useQuery({
+    queryKey: ["purchases-by-user", userId],
+    queryFn: async () => {
+      const response = await purchaseService.getPurchasesByUser(userId);
+      return response.data;
+    },
+  });
+  return {
+    purchases: query.data,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

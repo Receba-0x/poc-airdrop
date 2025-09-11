@@ -1,9 +1,10 @@
-import { leadersMock } from "@/constants";
+"use client";
 import { LeaderBoardIcon } from "../Icons/LeaderBoardIcon";
-import Image from "next/image";
 import { MedalIcon } from "../Icons/MedalIcon";
 import { Avatar } from "../Avatar";
 import Link from "next/link";
+import { useTopLeaders } from "@/hooks/useLeaderboard";
+import type { Leaderboard } from "@/services";
 
 const colours = {
   1: {
@@ -41,10 +42,30 @@ const colours = {
 };
 
 export function TopLeaders() {
+  const { topLeaders = [], isLoading } = useTopLeaders();
+
   const getColours = (rank: number) => {
     if (rank > 3) return colours.default;
     return colours[rank as keyof typeof colours];
   };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-screen-2xl mx-auto">
+        <div className="animate-pulse">
+          <h1 className="bg-neutral-6 h-10 w-1/4 rounded-lg mb-4"></h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-neutral-6 flex flex-col justify-between rounded-xl p-2 sm:p-4 relative overflow-hidden h-[160px] sm:h-[180px]"
+              ></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-screen-2xl mx-auto">
@@ -60,11 +81,11 @@ export function TopLeaders() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-        {leadersMock.map((leader) => {
+        {topLeaders.map((leader: Leaderboard) => {
           const userColor = getColours(leader.rank);
           return (
             <div
-              key={leader.id}
+              key={leader.rank}
               className={`${userColor.bg} transition-colors duration-300 ease-in-out border ${userColor.border} group flex flex-col justify-between rounded-xl p-3 sm:p-4 relative overflow-hidden h-[160px] sm:h-[180px]`}
             >
               <div
@@ -77,7 +98,7 @@ export function TopLeaders() {
                 className={`absolute top-6 sm:top-8 -right-8 sm:-right-10 -rotate-[80deg] w-24 h-3 sm:w-32 sm:h-4 ${userColor.light} group-hover:h-6 sm:group-hover:h-8 transition-all duration-500 ease-in-out blur-xl`}
               />
               <Avatar
-                avatar={leader.avatar}
+                avatar={leader.imageUrl}
                 color={userColor.avatar}
                 borderColor={userColor.border}
               />
@@ -99,13 +120,13 @@ export function TopLeaders() {
               <div className="flex items-center justify-between">
                 <div className="leading-none">
                   <h1 className="font-bold text-neutral-12 text-sm sm:text-base">
-                    {leader.winnings}
+                    {leader.lastWinAmount}
                   </h1>
                   <p className="text-neutral-11 text-xs sm:text-sm">Last win</p>
                 </div>
                 <div>
                   <h1 className="font-bold text-neutral-12 text-sm sm:text-base">
-                    {leader.winnings}
+                    {leader.totalWinAmount}
                   </h1>
                   <p className="text-neutral-11 text-xs sm:text-sm">Winnings</p>
                 </div>

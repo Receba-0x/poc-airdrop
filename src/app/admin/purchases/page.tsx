@@ -14,6 +14,7 @@ import { usePurchases, usePurchasesStats } from "@/hooks/usePurchase";
 import { CopyIcon } from "@/components/Icons/CopyIcon";
 import { useClipboard } from "@/hooks/useClipboard";
 import { BaseModal } from "@/components/TransactionModals";
+import { formatDate } from "@/utils/dateFormat";
 
 const statusColors = {
   PENDING: "bg-yellow-100 text-yellow-800",
@@ -65,16 +66,6 @@ export default function AdminPurchases() {
     updateStatusMutation.mutate({
       id: selectedPurchase.id,
       status: { status: newStatus as any },
-    });
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString("pt-BR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
     });
   };
 

@@ -10,8 +10,8 @@ export default function Leaderboard() {
 
       <ScrollAnimation type="fade" direction="up" delay={0.4} duration={0.7}>
         <div className="max-w-screen-2xl mx-auto px-6 md:px-0">
-          <h2 className="flex items-center gap-2 text-2xl font-bold text-neutral-12 mb-6">
-            <TrophyIcon className="h-8 w-8" /> Full Leaderboard
+          <h2 className="flex items-center gap-2 text-xl font-bold text-neutral-12 mb-6">
+            <TrophyIcon className="h-6 w-6" /> Full Leaderboard
           </h2>
           <LeaderboardTable />
         </div>

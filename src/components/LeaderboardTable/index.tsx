@@ -1,7 +1,8 @@
 "use client";
 import { useState, useMemo } from "react";
-import { leadersMock } from "@/constants";
-import { LogoIcon } from "../Icons/LogoIcon";
+import { useLeaderboard } from "@/hooks/useLeaderboard";
+import type { Leaderboard } from "@/services/leaderboard/LeaderboardService";
+import { formatDate } from "@/utils/dateFormat";
 
 const colours = {
   1: {
@@ -34,30 +35,19 @@ export function LeaderboardTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 20;
 
+  const {
+    leaderboard = [],
+    totalCount = 0,
+    totalPages,
+    hasNextPage,
+    hasPrevPage,
+    isLoading,
+  } = useLeaderboard({ page: currentPage, limit: ITEMS_PER_PAGE });
+
   const getColours = (rank: number) => {
     if (rank > 3) return colours.default;
     return colours[rank as keyof typeof colours];
   };
-
-  const extendedLeaders = useMemo(
-    () => [
-      ...leadersMock,
-      ...Array.from({ length: 95 }, (_, i) => ({
-        id: leadersMock.length + i + 1,
-        avatar: "/images/avatar_default.png",
-        username: "John Doe",
-        rank: leadersMock.length + i + 1,
-        winnings: Math.floor(Math.random() * 500) + 50,
-        last_win: Math.floor(Math.random() * 24) + 1,
-      })),
-    ],
-    []
-  );
-
-  const totalPages = Math.ceil(extendedLeaders.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentLeaders = extendedLeaders.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -80,82 +70,112 @@ export function LeaderboardTable() {
 
         {/* Body */}
         <div className="divide-y divide-neutral-6">
-          {currentLeaders.map((leader, index) => {
-            const userColor = getColours(leader.rank);
-
-            return (
+          {isLoading ? (
+            Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
               <div
-                key={leader.id}
-                className={`grid grid-cols-12 gap-4 p-4 items-center transition-colors hover:bg-neutral-4/50 ${userColor.bg} px-10`}
+                key={index}
+                className="grid grid-cols-12 gap-4 p-4 items-center px-10 animate-pulse"
               >
-                {/* Place */}
-                <div className="col-span-1 relative flex justify-center">
-                  <div className="text-neutral-12 font-semibold relative">
-                    {leader.rank}
-                    <div
-                      className={`absolute -bottom-5 left-1/2 -translate-x-1/2 rounded-t-lg w-10 h-[4px] ${userColor.bar}`}
-                    />
-                  </div>
-                </div>
-
-                {/* Player name */}
+                <div className="col-span-1 h-6 bg-neutral-6 rounded"></div>
                 <div className="col-span-4 flex items-center gap-3">
-                  <div className="w-8 h-8 relative">
-                    <img
-                      src={leader.avatar}
-                      alt={leader.username}
-                      className={`w-full h-full rounded-lg object-cover border-2 ${userColor.border}`}
-                    />
-                  </div>
-                  <span className="text-neutral-12 font-medium">
-                    {leader.username}
-                  </span>
+                  <div className="w-8 h-8 bg-neutral-6 rounded-lg"></div>
+                  <div className="h-4 bg-neutral-6 rounded w-24"></div>
                 </div>
+                <div className="col-span-2 h-4 bg-neutral-6 rounded"></div>
+                <div className="col-span-3 h-4 bg-neutral-6 rounded"></div>
+                <div className="col-span-2 h-4 bg-neutral-6 rounded"></div>
+              </div>
+            ))
+          ) : leaderboard.length === 0 ? (
+            <div className="p-8 text-center text-neutral-11">
+              Nenhum jogador encontrado
+            </div>
+          ) : (
+            leaderboard.map((leader) => {
+              const userColor = getColours(leader.rank);
 
-                {/* Value */}
-                <div className="col-span-2">
-                  <div className="flex items-center gap-1">
-                    <LogoIcon className="w-4 h-4" />
-                    <span className="text-neutral-12 font-semibold">
-                      {leader.winnings.toFixed(2)}
+              return (
+                <div
+                  key={leader.rank}
+                  className={`grid grid-cols-12 gap-4 p-4 items-center transition-colors hover:bg-neutral-4/50 ${userColor.bg} px-10`}
+                >
+                  {/* Place */}
+                  <div className="col-span-1 relative flex justify-center">
+                    <div className="text-neutral-12 font-semibold relative">
+                      {leader.rank}
+                      <div
+                        className={`absolute -bottom-7 left-1/2 -translate-x-1/2 rounded-t-lg w-10 h-[4px] ${userColor.bar}`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Player name */}
+                  <div className="col-span-4 flex items-center gap-3">
+                    <div className="min-w-12 min-h-12 w-12 h-12 relative">
+                      <img
+                        src={leader.imageUrl || "/images/avatar_default.png"}
+                        alt={leader.username}
+                        className={`w-full h-full rounded-lg object-cover border-2 ${userColor.border}`}
+                        onError={(e) => {
+                          e.currentTarget.src = "/images/avatar_default.png";
+                        }}
+                      />
+                    </div>
+                    <span className="text-neutral-12 font-medium">
+                      {leader.username}
+                    </span>
+                  </div>
+
+                  {/* Value */}
+                  <div className="col-span-2">
+                    <div className="flex items-center gap-1">
+                      <span className="text-neutral-12 font-semibold">
+                        $
+                        {leader.totalWinAmount.toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Items obtained */}
+                  <div className="col-span-3">
+                    <span className="text-neutral-11">
+                      {leader.totalItemsWon?.toLocaleString() || "0"}
+                    </span>
+                  </div>
+
+                  {/* Last activity */}
+                  <div className="col-span-2">
+                    <span className="text-neutral-11">
+                      {formatDate(leader.lastActivity)}
                     </span>
                   </div>
                 </div>
-
-                {/* Items obtained */}
-                <div className="col-span-3">
-                  <span className="text-neutral-11">60</span>
-                </div>
-
-                {/* Last activity */}
-                <div className="col-span-2">
-                  <span className="text-neutral-11">
-                    {leader.last_win}h ago
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </div>
 
       {/* Pagination Info and Controls */}
-      <div className="flex justify-between items-center mt-6">
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
         <div className="text-neutral-10 text-sm">
-          Showing {startIndex + 1} to{" "}
-          {Math.min(endIndex, extendedLeaders.length)} of{" "}
-          {extendedLeaders.length} players
+          Mostrando {(currentPage - 1) * ITEMS_PER_PAGE + 1} a{" "}
+          {Math.min(currentPage * ITEMS_PER_PAGE, totalCount || 0)} de{" "}
+          {totalCount.toLocaleString()} jogadores
         </div>
 
-        {totalPages > 1 && (
+        {totalPages && totalPages > 1 && (
           <div className="flex justify-center items-center gap-2">
             {/* Previous Button */}
             <button
               onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
+              disabled={!hasPrevPage}
               className="px-3 py-2 rounded-lg border border-neutral-6 bg-neutral-3 hover:bg-neutral-4 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
             >
-              Previous
+              Anterior
             </button>
 
             {/* Page Numbers */}
@@ -191,10 +211,10 @@ export function LeaderboardTable() {
             {/* Next Button */}
             <button
               onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              disabled={!hasNextPage}
               className="px-3 py-2 rounded-lg border border-neutral-6 bg-neutral-3 hover:bg-neutral-4 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
             >
-              Next
+              Próximo
             </button>
           </div>
         )}
