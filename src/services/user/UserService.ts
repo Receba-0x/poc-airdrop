@@ -1,5 +1,4 @@
-import type { AxiosResponse } from "axios";
-import type { ApiClient, ApiResponse } from "../base/ApiClient";
+import type { ApiClient } from "../base/ApiClient";
 
 export interface LoginResponse {
   access_token: string;
@@ -9,6 +8,10 @@ export interface LoginResponse {
     username: string;
     email: string;
     emailVerified: boolean;
+    avatar: string;
+    firstName: string;
+    lastName: string;
+    balance: number;
   };
 }
 
@@ -28,6 +31,7 @@ export interface RegisterResponse {
     emailVerified: boolean;
     firstName: string;
     lastName: string;
+    balance: number;
   };
 }
 

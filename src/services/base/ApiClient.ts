@@ -34,10 +34,7 @@ export class ApiClient {
     this.client.interceptors.request.use(
       async (config) => {
         if (config.method?.toLowerCase() === "get") {
-          config.params = {
-            ...config.params,
-            _t: Date.now(),
-          };
+          config.params = { ...config.params };
         }
 
         if (this.needsCsrfProtection(config)) {

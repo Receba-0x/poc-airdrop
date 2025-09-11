@@ -1,6 +1,6 @@
 "use client";
-import { useState } from 'react';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface UseClipboardResult {
   copyToClipboard: (text: string) => Promise<void>;
@@ -17,42 +17,33 @@ export function useClipboard(): UseClipboardResult {
       setError(null);
 
       if (navigator.clipboard && window.isSecureContext) {
-        // Método moderno usando Clipboard API
         await navigator.clipboard.writeText(text);
       } else {
-        // Fallback para navegadores mais antigos
-        const textArea = document.createElement('textarea');
+        const textArea = document.createElement("textarea");
         textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
 
         try {
-          document.execCommand('copy');
+          document.execCommand("copy");
         } catch (err) {
-          throw new Error('Copy failed');
+          throw new Error("Copy failed");
         } finally {
           document.body.removeChild(textArea);
         }
       }
-
       setIsCopied(true);
-      toast.success('Address copied to clipboard!', {
-        icon: '📋',
-        duration: 2000,
-      });
-
-      // Reset isCopied after 2 seconds
+      window.alert("Copied to clipboard!");
       setTimeout(() => setIsCopied(false), 2000);
-
     } catch (err) {
-      const errorMessage = 'Failed to copy address';
+      const errorMessage = "Failed to copy address";
       setError(errorMessage);
       toast.error(errorMessage, {
-        icon: '❌',
+        icon: "❌",
         duration: 3000,
       });
       throw err;
@@ -62,6 +53,6 @@ export function useClipboard(): UseClipboardResult {
   return {
     copyToClipboard,
     isCopied,
-    error
+    error,
   };
 }

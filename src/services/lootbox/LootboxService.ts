@@ -5,6 +5,7 @@ export interface Lootbox {
   name: string;
   imageUrl: string;
   price: number;
+  sortOrder: number;
   items?: LootboxItem[];
   currency: "SOL" | "USD";
   isActive: boolean;
@@ -106,24 +107,6 @@ export class LootboxService {
   // ADMIN: Criar Itens
   // ==========================================
 
-  async createItem(itemData: Omit<Item, "id">): Promise<ApiResponse<Item>> {
-    return this.apiClient.post<Item>("/api/v1/items", itemData);
-  }
-
-  async createItemsBatch(
-    items: Omit<Item, "id">[],
-    batchSize: number = 10
-  ): Promise<ApiResponse<Item[]>> {
-    return this.apiClient.post<Item[]>("/api/v1/items/batch", {
-      items,
-      batchSize,
-    });
-  }
-
-  // ==========================================
-  // ADMIN: Criar Lootbox
-  // ==========================================
-
   async createLootbox(
     name: string,
     price: number,
@@ -137,10 +120,6 @@ export class LootboxService {
     });
   }
 
-  // ==========================================
-  // ADMIN: Vincular Itens à Lootbox
-  // ==========================================
-
   async linkItemToLootbox(
     lootboxId: string,
     itemData: {
@@ -153,15 +132,10 @@ export class LootboxService {
     return this.apiClient.post(`/api/v1/lootbox/${lootboxId}/items`, itemData);
   }
 
-  // ==========================================
-  // UTILITIES
-  // ==========================================
-
   generateClientSeed(): string {
     return `user-seed-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  // Método para verificar se o sistema está funcionando
   async healthCheck(): Promise<
     ApiResponse<{ status: string; timestamp: string }>
   > {
@@ -184,15 +158,5 @@ export class LootboxService {
         },
       };
     }
-  }
-
-  // Invalidar cache de lootbox
-  invalidateCache(): void {
-    // Implementar invalidação se necessário
-  }
-
-  // Limpar cache
-  clearCache(): void {
-    // Implementar limpeza se necessário
   }
 }

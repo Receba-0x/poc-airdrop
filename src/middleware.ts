@@ -102,12 +102,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (pathname.startsWith("/admin")) {
+  /* if (pathname.startsWith("/admin")) {
     const adminSecret = request.headers.get("x-admin-secret");
     if (!adminSecret || adminSecret !== process.env.ADMIN_SECRET) {
       return NextResponse.redirect(new URL("/", request.url));
     }
-  }
+  } */
 
   const response = NextResponse.next();
 

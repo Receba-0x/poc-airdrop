@@ -85,10 +85,7 @@ export function usePurchaseFairness(purchaseId: string) {
   };
 }
 
-// Hook para criar lootbox (admin)
 export function useCreateLootbox() {
-  const queryClient = useQueryClient();
-
   const mutation = useMutation({
     mutationFn: async (data: {
       name: string;
@@ -98,7 +95,6 @@ export function useCreateLootbox() {
       return lootboxService.createLootbox(data.name, data.price, data.currency);
     },
     onSuccess: () => {
-      // Invalidar lista de lootboxes
       invalidateQueries.lootbox();
     },
   });
@@ -112,50 +108,12 @@ export function useCreateLootbox() {
   };
 }
 
-// Hook para criar item (admin)
-export function useCreateItem() {
-  const mutation = useMutation({
-    mutationFn: async (itemData: any) => {
-      return lootboxService.createItem(itemData);
-    },
-  });
-
-  return {
-    createItem: mutation.mutateAsync,
-    isLoading: mutation.isPending,
-    isError: mutation.isError,
-    error: mutation.error,
-    isSuccess: mutation.isSuccess,
-  };
-}
-
-// Hook para criar itens em lote (admin)
-export function useCreateItemsBatch() {
-  const mutation = useMutation({
-    mutationFn: async (data: { items: any[]; batchSize?: number }) => {
-      return lootboxService.createItemsBatch(data.items, data.batchSize);
-    },
-  });
-
-  return {
-    createItemsBatch: mutation.mutateAsync,
-    isLoading: mutation.isPending,
-    isError: mutation.isError,
-    error: mutation.error,
-    isSuccess: mutation.isSuccess,
-  };
-}
-
-// Hook para vincular item à lootbox (admin)
 export function useLinkItemToLootbox() {
-  const queryClient = useQueryClient();
-
   const mutation = useMutation({
     mutationFn: async (data: { lootboxId: string; itemData: any }) => {
       return lootboxService.linkItemToLootbox(data.lootboxId, data.itemData);
     },
     onSuccess: () => {
-      // Invalidar lootboxes após vincular item
       invalidateQueries.lootbox();
     },
   });
@@ -169,7 +127,6 @@ export function useLinkItemToLootbox() {
   };
 }
 
-// Hook utilitário para gerar client seed
 export function useClientSeed() {
   const generateSeed = () => {
     return lootboxService.generateClientSeed();

@@ -15,6 +15,7 @@ interface User {
   username: string;
   firstName?: string;
   lastName?: string;
+  balance: number;
   avatar?: string;
 }
 

@@ -205,7 +205,7 @@ export function Header() {
               className="flex items-center gap-2 h-full rounded-lg"
             >
               <h1 className="text-neutral-12 rounded-lg border border-neutral-6 bg-neutral-3 hover:bg-neutral-4 h-full px-2 flex items-center gap-1">
-                <MoneyIcon /> 0.00
+                <MoneyIcon /> {user?.balance.toLocaleString("en-US") || 0.0}
               </h1>
               {/*  <div className="flex items-center gap-2">
                 <Button variant="default" onClick={() => openModal("deposit")}>

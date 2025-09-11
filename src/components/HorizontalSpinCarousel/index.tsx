@@ -3,13 +3,13 @@ import React, {
   useState,
   useEffect,
   useRef,
+  useCallback,
   useImperativeHandle,
   forwardRef,
 } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import type { Item } from "@/services";
-
 
 interface HorizontalSpinCarouselProps {
   items: Item[];
@@ -64,6 +64,7 @@ const HorizontalSpinCarousel = forwardRef<
     const [virtualStartIndex, setVirtualStartIndex] = useState(0);
     const [virtualEndIndex, setVirtualEndIndex] = useState(0);
     const [currentPosition, setCurrentPosition] = useState(0);
+    const currentPositionRef = useRef(0);
 
     const tickAudioRef = useRef<HTMLAudioElement | null>(null);
     const finishAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -92,9 +93,7 @@ const HorizontalSpinCarousel = forwardRef<
         startAudioRef.current.preload = "auto";
       }
 
-      const checkAudioLoad = () => {
-        const loadTime = Date.now() - startTime;
-      };
+      const checkAudioLoad = () => {};
 
       if (
         tickAudioRef.current &&
@@ -213,22 +212,14 @@ const HorizontalSpinCarousel = forwardRef<
           if (!containerRef.current || !carouselRef.current) return;
           setIsSpinning(true);
           const itemWidthWithGap = itemWidth;
-
-          // Otimização crítica: preparar animação com performance máxima
           const carousel = carouselRef.current;
           carousel.style.transition = "none";
           carousel.style.transform = "translateX(0px)";
           carousel.style.willChange = "transform";
           carousel.style.contain = "layout style paint";
-
-          // Forçar reflow de forma otimizada
           void carousel.offsetWidth;
-
           const itemsPerCycle = items.length;
-
-          // Warm-up: pré-calcular primeira detecção
           detectCenterItem();
-
           const calculatedTargetCycle = 4;
           const targetIndex =
             calculatedTargetCycle * itemsPerCycle + finalWinningIndex;
@@ -248,7 +239,7 @@ const HorizontalSpinCarousel = forwardRef<
           const startPosition = 0;
           const endPosition = calculatedFinalPosition;
           const animationDuration = spinDuration;
-          const startTime = performance.now(); // Melhor precisão de timing
+          const startTime = performance.now();
           const totalDistance = endPosition - startPosition;
 
           let frameCount = 0;
@@ -258,14 +249,9 @@ const HorizontalSpinCarousel = forwardRef<
             frameCount++;
             const currentTime = performance.now();
             const elapsed = currentTime - startTime;
-
-            // Otimização: calcular FPS e ajustar se necessário
             const deltaTime = currentTime - lastFrameTime;
             lastFrameTime = currentTime;
-
-            // Garantir mínimo de 30fps nos primeiros frames
             if (frameCount <= 5 && deltaTime > 33) {
-              // Frame lento detectado, pular para próxima posição
               const targetProgress = Math.min(elapsed / animationDuration, 1);
               const easedProgress = 1 - Math.pow(1 - targetProgress, 5);
               const currentPosition =
@@ -283,18 +269,15 @@ const HorizontalSpinCarousel = forwardRef<
               requestAnimationFrame(animateSpin);
             }
           };
-
-          // Prioridade máxima para primeiro frame
           requestAnimationFrame(() => {
             requestAnimationFrame(animateSpin);
           });
 
           let spinFrameCount = 0;
-          const monitorStartTime = performance.now(); // Melhor precisão
+          const monitorStartTime = performance.now();
           let monitorAnimationId: number | null = null;
-
           let lastDetectedIndex = currentCenterIndex;
-          let detectionThrottle = 0; // Throttle para primeiros frames
+          let detectionThrottle = 0;
 
           const monitorSpin = () => {
             spinFrameCount++;
@@ -307,11 +290,8 @@ const HorizontalSpinCarousel = forwardRef<
               }
               return;
             }
-
-            // Otimização: throttle detecção nos primeiros frames para reduzir carga
             detectionThrottle++;
             if (detectionThrottle < 2 && elapsedTime < 200) {
-              // Primeiros 200ms
               monitorAnimationId = requestAnimationFrame(monitorSpin);
               return;
             }
@@ -432,32 +412,33 @@ const HorizontalSpinCarousel = forwardRef<
       }
     }, [displayItems, virtualStartIndex, virtualEndIndex, isSpinning, hasSpun]);
 
-    // Função para calcular itens visíveis para virtualização
-    const calculateVisibleItems = (position: number) => {
-      if (!containerRef.current) {
-        return { start: 0, end: 0 };
-      }
+    const calculateVisibleItems = useCallback(
+      (position: number) => {
+        if (!containerRef.current) {
+          return { start: 0, end: 0 };
+        }
 
-      const containerWidth = containerRef.current.offsetWidth;
-      const totalItems = displayItems.length;
+        const containerWidth = containerRef.current.offsetWidth;
+        const totalItems = displayItems.length;
 
-      // Calcular índices baseados na posição atual
-      const startPosition = Math.abs(position);
-      const visibleStartIndex = Math.floor(startPosition / itemFullWidth);
-      const visibleEndIndex = Math.ceil(
-        (startPosition + containerWidth) / itemFullWidth
-      );
+        // Calcular índices baseados na posição atual
+        const startPosition = Math.abs(position);
+        const visibleStartIndex = Math.floor(startPosition / itemFullWidth);
+        const visibleEndIndex = Math.ceil(
+          (startPosition + containerWidth) / itemFullWidth
+        );
 
-      // Adicionar buffer
-      const bufferedStart = Math.max(0, visibleStartIndex - VIRTUAL_BUFFER);
-      const bufferedEnd = Math.min(
-        totalItems - 1,
-        visibleEndIndex + VIRTUAL_BUFFER
-      );
+        // Adicionar buffer
+        const bufferedStart = Math.max(0, visibleStartIndex - VIRTUAL_BUFFER);
+        const bufferedEnd = Math.min(
+          totalItems - 1,
+          visibleEndIndex + VIRTUAL_BUFFER
+        );
 
-
-      return { start: bufferedStart, end: bufferedEnd };
-    };
+        return { start: bufferedStart, end: bufferedEnd };
+      },
+      [displayItems.length, itemFullWidth]
+    );
 
     // Cache para otimização de detecção
     const detectionCache = useRef({
@@ -540,7 +521,7 @@ const HorizontalSpinCarousel = forwardRef<
         requestAnimationFrame(detectAndUpdate);
     };
 
-    const animate = () => {
+    const animate = useCallback(() => {
       if (!carouselRef.current || isSpinning || hasSpun) return;
 
       const currentTransform =
@@ -554,26 +535,36 @@ const HorizontalSpinCarousel = forwardRef<
         position = 0;
       }
       carouselRef.current.style.transform = `translateX(${position}px)`;
-
-      // Atualizar posição para virtualização
-      setCurrentPosition(position);
-
+      currentPositionRef.current = position;
       animationRef.current = requestAnimationFrame(animate);
-    };
+    }, [isSpinning, hasSpun, speed, itemWidth, gap, items.length]);
 
-    // Atualizar itens virtuais quando posição muda
+    useEffect(() => {
+      const syncInterval = setInterval(() => {
+        if (!isSpinning && !hasSpun) {
+          const position = currentPositionRef.current;
+          if (Math.abs(position - currentPosition) > 1) {
+            setCurrentPosition(position);
+          }
+        }
+      }, 100);
+
+      return () => clearInterval(syncInterval);
+    }, [isSpinning, hasSpun, currentPosition]);
+
     useEffect(() => {
       if (!isSpinning && !hasSpun) {
         const { start, end } = calculateVisibleItems(currentPosition);
         setVirtualStartIndex(start);
         setVirtualEndIndex(end);
       }
-    }, [currentPosition, isSpinning, hasSpun]);
+    }, [currentPosition, isSpinning, hasSpun, calculateVisibleItems]);
 
     useEffect(() => {
       if (carouselRef.current && !isSpinning && !hasSpun) {
         carouselRef.current.style.transform = "translateX(0px)";
         setCurrentPosition(0);
+        currentPositionRef.current = 0;
         animationRef.current = requestAnimationFrame(animate);
         startHighFrequencyDetection();
         return () => {
@@ -584,6 +575,7 @@ const HorizontalSpinCarousel = forwardRef<
       } else if (hasSpun && carouselRef.current) {
         carouselRef.current.style.transform = `translateX(${finalPosition}px)`;
         setCurrentPosition(finalPosition);
+        currentPositionRef.current = finalPosition;
       }
     }, [isSpinning, hasSpun]);
 
@@ -681,7 +673,7 @@ const HorizontalSpinCarousel = forwardRef<
                         alt={item.name || `Item ${item.id}`}
                         width={1000}
                         height={1000}
-                        className={`w-full h-full object-cover transition-all duration-300 ease-in-out ${
+                        className={`w-full h-full object-contain transition-all duration-300 ease-in-out ${
                           isWinner && showResult
                             ? "scale-75"
                             : isInCenter
@@ -695,16 +687,16 @@ const HorizontalSpinCarousel = forwardRef<
                     )}
                     {showResult && isInCenter && (
                       <motion.div
-                        className="text-center flex flex-col items-center -mt-6"
+                        className="text-center flex flex-col items-center"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
                       >
-                        <span className="text-neutral-12 font-medium">
+                        <span className="text-neutral-12 text-sm font-medium">
                           {items[winningIndex].name}
                         </span>
                         <span className="text-neutral-12 p-1 px-2 bg-neutral-2 rounded-md">
-                          {items[winningIndex].value}
+                          ${items[winningIndex].value?.toLocaleString("en-US")}
                         </span>
                       </motion.div>
                     )}

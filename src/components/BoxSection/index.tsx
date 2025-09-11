@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { HorizontalSpinCarouselRef } from "../HorizontalSpinCarousel";
 import { LogoIcon } from "../Icons/LogoIcon";
 import { Button } from "../Button";
@@ -16,6 +16,8 @@ import {
   useLootbox,
   usePurchaseLootbox,
 } from "@/hooks/useLootbox";
+import { Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export function BoxSection({ id }: { id: string }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -25,10 +27,14 @@ export function BoxSection({ id }: { id: string }) {
   const [wonPrize, setWonPrize] = useState<any>(null);
   const [shouldSpin, setShouldSpin] = useState(false);
   const { lootbox, isLoading } = useLootbox(id);
+  const { refetchUser } = useAuth();
   const { purchase } = usePurchaseLootbox();
   const { generateSeed } = useClientSeed();
   const { t } = useLanguage();
-  const itens = lootbox?.items?.map((item) => item.item) || [];
+  const itens = useMemo(
+    () => lootbox?.items?.map((item) => item.item) || [],
+    [lootbox]
+  );
 
   useEffect(() => {
     const checkMobile = () => {
@@ -64,6 +70,7 @@ export function BoxSection({ id }: { id: string }) {
     setIsSpinning(false);
     setWonPrize(null);
     setShouldSpin(false);
+    refetchUser();
   };
 
   const handleTestSpin = () => {
@@ -99,17 +106,23 @@ export function BoxSection({ id }: { id: string }) {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <HorizontalSpinCarousel
-            ref={carouselRef}
-            items={itens}
-            itemWidth={isMobile ? 128 : 160}
-            itemHeight={isMobile ? 128 : 160}
-            gap={60}
-            speed={0.1}
-            spinDuration={8000}
-            onSpinComplete={handleSpinComplete}
-            className="relative w-full h-full z-10"
-          />
+          {!isLoading ? (
+            <HorizontalSpinCarousel
+              ref={carouselRef}
+              items={itens}
+              itemWidth={isMobile ? 128 : 160}
+              itemHeight={isMobile ? 128 : 160}
+              gap={60}
+              speed={0.1}
+              spinDuration={8000}
+              onSpinComplete={handleSpinComplete}
+              className="relative w-full h-full z-10"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Loader2 className="w-5 h-5 animate-spin" />
+            </div>
+          )}
         </ScrollAnimation>
 
         <div className="flex flex-col w-full max-w-screen-2xl px-6 md:px-0 pt-6">
