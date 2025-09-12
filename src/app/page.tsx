@@ -1,10 +1,11 @@
 "use client";
 import { userService } from "@/services";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, Suspense } from "react";
 
-export default function Home() {
+function HomeContent() {
   const params = useSearchParams();
+  const router = useRouter();
   const accessToken = params.get("access_token");
   const refreshToken = params.get("refresh_token");
 
@@ -20,7 +21,18 @@ export default function Home() {
       localStorage.setItem("user", JSON.stringify(userService.getProfile()));
       window.history.replaceState({}, "", "/home");
       window.location.reload();
+    } else {
+      router.push("/home");
     }
   }, [accessToken]);
+
   return <></>;
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
+  );
 }

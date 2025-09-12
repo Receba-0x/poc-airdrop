@@ -7,16 +7,17 @@ import {
 
 const defaultQueryOptions: DefaultOptions = {
   queries: {
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000, // Aumentado para 10 minutos
+    gcTime: 30 * 60 * 1000, // Aumentado para 30 minutos
     retry: (failureCount, error: any) => {
       if (error?.status === 401 || error?.status === 403) return false;
-      return failureCount < 3;
+      return failureCount < 2; // Reduzido para 2 tentativas
     },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Máximo 10s
     refetchOnWindowFocus: false,
-    refetchOnMount: true,
-    refetchOnReconnect: true,
+    refetchOnMount: false, // Desabilitado para reduzir fetches desnecessários
+    refetchOnReconnect: 'always',
+    networkMode: 'online', // Só fazer requests quando online
   },
   mutations: {
     retry: false, // Mutations geralmente não devem ser retry automaticamente
@@ -102,6 +103,13 @@ export const queryKeys = {
     details: () => [...queryKeys.adminUsers.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.adminUsers.details(), id] as const,
   },
+
+  // Admin Uploads
+  adminUploads: {
+    all: ["admin-uploads"] as const,
+    lists: () => [...queryKeys.adminUploads.all, "list"] as const,
+    list: (filters: any) => [...queryKeys.adminUploads.lists(), filters] as const,
+  },
 };
 
 // Funções utilitárias para invalidação de cache
@@ -121,6 +129,10 @@ export const invalidateQueries = {
   adminUsers: () =>
     queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers.all }),
 
+  // Invalidar queries de admin uploads
+  adminUploads: () =>
+    queryClient.invalidateQueries({ queryKey: queryKeys.adminUploads.all }),
+
   // Invalidar tudo
   all: () => queryClient.invalidateQueries(),
 };
@@ -133,4 +145,6 @@ export const removeQueries = {
     queryClient.removeQueries({ queryKey: queryKeys.purchases.all }),
   adminUsers: () =>
     queryClient.removeQueries({ queryKey: queryKeys.adminUsers.all }),
+  adminUploads: () =>
+    queryClient.removeQueries({ queryKey: queryKeys.adminUploads.all }),
 };

@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 const navigation = [
   { name: "Dashboard", href: "/admin/dashboard" },
   { name: "Usuários", href: "/admin/users" },
+  { name: "Imagens", href: "/admin/images" },
   { name: "Lootboxes", href: "/admin/lootboxes" },
   { name: "Itens", href: "/admin/items" },
   { name: "Compras", href: "/admin/purchases" },

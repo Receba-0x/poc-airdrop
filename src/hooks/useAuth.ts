@@ -56,15 +56,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         const storedUser = localStorage.getItem("user");
         const hasToken = userService.isAuthenticated();
+        if (hasToken && storedUser) {
+          try {
+            const cachedUser = JSON.parse(storedUser);
+            const cacheAge = Date.now() - (cachedUser._cachedAt || 0);
+            if (cacheAge < 5 * 60 * 1000) {
+              setUser(cachedUser);
+              return;
+            }
+          } catch (parseError) {
+            console.warn("Failed to parse cached user data");
+          }
+        }
 
         if (hasToken) {
           try {
             const profile = await userService.getProfile();
-            localStorage.setItem("user", JSON.stringify(profile));
+            const userWithCache = { ...profile, _cachedAt: Date.now() };
+            localStorage.setItem("user", JSON.stringify(userWithCache));
             setUser(profile);
           } catch (profileError) {
             console.error("Profile fetch failed:", profileError);
-            // Token inválido, limpar tudo
             clearAuthData();
           }
         } else if (storedUser) {

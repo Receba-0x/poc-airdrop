@@ -8,7 +8,8 @@ import {
   type ResetUserPasswordRequest,
   queryClient,
 } from "@/services";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect, useMemo, useCallback } from "react";
 
 export function useAdminUser(id: string) {
   const query = useQuery({
@@ -36,14 +37,65 @@ export function useAdminUsers(filters?: UsersFilters) {
       return response.data;
     },
     staleTime: 5 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    enabled: true, // Sempre habilitado pois é uma página admin
   });
-  const users = (query.data as any)?.users || [];
+
   return {
-    users: users || [],
+    users: query.data || [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
     refetch: query.refetch,
+  };
+}
+
+// Hook com debouncing para buscas
+export function useAdminUsersWithSearch(initialFilters?: UsersFilters) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+  // Debouncing da busca
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms de delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const filters = useMemo(
+    () => ({
+      ...initialFilters,
+      search: debouncedSearchTerm || undefined,
+    }),
+    [initialFilters, debouncedSearchTerm]
+  );
+
+  const query = useQuery({
+    queryKey: queryKeys.adminUsers.list(filters),
+    queryFn: async () => {
+      const response = await adminUserService.getUsers(filters);
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    enabled: true,
+  });
+
+  return {
+    users: (query.data as any)?.users || [],
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
+    searchTerm,
+    setSearchTerm,
+    debouncedSearchTerm,
   };
 }
 
@@ -54,7 +106,10 @@ export function useAdminUsersStats() {
       const response = await adminUserService.getUsersStats();
       return response.data;
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000, // 10 minutos
+    gcTime: 30 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   return {
@@ -184,5 +239,45 @@ export function useVerifyUserEmail() {
     verifyEmail: mutation.mutateAsync,
     isLoading: mutation.isPending,
     error: mutation.error,
+  };
+}
+
+// Função utilitária para prefetching inteligente
+export function usePrefetchAdminUsers() {
+  const queryClient = useQueryClient();
+
+  const prefetchPage = useCallback(
+    (page: number, filters?: UsersFilters) => {
+      const prefetchFilters = { ...filters, page };
+
+      queryClient.prefetchQuery({
+        queryKey: queryKeys.adminUsers.list(prefetchFilters),
+        queryFn: async () => {
+          const response = await adminUserService.getUsers(prefetchFilters);
+          return response.data;
+        },
+        staleTime: 5 * 60 * 1000,
+      });
+    },
+    [queryClient]
+  );
+
+  const prefetchUserDetail = useCallback(
+    (userId: string) => {
+      queryClient.prefetchQuery({
+        queryKey: queryKeys.adminUsers.detail(userId),
+        queryFn: async () => {
+          const response = await adminUserService.getUserById(userId);
+          return response.data;
+        },
+        staleTime: 10 * 60 * 1000,
+      });
+    },
+    [queryClient]
+  );
+
+  return {
+    prefetchPage,
+    prefetchUserDetail,
   };
 }

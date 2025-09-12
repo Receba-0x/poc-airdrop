@@ -22,6 +22,7 @@ export {
   AdminPurchasesService,
   AdminLootboxService,
   AdminUserService,
+  AdminUploadService,
 } from "./admin";
 export type {
   AdminItem,
@@ -46,6 +47,10 @@ export type {
   UsersStats,
   UsersFilters,
   ResetUserPasswordRequest,
+  UploadImageResponse,
+  UploadedFile,
+  UploadListResponse,
+  UploadFilters,
 } from "./admin";
 export type {
   Purchase,
@@ -65,6 +70,7 @@ import { AdminItemsService } from "./admin/AdminItemsService";
 import { AdminPurchasesService } from "./admin/AdminPurchasesService";
 import { AdminLootboxService } from "./admin/AdminLootboxService";
 import { AdminUserService } from "./admin/AdminUserService";
+import { AdminUploadService } from "./admin/AdminUploadService";
 import { ItemService } from "./item/ItemService";
 import { PurchaseService } from "./purchases/PurchaseService";
 import { LeaderboardService } from "./leaderboard/LeaderboardService";
@@ -81,4 +87,5 @@ export const adminItemsService = new AdminItemsService(apiClient);
 export const adminPurchasesService = new AdminPurchasesService(apiClient);
 export const adminLootboxService = new AdminLootboxService(apiClient);
 export const adminUserService = new AdminUserService(apiClient);
+export const adminUploadService = new AdminUploadService(apiClient);
 export const leaderboardService = new LeaderboardService(apiClient);

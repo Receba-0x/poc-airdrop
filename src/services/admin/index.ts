@@ -40,3 +40,11 @@ export type {
   UsersFilters,
   ResetUserPasswordRequest
 } from './AdminUserService';
+
+export { AdminUploadService } from './AdminUploadService';
+export type {
+  UploadImageResponse,
+  UploadedFile,
+  UploadListResponse,
+  UploadFilters
+} from './AdminUploadService';

@@ -6,7 +6,7 @@ import { Button } from "@/components/Button";
 import { BaseModal } from "@/components/TransactionModals";
 import { Checkbox } from "@/components/CheckBox";
 import {
-  useAdminUsers,
+  useAdminUsersWithSearch,
   useAdminUsersStats,
   useCreateAdminUser,
   useUpdateAdminUser,
@@ -15,6 +15,7 @@ import {
   useUnbanUser,
   useVerifyUserEmail,
   useResetUserPassword,
+  usePrefetchAdminUsers,
 } from "@/hooks/useAdminUsers";
 import Image from "next/image";
 
@@ -43,9 +44,9 @@ export default function AdminUsers() {
     isActive: true,
     isAdmin: false,
   });
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const { users, isLoading, refetch } = useAdminUsers(filters);
+  const { users, isLoading, refetch, searchTerm, setSearchTerm } = useAdminUsersWithSearch(filters);
+  console.log(users);
   const { createUser, isLoading: isCreateLoading } = useCreateAdminUser();
   const { updateUser, isLoading: isUpdateLoading } = useUpdateAdminUser();
   const { deleteUser, isLoading: isDeleteLoading } = useDeleteAdminUser();
@@ -171,9 +172,6 @@ export default function AdminUsers() {
     }
   };
 
-  const handleSearch = () => {
-    setFilters({ ...filters, search: searchTerm });
-  };
 
   if (isLoading) {
     return (
@@ -266,7 +264,6 @@ export default function AdminUsers() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
               className="w-full px-3 py-2 border border-neutral-6 rounded-lg bg-neutral-3 text-neutral-12 focus:outline-none focus:ring-2 focus:ring-primary-10"
               placeholder="Nome, email ou username"
             />
