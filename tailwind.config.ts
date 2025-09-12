@@ -118,6 +118,32 @@ export default {
         sora: ["var(--font-sora)", "sans-serif"],
         "be-vietnam-pro": ["var(--font-be-vietnam-pro)", "sans-serif"],
       },
+      animation: {
+        ripple:
+          "ripple var(--duration, 3s) ease calc(var(--i, 0) * 0.2s) infinite",
+        shine: "shine var(--duration, 14s) infinite linear",
+      },
+      keyframes: {
+        ripple: {
+          "0%, 100%": {
+            transform: "translate(-50%, -50%) scale(1)",
+          },
+          "50%": {
+            transform: "translate(-50%, -50%) scale(0.9)",
+          },
+        },
+        shine: {
+          "0%": {
+            backgroundPosition: "0% 0%",
+          },
+          "50%": {
+            backgroundPosition: "100% 100%",
+          },
+          "100%": {
+            backgroundPosition: "0% 0%",
+          },
+        },
+      },
     },
   },
   plugins: [scrollbar({ nocompatible: true })],

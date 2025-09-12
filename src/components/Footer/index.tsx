@@ -69,30 +69,30 @@ export function Footer() {
 
   const footerSections = [
     {
-      title: "Plataforma",
+      title: t("footer.platform"),
       links: [
-        { href: "/", label: "Home" },
-        { href: "/boxes", label: "Boxes" },
-        { href: "/leaderboard", label: "Leaderboard" },
-        { href: "/affiliates", label: "Affiliates" },
+        { href: "/", label: t("footer.home") },
+        { href: "/boxes", label: t("footer.boxes") },
+        { href: "/leaderboard", label: t("footer.leaderboard") },
+        { href: "/affiliates", label: t("footer.affiliates") },
       ],
     },
     {
-      title: "Recursos",
+      title: t("footer.resources"),
       links: [
-        { href: "/docs/privacy", label: "Politic and Privacy" },
-        { href: "/docs/terms-of-use", label: "Terms and services" },
-        { href: "/docs/refund", label: "Refund" },
-        { href: "/docs/cookies", label: "Cookies" },
+        { href: "/docs/privacy", label: t("footer.privacy") },
+        { href: "/docs/terms-of-use", label: t("footer.terms") },
+        { href: "/docs/refund", label: t("footer.refund") },
+        { href: "/docs/cookies", label: t("footer.cookies") },
       ],
     },
     {
-      title: "Company",
+      title: t("footer.company"),
       links: [
-        { href: "/#about-us", label: "About us" },
-        { href: "/#tokenomics", label: "Tokenomics" },
-        { href: "/#whitepaper", label: "Whitepaper" },
-        { href: "/#gitbook", label: "Gitbook" },
+        { href: "/#about-us", label: t("footer.aboutUs") },
+        { href: "/#tokenomics", label: t("footer.tokenomics") },
+        { href: "/#whitepaper", label: t("footer.whitepaper") },
+        { href: "/#gitbook", label: t("footer.gitbook") },
       ],
     },
   ];
@@ -121,9 +121,7 @@ export function Footer() {
             />
 
             <p className="text-neutral-11 leading-relaxed mt-2 sm:mt-0">
-              Loot4Fun é uma plataforma Web3 de caixas surpresa que combina
-              colecionáveis digitais e físicos, com transparência on-chain e
-              foco em comunidade.
+              {t("footer.description")}
             </p>
 
             <div className="flex items-center gap-3 mt-4 sm:mt-0">

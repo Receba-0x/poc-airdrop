@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { ScrollAnimation } from "../ScrollAnimation";
 import { FAQIcon } from "../Icons/FAQIcon";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface FAQItemProps {
   question: string;
@@ -57,6 +58,7 @@ const FAQItem = ({ question, answer, isOpen, onToggle }: FAQItemProps) => (
 
 export function FAQ() {
   const [openItems, setOpenItems] = useState<number[]>([]);
+  const { t } = useLanguage();
 
   const toggleItem = (index: number) => {
     setOpenItems((prev) =>
@@ -68,34 +70,28 @@ export function FAQ() {
 
   const faqData = [
     {
-      question: "O que fazemos?",
-      answer:
-        "Somos uma plataforma Web3 de caixas surpresa que combina colecionáveis digitais e físicos, oferecendo uma experiência única com transparência on-chain e foco em comunidade.",
+      question: t("faq.question1"),
+      answer: t("faq.answer1"),
     },
     {
-      question: "Como funcionam as boxes?",
-      answer:
-        "Nossas boxes contêm itens variados, desde comuns até lendários. Cada box é uma surpresa garantida com diferentes níveis de raridade e valor. Você pode abrir as boxes e descobrir itens únicos para sua coleção.",
+      question: t("faq.question2"),
+      answer: t("faq.answer2"),
     },
     {
-      question: "Como posso participar do leaderboard?",
-      answer:
-        "Participe abrindo boxes, completando desafios e interagindo com a comunidade. Quanto mais ativo você for na plataforma, maior será sua pontuação no leaderboard e maiores suas chances de ganhar prêmios exclusivos.",
+      question: t("faq.question3"),
+      answer: t("faq.answer3"),
     },
     {
-      question: "Posso trocar ou vender meus itens?",
-      answer:
-        "Sim! Todos os itens são NFTs que podem ser negociados livremente. Você pode trocar, vender ou colecionar seus itens conforme desejar, aproveitando a natureza descentralizada da blockchain.",
+      question: t("faq.question4"),
+      answer: t("faq.answer4"),
     },
     {
-      question: "Como funciona o programa de afiliados?",
-      answer:
-        "Indique novos jogadores para a plataforma e receba comissão pelas atividades deles. Quanto mais pessoas você trouxer, maiores serão seus ganhos. É uma forma excelente de monetizar sua rede de contatos.",
+      question: t("faq.question5"),
+      answer: t("faq.answer5"),
     },
     {
-      question: "A plataforma é segura?",
-      answer:
-        "Absolutamente! Utilizamos tecnologia blockchain para garantir transparência total. Todos os itens são verificáveis on-chain e nossa plataforma segue os mais altos padrões de segurança da indústria Web3.",
+      question: t("faq.question6"),
+      answer: t("faq.answer6"),
     },
   ];
 
@@ -109,7 +105,7 @@ export function FAQ() {
           <div className="flex items-center justify-center gap-2 mb-3 sm:mb-4">
             <FAQIcon className="h-6 w-6 sm:h-8 sm:w-8" />
             <h2 className="text-xl sm:text-2xl font-bold text-neutral-12">
-              FAQ
+              {t("faq.title")}
             </h2>
           </div>
         </div>

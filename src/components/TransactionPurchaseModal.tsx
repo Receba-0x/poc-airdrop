@@ -1,3 +1,5 @@
+"use client";
+
 import { BaseModal } from "./TransactionModals";
 import { motion } from "framer-motion";
 import { LogoIcon } from "./Icons/LogoIcon";

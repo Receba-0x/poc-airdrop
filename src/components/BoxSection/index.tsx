@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useEffect, useState, useMemo } from "react";
-import { HorizontalSpinCarouselRef } from "../HorizontalSpinCarousel";
+import { HorizontalSpinCarouselRef } from "@/components/HorizontalSpinCarousel";
 import { LogoIcon } from "../Icons/LogoIcon";
 import { Button } from "../Button";
 import Image from "next/image";
@@ -10,7 +10,7 @@ import ItemCard from "../ItemCard";
 import { ScrollAnimation } from "../ScrollAnimation";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import HorizontalSpinCarousel from "../HorizontalSpinCarousel";
+import HorizontalSpinCarousel from "@/components/HorizontalSpinCarousel";
 import {
   useClientSeed,
   useLootbox,

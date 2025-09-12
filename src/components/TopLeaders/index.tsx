@@ -4,6 +4,7 @@ import { MedalIcon } from "../Icons/MedalIcon";
 import { Avatar } from "../Avatar";
 import Link from "next/link";
 import { useTopLeaders } from "@/hooks/useLeaderboard";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Leaderboard } from "@/services";
 
 const colours = {
@@ -43,6 +44,7 @@ const colours = {
 
 export function TopLeaders() {
   const { topLeaders = [], isLoading } = useTopLeaders();
+  const { t } = useLanguage();
 
   const getColours = (rank: number) => {
     if (rank > 3) return colours.default;
@@ -71,11 +73,11 @@ export function TopLeaders() {
     <div className="max-w-screen-2xl mx-auto">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <h1 className="flex items-center gap-2 text-xl font-bold text-neutral-12">
-          <LeaderBoardIcon className="h-6 w-6" /> Top leaders
+          <LeaderBoardIcon className="h-6 w-6" /> {t("leaderboard.topLeaders")}
         </h1>
         <Link href="/leaderboard">
           <span className="text-neutral-11 font-medium text-sm sm:text-base hover:text-primary-10 transition-colors">
-            View All
+            {t("leaderboard.viewAll")}
           </span>
         </Link>
       </div>
@@ -122,13 +124,13 @@ export function TopLeaders() {
                   <h1 className="font-bold text-neutral-12 text-sm sm:text-base">
                     {leader.lastWinAmount}
                   </h1>
-                  <p className="text-neutral-11 text-xs sm:text-sm">Last win</p>
+                  <p className="text-neutral-11 text-xs sm:text-sm">{t("leaderboard.lastWin")}</p>
                 </div>
                 <div>
                   <h1 className="font-bold text-neutral-12 text-sm sm:text-base">
                     {leader.totalWinAmount}
                   </h1>
-                  <p className="text-neutral-11 text-xs sm:text-sm">Winnings</p>
+                  <p className="text-neutral-11 text-xs sm:text-sm">{t("leaderboard.winnings")}</p>
                 </div>
               </div>
             </div>

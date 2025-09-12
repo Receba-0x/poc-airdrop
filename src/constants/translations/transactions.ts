@@ -1,0 +1,56 @@
+export const transactionsTranslations = {
+  en: {
+    // Transactions
+    "transactions.title": "Transaction History",
+    "transactions.type": "Type",
+    "transactions.amount": "Amount",
+    "transactions.date": "Date",
+    "transactions.status": "Status",
+    "transactions.hash": "Hash",
+    "transactions.noTransactions": "No transactions found",
+    "transactions.completed": "Completed",
+    "transactions.error": "Error",
+    "transactions.processing": "Processing...",
+    "transactions.claimed": "Claimed",
+    "transactions.claim": "Claim",
+    "transactions.delivering": "Delivering",
+    "transactions.delivered": "Delivered",
+    "transactions.name": "Name",
+    "transactions.viewOnExplorer": "View on BSC Explorer",
+    "transactions.tab": "Transactions",
+
+    // Common transaction messages
+    "common.transactionHash": "Transaction Hash",
+    "common.pleaseDoNotCloseWindow": "Please do not close this window",
+    "common.done": "Done",
+    "common.close": "Close",
+    "common.errorOccurred": "An error occurred during the transaction",
+  },
+  pt: {
+    // Transactions
+    "transactions.title": "Histórico de Transações",
+    "transactions.type": "Tipo",
+    "transactions.amount": "Quantidade",
+    "transactions.date": "Data",
+    "transactions.status": "Status",
+    "transactions.hash": "Hash",
+    "transactions.noTransactions": "Nenhuma transação encontrada",
+    "transactions.completed": "Concluído",
+    "transactions.error": "Erro",
+    "transactions.processing": "Processando...",
+    "transactions.claimed": "Reivindicado",
+    "transactions.claim": "Reivindicar",
+    "transactions.delivering": "Entregando",
+    "transactions.delivered": "Entregue",
+    "transactions.name": "Nome",
+    "transactions.viewOnExplorer": "Visualizar no BSC Explorer",
+    "transactions.tab": "Transações",
+
+    // Common transaction messages
+    "common.transactionHash": "Hash da Transação",
+    "common.pleaseDoNotCloseWindow": "Por favor, não feche esta janela",
+    "common.done": "Concluído",
+    "common.close": "Fechar",
+    "common.errorOccurred": "Ocorreu um erro durante a transação",
+  },
+};

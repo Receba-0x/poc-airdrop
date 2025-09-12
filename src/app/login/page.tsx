@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { BackgroundBeams } from "@/components/BackgroundBeams";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   LoginFormData,
   RegisterFormData,
@@ -20,6 +21,7 @@ import {
 export default function LoginPage() {
   const router = useRouter();
   const { login, register: authRegister, user, isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -36,13 +38,13 @@ export default function LoginPage() {
     if (isAuthenticated && user) {
       setMessage({
         type: "success",
-        text: "Login successful! Redirecting...",
+        text: t("auth.loginSuccess"),
       });
       setTimeout(() => {
         router.push("/");
       }, 1500);
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, router, t]);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -60,7 +62,7 @@ export default function LoginPage() {
     } catch (error: any) {
       setMessage({
         type: "error",
-        text: error.message || "Login failed. Please try again.",
+        text: error.message || t("auth.loginError"),
       });
     } finally {
       setIsLoading(false);
@@ -80,14 +82,14 @@ export default function LoginPage() {
       });
       setMessage({
         type: "success",
-        text: "Account created successfully! Check your email.",
+        text: t("auth.registerSuccess"),
       });
       setActiveTab("login");
     } catch (error: any) {
       console.error("Registration failed:", error);
       setMessage({
         type: "error",
-        text: error.message || "Registration failed. Please try again.",
+        text: error.message || t("auth.registerError"),
       });
     } finally {
       setIsLoading(false);
@@ -103,14 +105,14 @@ export default function LoginPage() {
         type: "error",
         text:
           activeTab === "login"
-            ? "Google login is currently disabled"
-            : "Google registration is currently disabled",
+            ? t("auth.googleDisabled")
+            : t("auth.googleRegisterDisabled"),
       });
     } catch (error: any) {
       console.error("Google authentication failed:", error);
       setMessage({
         type: "error",
-        text: error.message || "Google authentication failed",
+        text: error.message || t("auth.googleError"),
       });
     } finally {
       setIsLoading(false);
@@ -157,7 +159,7 @@ export default function LoginPage() {
         />
 
         <p className="text-neutral-12 text-center font-bold text-lg sm:text-2xl md:text-3xl mt-2 md:mt-8">
-          {activeTab === "login" ? "Bem-vindo de volta!" : "Crie sua conta"}
+          {activeTab === "login" ? t("auth.welcomeBack") : t("auth.createAccount")}
         </p>
 
         {activeTab === "login" ? (
@@ -166,11 +168,11 @@ export default function LoginPage() {
             className="mt-8 space-y-4 w-full"
           >
             <div className="space-y-2">
-              <h1 className="text-sm text-neutral-12">Email</h1>
+              <h1 className="text-sm text-neutral-12">{t("auth.email")}</h1>
               <Input
                 id="email"
                 type="email"
-                placeholder="Digite seu email"
+                placeholder={t("auth.emailPlaceholder")}
                 {...loginForm.register("email")}
                 className={
                   loginForm.formState.errors.email ? "border-red-500" : ""
@@ -184,11 +186,11 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-sm text-neutral-12">Senha</h1>
+              <h1 className="text-sm text-neutral-12">{t("auth.password")}</h1>
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t("auth.passwordPlaceholder")}
                 {...loginForm.register("password")}
                 className={
                   loginForm.formState.errors.password ? "border-red-500" : ""
@@ -204,13 +206,13 @@ export default function LoginPage() {
             <div className="text-center w-full flex flex-col md:flex-row gap-4 md:gap-0 items-start md:items-center justify-between">
               <div className="text-sm text-neutral-11 flex items-center gap-2">
                 <Checkbox />
-                Lembrar da minha conta
+                {t("auth.rememberMe")}
               </div>
               <a
                 href="/forgot-password"
                 className="text-sm text-neutral-11 hover:underline"
               >
-                Esqueci minha senha
+                {t("auth.forgotPassword")}
               </a>
             </div>
 
@@ -219,10 +221,10 @@ export default function LoginPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Logging in...
+                    {t("auth.loggingIn")}
                   </>
                 ) : (
-                  "Entrar na plataforma"
+                  t("auth.loginButton")
                 )}
               </Button>
 
@@ -239,8 +241,8 @@ export default function LoginPage() {
                   height={20}
                 />
                 {activeTab === "login"
-                  ? "Connect Google"
-                  : "Cadastrar com Google"}
+                  ? t("auth.connectGoogle")
+                  : t("auth.registerGoogle")}
               </Button>
             </div>
           </form>
@@ -251,11 +253,11 @@ export default function LoginPage() {
           >
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <h1 className="text-sm text-neutral-12">Nome</h1>
+                <h1 className="text-sm text-neutral-12">{t("auth.firstName")}</h1>
                 <Input
                   id="firstName"
                   type="text"
-                  placeholder="Seu nome"
+                  placeholder={t("auth.firstNamePlaceholder")}
                   {...registerForm.register("firstName")}
                   className={
                     registerForm.formState.errors.firstName
@@ -271,11 +273,11 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <h1 className="text-sm text-neutral-12">Sobrenome</h1>
+                <h1 className="text-sm text-neutral-12">{t("auth.lastName")}</h1>
                 <Input
                   id="lastName"
                   type="text"
-                  placeholder="Seu sobrenome"
+                  placeholder={t("auth.lastNamePlaceholder")}
                   {...registerForm.register("lastName")}
                   className={
                     registerForm.formState.errors.lastName
@@ -292,11 +294,11 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-sm text-neutral-12">Nome de usuário</h1>
+              <h1 className="text-sm text-neutral-12">{t("auth.username")}</h1>
               <Input
                 id="username"
                 type="text"
-                placeholder="Seu nome de usuário"
+                placeholder={t("auth.usernamePlaceholder")}
                 {...registerForm.register("username")}
                 className={
                   registerForm.formState.errors.username ? "border-red-500" : ""
@@ -310,11 +312,11 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-sm text-neutral-12">Email</h1>
+              <h1 className="text-sm text-neutral-12">{t("auth.email")}</h1>
               <Input
                 id="registerEmail"
                 type="email"
-                placeholder="Seu email"
+                placeholder={t("auth.emailPlaceholder")}
                 {...registerForm.register("email")}
                 className={
                   registerForm.formState.errors.email ? "border-red-500" : ""
@@ -328,11 +330,11 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-sm text-neutral-12">Senha</h1>
+              <h1 className="text-sm text-neutral-12">{t("auth.password")}</h1>
               <Input
                 id="registerPassword"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t("auth.passwordPlaceholder")}
                 {...registerForm.register("password")}
                 className={
                   registerForm.formState.errors.password ? "border-red-500" : ""
@@ -346,11 +348,11 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-sm text-neutral-12">Confirmar Senha</h1>
+              <h1 className="text-sm text-neutral-12">{t("auth.confirmPassword")}</h1>
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t("auth.passwordPlaceholder")}
                 {...registerForm.register("confirmPassword")}
                 className={
                   registerForm.formState.errors.confirmPassword
@@ -370,10 +372,10 @@ export default function LoginPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating account...
+                    {t("auth.creatingAccount")}
                   </>
                 ) : (
-                  "Criar conta"
+                  t("auth.registerButton")
                 )}
               </Button>
             </div>
@@ -401,23 +403,23 @@ export default function LoginPage() {
           {activeTab === "login" ? (
             <>
               <span className="text-neutral-11">
-                Ainda não possui uma conta?
+                {t("auth.noAccount")}
               </span>
               <span
                 className="text-primary-10 underline cursor-pointer"
                 onClick={() => setActiveTab("register")}
               >
-                Cadastre-se
+                {t("auth.signUp")}
               </span>
             </>
           ) : (
             <>
-              <span className="text-neutral-11">Já possui uma conta?</span>
+              <span className="text-neutral-11">{t("auth.hasAccount")}</span>
               <span
                 className="text-primary-10 underline cursor-pointer"
                 onClick={() => setActiveTab("login")}
               >
-                Faça login
+                {t("auth.signIn")}
               </span>
             </>
           )}

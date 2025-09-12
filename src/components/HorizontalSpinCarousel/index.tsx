@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useImperativeHandle,
   forwardRef,
+  useMemo,
 } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -51,7 +52,6 @@ const HorizontalSpinCarousel = forwardRef<
     const containerRef = useRef<HTMLDivElement>(null);
     const carouselRef = useRef<HTMLDivElement>(null);
     const animationRef = useRef<number | null>(null);
-
     const [isSpinning, setIsSpinning] = useState(false);
     const [showResult, setShowResult] = useState(false);
     const [winningIndex, setWinningIndex] = useState(selectedIndex);
@@ -59,8 +59,6 @@ const HorizontalSpinCarousel = forwardRef<
     const [hasSpun, setHasSpun] = useState(false);
     const [currentCenterIndex, setCurrentCenterIndex] = useState<number>(-1);
     const highFrequencyDetectionRef = useRef<number | null>(null);
-
-    // Virtualização
     const [virtualStartIndex, setVirtualStartIndex] = useState(0);
     const [virtualEndIndex, setVirtualEndIndex] = useState(0);
     const [currentPosition, setCurrentPosition] = useState(0);
@@ -74,8 +72,6 @@ const HorizontalSpinCarousel = forwardRef<
     const itemFullWidth = itemWidth + gap;
 
     useEffect(() => {
-      const startTime = Date.now();
-
       tickAudioRef.current = new Audio("/sounds/spin_short.mp3");
       finishAudioRef.current = new Audio("/sounds/spin_finish.mp3");
       startAudioRef.current = new Audio("/sounds/spin_start.mp3");
@@ -329,10 +325,9 @@ const HorizontalSpinCarousel = forwardRef<
             setHasSpun(true);
             playFinishSound();
 
-            // Limpar otimizações após animação
             if (carouselRef.current) {
               carouselRef.current.style.willChange = "auto";
-              carouselRef.current.style.contain = "none"; // Remover containment
+              carouselRef.current.style.contain = "none";
             }
           }, spinDuration - 1000);
         }, 100);
@@ -386,10 +381,8 @@ const HorizontalSpinCarousel = forwardRef<
       }
     }, [items, isSpinning, hasSpun]);
 
-    // Itens virtuais para renderização otimizada
     const virtualItems = React.useMemo(() => {
       if (isSpinning || hasSpun) {
-        // Durante spin ou após spin, renderizar todos os itens para animação completa
         const allItems = displayItems.map((item, index) => ({
           item,
           index,
@@ -397,7 +390,6 @@ const HorizontalSpinCarousel = forwardRef<
         }));
         return allItems;
       } else {
-        // Modo virtualizado normal
         const items = [];
         for (let i = virtualStartIndex; i <= virtualEndIndex; i++) {
           if (i < displayItems.length) {
@@ -421,14 +413,12 @@ const HorizontalSpinCarousel = forwardRef<
         const containerWidth = containerRef.current.offsetWidth;
         const totalItems = displayItems.length;
 
-        // Calcular índices baseados na posição atual
         const startPosition = Math.abs(position);
         const visibleStartIndex = Math.floor(startPosition / itemFullWidth);
         const visibleEndIndex = Math.ceil(
           (startPosition + containerWidth) / itemFullWidth
         );
 
-        // Adicionar buffer
         const bufferedStart = Math.max(0, visibleStartIndex - VIRTUAL_BUFFER);
         const bufferedEnd = Math.min(
           totalItems - 1,
@@ -440,7 +430,6 @@ const HorizontalSpinCarousel = forwardRef<
       [displayItems.length, itemFullWidth]
     );
 
-    // Cache para otimização de detecção
     const detectionCache = useRef({
       lastContainerCenterX: 0,
       lastResult: -1,
@@ -453,18 +442,16 @@ const HorizontalSpinCarousel = forwardRef<
       const containerRect = containerRef.current.getBoundingClientRect();
       const containerCenterX = containerRect.left + containerRect.width / 2;
 
-      // Otimização: usar cache se a posição não mudou muito
       const now = Date.now();
       if (
         Math.abs(
           containerCenterX - detectionCache.current.lastContainerCenterX
         ) < 5 &&
-        now - detectionCache.current.lastTimestamp < 50 // Cache por 50ms
+        now - detectionCache.current.lastTimestamp < 50
       ) {
         return detectionCache.current.lastResult;
       }
 
-      // Calcular posição baseada no transform atual
       const currentTransform =
         carouselRef.current.style.transform || "translateX(0px)";
       const position = parseFloat(
@@ -472,15 +459,11 @@ const HorizontalSpinCarousel = forwardRef<
       );
       const containerWidth = containerRef.current.offsetWidth;
       const centerOffset = containerWidth / 2;
-
-      // Calcular qual item deveria estar no centro baseado na posição
       const absoluteCenterPosition = Math.abs(position) + centerOffset;
       const centerItemIndex = Math.round(
         absoluteCenterPosition / itemFullWidth
       );
       const result = centerItemIndex % items.length;
-
-      // Atualizar cache
       detectionCache.current = {
         lastContainerCenterX: containerCenterX,
         lastResult: result,
@@ -585,6 +568,42 @@ const HorizontalSpinCarousel = forwardRef<
       }
     }, [showResult, winningIndex]);
 
+    const colors = {
+      common: {
+        bar: "neutral-11",
+        bg: "neutral-2",
+        light: "neutral-9",
+      },
+      uncommon: {
+        bar: "green-11",
+        bg: "green-2",
+        light: "green-9",
+      },
+      rare: {
+        bar: "link-11",
+        bg: "link-2",
+        light: "link-9",
+      },
+      epic: {
+        bar: "purple-11",
+        bg: "purple-2",
+        light: "purple-6",
+      },
+      legendary: {
+        bar: "warning-11",
+        bg: "warning-2",
+        light: "warning-9",
+      },
+    };
+
+    const itemColor = useMemo(() => {
+      return !isSpinning && showResult
+        ? colors[
+            items[winningIndex].rarity?.toLowerCase() as keyof typeof colors
+          ] || colors.common
+        : colors.common;
+    }, [isSpinning, showResult, winningIndex]);
+
     return (
       <div
         className={`${
@@ -613,9 +632,21 @@ const HorizontalSpinCarousel = forwardRef<
                 className="w-6 h-6 rotate-180 animate-bounce"
               />
               <div
-                className={`w-40 h-0.5 bg-gradient-to-r from-transparent animate-pulse ${
-                  !isSpinning && showResult ? "via-green-11" : "via-neutral-10"
-                } to-transparent mx-auto mt-1 md:mt-4`}
+                className={`w-40 h-0.5 rounded-full animate-pulse ${
+                  !isSpinning || showResult
+                    ? itemColor.light === "neutral-9"
+                      ? "bg-neutral-9"
+                      : itemColor.light === "green-9"
+                      ? "bg-green-9"
+                      : itemColor.light === "link-9"
+                      ? "bg-link-9"
+                      : itemColor.light === "purple-9"
+                      ? "bg-purple-9"
+                      : itemColor.light === "warning-9"
+                      ? "bg-warning-9"
+                      : "bg-neutral-9"
+                    : `bg-neutral-10`
+                } mx-auto mt-1 md:mt-4`}
               />
             </div>
 
@@ -628,9 +659,21 @@ const HorizontalSpinCarousel = forwardRef<
                 className="w-6 h-6 animate-bounce"
               />
               <div
-                className={`w-40 h-0.5 bg-gradient-to-r from-transparent animate-pulse ${
-                  !isSpinning && showResult ? "via-green-11" : "via-neutral-10"
-                } to-transparent mx-auto mt-1 md:mt-4`}
+                className={`w-40 h-0.5 animate-pulse ${
+                  !isSpinning || showResult
+                    ? itemColor.light === "neutral-9"
+                      ? "bg-neutral-9"
+                      : itemColor.light === "green-9"
+                      ? "bg-green-9"
+                      : itemColor.light === "link-9"
+                      ? "bg-link-9"
+                      : itemColor.light === "purple-9"
+                      ? "bg-purple-9"
+                      : itemColor.light === "warning-9"
+                      ? "bg-warning-9"
+                      : "bg-neutral-9"
+                    : `bg-neutral-10`
+                } mx-auto mt-1 md:mt-4`}
               />
             </div>
             <div
@@ -655,7 +698,7 @@ const HorizontalSpinCarousel = forwardRef<
                 return (
                   <div
                     key={`${item.id}-${index}`}
-                    className={`shrink-0 rounded-lg transition-all duration-300 ease-in-out flex flex-col items-center justify-center`}
+                    className={`shrink-0 relative rounded-lg transition-all duration-300 ease-in-out flex flex-col items-center justify-center`}
                     style={{
                       width: `${itemWidth}px`,
                       height: `${itemHeight}px`,
@@ -675,19 +718,19 @@ const HorizontalSpinCarousel = forwardRef<
                         height={1000}
                         className={`w-full h-full object-contain transition-all duration-300 ease-in-out ${
                           isWinner && showResult
-                            ? "scale-75"
-                            : isInCenter
-                            ? "scale-110"
-                            : showResult
                             ? "scale-90"
-                            : "scale-100"
+                            : isInCenter
+                            ? "scale-90"
+                            : showResult
+                            ? "scale-75"
+                            : "scale-75"
                         }`}
                         draggable={false}
                       />
                     )}
                     {showResult && isInCenter && (
                       <motion.div
-                        className="text-center flex flex-col items-center"
+                        className="text-center flex flex-col items-center space-y-1"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
@@ -695,8 +738,8 @@ const HorizontalSpinCarousel = forwardRef<
                         <span className="text-neutral-12 text-sm font-medium">
                           {items[winningIndex].name}
                         </span>
-                        <span className="text-neutral-12 p-1 px-2 bg-neutral-2 rounded-md">
-                          ${items[winningIndex].value?.toLocaleString("en-US")}
+                        <span className="text-neutral-12 text-sm p-1 px-2 bg-neutral-2 rounded-md">
+                          {items[winningIndex].value?.toLocaleString("en-US")}
                         </span>
                       </motion.div>
                     )}
@@ -705,10 +748,22 @@ const HorizontalSpinCarousel = forwardRef<
               })}
             </div>
 
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center z-0 animate-pulse">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center z-0">
               <motion.div
                 className={` ${
-                  !isSpinning && showResult ? "bg-green-9" : "bg-neutral-10"
+                  !isSpinning && showResult
+                    ? itemColor.light === "neutral-9"
+                      ? "bg-neutral-9"
+                      : itemColor.light === "green-9"
+                      ? "bg-green-9"
+                      : itemColor.light === "link-9"
+                      ? "bg-link-9"
+                      : itemColor.light === "purple-9"
+                      ? "bg-purple-9"
+                      : itemColor.light === "warning-9"
+                      ? "bg-warning-9"
+                      : "bg-neutral-9"
+                    : "bg-neutral-10"
                 } transition-all duration-300 ease-in-out w-[20rem] sm:w-[30rem] md:w-[40rem] h-[20rem] sm:h-[30rem] md:h-[40rem] rounded-full blur-[80px] md:blur-[140px]`}
                 animate={{
                   scale: isSpinning || showResult ? 1.1 : 1,
@@ -717,12 +772,22 @@ const HorizontalSpinCarousel = forwardRef<
               />
             </div>
 
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center z-0 animate-pulse">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center z-0">
               <motion.div
-                className={`w-[20rem] sm:w-[30rem] md:w-[40rem] h-[20rem] sm:h-[30rem] md:h-[40rem] rounded-full transition-all duration-300 ease-in-out opacity-50 border-[2px] md:border-[3px] ${
+                className={`w-[20rem] sm:w-[30rem] md:w-[40rem] h-[20rem] sm:h-[30rem] md:h-[40rem] rounded-full transition-all duration-300 ease-in-out border-[2px] md:border-[3px] ${
                   !isSpinning && showResult
-                    ? "border-green-8"
-                    : "border-neutral-10"
+                    ? itemColor.light === "neutral-9"
+                      ? "border-neutral-9"
+                      : itemColor.light === "green-9"
+                      ? "border-green-9"
+                      : itemColor.light === "link-9"
+                      ? "border-link-9"
+                      : itemColor.light === "purple-9"
+                      ? "border-purple-9"
+                      : itemColor.light === "warning-9"
+                      ? "border-warning-9"
+                      : "border-neutral-9"
+                    : "border-neutral-4"
                 }`}
                 animate={{ scale: isSpinning || showResult ? 1.05 : 1 }}
               />
@@ -736,11 +801,7 @@ const HorizontalSpinCarousel = forwardRef<
               } pointer-events-none`}
             >
               <div
-                className={`absolute inset-0 bg-gradient-to-r h-full ${
-                  isSpinning || showResult
-                    ? "from-neutral-2 via-neutral-2/20"
-                    : "from-neutral-2 via-neutral-2/80"
-                } to-transparent`}
+                className={`absolute inset-0 bg-gradient-to-r h-full from-neutral-1 via-neutral-1/80 to-transparent`}
               ></div>
             </div>
             <div
@@ -751,11 +812,7 @@ const HorizontalSpinCarousel = forwardRef<
               } pointer-events-none`}
             >
               <div
-                className={`absolute inset-0 bg-gradient-to-l h-full ${
-                  isSpinning || showResult
-                    ? "from-neutral-2 via-neutral-2/20"
-                    : "from-neutral-2 via-neutral-2/80"
-                } to-transparent`}
+                className={`absolute inset-0 bg-gradient-to-l h-full from-neutral-1 via-neutral-1/80 to-transparent`}
               ></div>
             </div>
           </div>

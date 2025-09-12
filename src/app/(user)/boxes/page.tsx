@@ -54,7 +54,7 @@ export default function BoxesPage() {
       <div className="container w-full max-w-screen-2xl mx-auto px-6 md:px-0">
         <div className="flex flex-col items-start">
           <h1 className="flex items-center gap-2 text-2xl font-bold text-neutral-12">
-            <BoxIcon className="h-8 w-8" /> Boxes
+            <BoxIcon className="h-8 w-8" /> {t("boxes.page.title")}
           </h1>
           <SearchBar search={search} setSearch={setSearch} />
         </div>
@@ -63,17 +63,16 @@ export default function BoxesPage() {
           <div>
             {search.trim() ? (
               <span>
-                {filteredBoxes.length} result
-                {filteredBoxes.length !== 1 ? "s" : ""} found
-                {search.trim() && ` for "${search}"`}
+                {filteredBoxes.length} {filteredBoxes.length === 1 ? t("boxes.search.result") : t("boxes.search.results")} {t("boxes.search.found")}
+                {search.trim() && ` ${t("boxes.search.for")} "${search}"`}
               </span>
             ) : (
-              <span>{lootboxes.length} boxes available</span>
+              <span>{lootboxes.length} {t("boxes.available")}</span>
             )}
           </div>
           {totalPages > 1 && (
             <div className="text-neutral-10">
-              Page {currentPage} of {totalPages}
+              {t("boxes.page.of")} {currentPage} {t("boxes.page.of.total")} {totalPages}
             </div>
           )}
         </div>
@@ -106,7 +105,7 @@ export default function BoxesPage() {
                   disabled={currentPage === 1}
                   className="px-3 py-2 rounded-lg border border-neutral-6 bg-neutral-3 hover:bg-neutral-4 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  Previous
+                  {t("boxes.pagination.previous")}
                 </button>
 
                 <div className="flex gap-1">
@@ -142,7 +141,7 @@ export default function BoxesPage() {
                   disabled={currentPage === totalPages}
                   className="px-3 py-2 rounded-lg border border-neutral-6 bg-neutral-3 hover:bg-neutral-4 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  Next
+                  {t("boxes.pagination.next")}
                 </button>
               </div>
             )}
@@ -153,17 +152,16 @@ export default function BoxesPage() {
               <BoxIcon className="h-16 w-16 mx-auto opacity-50" />
             </div>
             <h3 className="text-xl font-semibold text-neutral-11 mb-2">
-              No boxes found
+              {t("boxes.empty.title")}
             </h3>
             <p className="text-neutral-9 max-w-md">
-              No boxes match your search "{search}". Try searching for different
-              terms.
+              {t("boxes.empty.description")} "{search}". {t("boxes.empty.search")}.
             </p>
             <button
               onClick={() => setSearch("")}
               className="mt-4 px-4 py-2 bg-primary-9 text-neutral-1 rounded-lg hover:bg-primary-10 transition-colors"
             >
-              Clear search
+              {t("boxes.empty.clear")}
             </button>
           </div>
         )}
