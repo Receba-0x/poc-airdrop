@@ -98,16 +98,10 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     try {
-      setIsLoading(true);
       setMessage(null);
-      // await authService.loginWithGoogle();
-      setMessage({
-        type: "error",
-        text:
-          activeTab === "login"
-            ? t("auth.googleDisabled")
-            : t("auth.googleRegisterDisabled"),
-      });
+      const baseUrl =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
+      window.location.href = `${baseUrl}/api/v1/auth/google`;
     } catch (error: any) {
       console.error("Google authentication failed:", error);
       setMessage({
@@ -159,7 +153,9 @@ export default function LoginPage() {
         />
 
         <p className="text-neutral-12 text-center font-bold text-lg sm:text-2xl md:text-3xl mt-2 md:mt-8">
-          {activeTab === "login" ? t("auth.welcomeBack") : t("auth.createAccount")}
+          {activeTab === "login"
+            ? t("auth.welcomeBack")
+            : t("auth.createAccount")}
         </p>
 
         {activeTab === "login" ? (
@@ -253,7 +249,9 @@ export default function LoginPage() {
           >
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <h1 className="text-sm text-neutral-12">{t("auth.firstName")}</h1>
+                <h1 className="text-sm text-neutral-12">
+                  {t("auth.firstName")}
+                </h1>
                 <Input
                   id="firstName"
                   type="text"
@@ -273,7 +271,9 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <h1 className="text-sm text-neutral-12">{t("auth.lastName")}</h1>
+                <h1 className="text-sm text-neutral-12">
+                  {t("auth.lastName")}
+                </h1>
                 <Input
                   id="lastName"
                   type="text"
@@ -348,7 +348,9 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-sm text-neutral-12">{t("auth.confirmPassword")}</h1>
+              <h1 className="text-sm text-neutral-12">
+                {t("auth.confirmPassword")}
+              </h1>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -402,9 +404,7 @@ export default function LoginPage() {
         <div className="flex justify-center gap-2 text-xs w-full mt-6">
           {activeTab === "login" ? (
             <>
-              <span className="text-neutral-11">
-                {t("auth.noAccount")}
-              </span>
+              <span className="text-neutral-11">{t("auth.noAccount")}</span>
               <span
                 className="text-primary-10 underline cursor-pointer"
                 onClick={() => setActiveTab("register")}

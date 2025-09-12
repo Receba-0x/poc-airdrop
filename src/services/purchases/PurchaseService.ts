@@ -147,10 +147,6 @@ export class PurchaseService {
     return this.apiClient.get<Purchase>(`/api/v1/purchases/${purchaseId}`);
   }
 
-  async getPurchasesByUser(userId: string): Promise<ApiResponse<Purchase[]>> {
-    return this.apiClient.get<Purchase[]>(`/api/v1/purchases/user/${userId}`);
-  }
-
   async getPurchasesStats(): Promise<ApiResponse<PurchaseStats>> {
     console.log("/api/v1/purchases/stats");
     return this.apiClient.get<PurchaseStats>("/api/v1/purchases/stats");

@@ -21,6 +21,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  setUser: (user: User | null) => void;
   isAuthenticated: boolean;
   refetchUser: () => void;
   isLoading: boolean;
@@ -183,6 +184,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const value = {
     user,
+    setUser,
     isAuthenticated: !!user,
     isLoading,
     error,

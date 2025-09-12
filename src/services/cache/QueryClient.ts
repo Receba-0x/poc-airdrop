@@ -93,6 +93,15 @@ export const queryKeys = {
       [...queryKeys.leaderboard.all, "list", page, limit] as const,
     top: () => [...queryKeys.leaderboard.all, "top"] as const,
   },
+
+  // Admin Users
+  adminUsers: {
+    all: ["admin-users"] as const,
+    lists: () => [...queryKeys.adminUsers.all, "list"] as const,
+    list: (filters: any) => [...queryKeys.adminUsers.lists(), filters] as const,
+    details: () => [...queryKeys.adminUsers.all, "detail"] as const,
+    detail: (id: string) => [...queryKeys.adminUsers.details(), id] as const,
+  },
 };
 
 // Funções utilitárias para invalidação de cache
@@ -108,6 +117,10 @@ export const invalidateQueries = {
   purchases: () =>
     queryClient.invalidateQueries({ queryKey: queryKeys.purchases.all }),
 
+  // Invalidar queries de admin users
+  adminUsers: () =>
+    queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers.all }),
+
   // Invalidar tudo
   all: () => queryClient.invalidateQueries(),
 };
@@ -118,4 +131,6 @@ export const removeQueries = {
   items: () => queryClient.removeQueries({ queryKey: queryKeys.items.all }),
   purchases: () =>
     queryClient.removeQueries({ queryKey: queryKeys.purchases.all }),
+  adminUsers: () =>
+    queryClient.removeQueries({ queryKey: queryKeys.adminUsers.all }),
 };

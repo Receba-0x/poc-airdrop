@@ -30,3 +30,13 @@ export type {
   LootboxStock,
   LinkItemToLootboxRequest
 } from './AdminLootboxService';
+
+export { AdminUserService } from './AdminUserService';
+export type {
+  AdminUser,
+  CreateUserRequest,
+  UpdateUserRequest,
+  UsersStats,
+  UsersFilters,
+  ResetUserPasswordRequest
+} from './AdminUserService';

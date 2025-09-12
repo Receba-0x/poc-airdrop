@@ -78,7 +78,7 @@ export function usePurchasesByUser(userId: string) {
   const query = useQuery({
     queryKey: ["purchases-by-user", userId],
     queryFn: async () => {
-      const response = await purchaseService.getPurchasesByUser(userId);
+      const response = await purchaseService.getPurchases({ userId });
       return response.data;
     },
   });
