@@ -77,7 +77,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             setUser(profile);
           } catch (profileError) {
             console.error("Profile fetch failed:", profileError);
-            clearAuthData();
+            // Don't clear auth data immediately on profile error
+            // Keep user data and let token refresh handle auth
+            if (storedUser) {
+              try {
+                const cachedUser = JSON.parse(storedUser);
+                setUser(cachedUser);
+              } catch (parseError) {
+                console.warn("Failed to restore from cache after profile error");
+                clearAuthData();
+              }
+            }
           }
         } else if (storedUser) {
           clearAuthData();

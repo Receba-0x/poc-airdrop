@@ -55,7 +55,6 @@ export class ApiClient {
       (error) => Promise.reject(error)
     );
 
-    // Response interceptor
     this.client.interceptors.response.use(
       (response) => response,
       async (error) => {
@@ -90,9 +89,15 @@ export class ApiClient {
 
             originalRequest.headers.Authorization = `Bearer ${access_token}`;
             return this.client(originalRequest);
-          } catch (refreshError) {
+          } catch (refreshError: any) {
+            console.error("Token refresh failed:", refreshError);
+            if (
+              refreshError?.response?.status === 401 ||
+              refreshError?.response?.status === 403
+            ) {
+              this.clearTokens();
+            }
             this.processQueue(refreshError, null);
-            this.clearTokens();
             throw refreshError;
           } finally {
             this.isRefreshing = false;
@@ -152,9 +157,9 @@ export class ApiClient {
 
   setAccessToken(token: string): void {
     Cookies.set("access_token", token, {
-      expires: 15 / (24 * 60), // 15 minutes
+      expires: 60 / (24 * 60), // 60 minutes (increased from 15)
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     });
   }
 
