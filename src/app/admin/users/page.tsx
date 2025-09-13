@@ -45,8 +45,8 @@ export default function AdminUsers() {
     isAdmin: false,
   });
 
-  const { users, isLoading, refetch, searchTerm, setSearchTerm } = useAdminUsersWithSearch(filters);
-  console.log(users);
+  const { users, isLoading, refetch, searchTerm, setSearchTerm } =
+    useAdminUsersWithSearch(filters);
   const { createUser, isLoading: isCreateLoading } = useCreateAdminUser();
   const { updateUser, isLoading: isUpdateLoading } = useUpdateAdminUser();
   const { deleteUser, isLoading: isDeleteLoading } = useDeleteAdminUser();
@@ -160,10 +160,10 @@ export default function AdminUsers() {
   };
 
   const handleResetPassword = async (userId: string) => {
-    const newPassword = prompt("Digite a nova senha:");
-    if (newPassword) {
+    const password = prompt("Digite a nova senha:");
+    if (password) {
       try {
-        await resetPassword({ userId, newPassword });
+        await resetPassword({ userId, password });
         alert("Senha resetada com sucesso!");
       } catch (error) {
         console.error("Error resetting password:", error);
@@ -171,7 +171,6 @@ export default function AdminUsers() {
       }
     }
   };
-
 
   if (isLoading) {
     return (

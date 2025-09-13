@@ -7,6 +7,7 @@ import {
   type CreateUserRequest,
   type ResetUserPasswordRequest,
   queryClient,
+  userService,
 } from "@/services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useMemo, useCallback } from "react";
@@ -179,8 +180,8 @@ export function useDeleteAdminUser() {
 
 export function useResetUserPassword() {
   const mutation = useMutation({
-    mutationFn: async (request: ResetUserPasswordRequest) => {
-      return adminUserService.resetUserPassword(request);
+    mutationFn: async (request: { userId: string; password: string }) => {
+      return userService.adminUpdatePassword(request);
     },
   });
 

@@ -300,6 +300,7 @@ export default function AdminLootboxes() {
         <BaseModal
           title={editingLootbox ? "Editar Lootbox" : "Criar Nova Lootbox"}
           isOpen={isCreateModalOpen}
+          preventClose={true}
           onClose={() => setIsCreateModalOpen(false)}
         >
           <div className="mt-3">
@@ -488,6 +489,7 @@ export default function AdminLootboxes() {
         <BaseModal
           title="Upload de Imagem da Lootbox"
           isOpen={isImageModalOpen}
+          preventClose={true}
           onClose={() => setIsImageModalOpen(false)}
         >
           <div className="mt-3">

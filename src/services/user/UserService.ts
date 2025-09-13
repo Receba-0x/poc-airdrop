@@ -138,6 +138,21 @@ export class UserService {
     }
   }
 
+  async adminUpdatePassword(data: {
+    userId: string;
+    password: string;
+  }): Promise<{ message: string }> {
+    try {
+      const response = await this.apiClient.post(
+        "/api/v1/auth/admin-update-password",
+        data
+      );
+      return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
+    }
+  }
+
   private handleError(error: any): AuthError {
     if (error.response?.data) {
       return {

@@ -113,7 +113,7 @@ export class ApiClient {
     refreshToken: string
   ): Promise<AxiosResponse<{ access_token: string }>> {
     try {
-      const response = await this.client.post("/auth/refresh", {
+      const response = await this.client.post("api/v1/auth/refresh", {
         refreshToken,
       });
       return response.data;
