@@ -64,11 +64,12 @@ export function TransactionForm({
       case "amount":
         if (!value.trim()) {
           error = "Amount is required";
-        } else if (!validateAmount(value, formData.currency)) {
-          const minAmount =
-            currencies.find((c) => c.value === formData.currency)?.minAmount ||
-            0;
-          error = `Minimum amount is ${minAmount} ${formData.currency}`;
+        } else if (!validateAmount(value, formData.currency, type)) {
+          if (type === "deposit") {
+            error = "Amount must be between 0.01 and 10 SOL (max 4 decimal places)";
+          } else {
+            error = "Amount must be between 0.01 and 5000 USD (max 2 decimal places)";
+          }
         }
         break;
       case "address":
@@ -100,10 +101,12 @@ export function TransactionForm({
     // Validar todos os campos
     const newErrors: Record<string, string> = {};
 
-    if (!validateAmount(formData.amount, formData.currency)) {
-      const minAmount =
-        currencies.find((c) => c.value === formData.currency)?.minAmount || 0;
-      newErrors.amount = `Minimum amount is ${minAmount} ${formData.currency}`;
+    if (!validateAmount(formData.amount, formData.currency, type)) {
+      if (type === "deposit") {
+        newErrors.amount = "Amount must be between 0.01 and 10 SOL (max 4 decimal places)";
+      } else {
+        newErrors.amount = "Amount must be between 0.01 and 5000 USD (max 2 decimal places)";
+      }
     }
 
     if (type === "withdraw" && !validateAddress(formData.address || "")) {
@@ -126,21 +129,22 @@ export function TransactionForm({
       {/* Amount Input */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-neutral-12">
-          Amount ({formData.currency})
+          Amount ({type === "deposit" ? "SOL" : "USD"})
         </label>
         <div className="relative">
           <Input
             type="number"
             value={formData.amount}
             onChange={(e) => handleInputChange("amount", e.target.value)}
-            placeholder={`Enter amount in ${formData.currency}`}
+            placeholder={`Enter amount in ${type === "deposit" ? "SOL" : "USD"}`}
             className="pr-20"
-            step="0.001"
-            min={selectedCurrency?.minAmount || 0}
+            step={type === "deposit" ? "0.0001" : "0.01"}
+            min={type === "deposit" ? "0.01" : "0.01"}
+            max={type === "deposit" ? "10" : "5000"}
             disabled={isSubmitting}
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-11 text-sm">
-            {formData.currency}
+            {type === "deposit" ? "SOL" : "USD"}
           </div>
         </div>
         {errors.amount && (
@@ -155,27 +159,16 @@ export function TransactionForm({
         )}
       </div>
 
-      {/* Currency Selector */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-neutral-12">
-          Currency
-        </label>
-        <div className="grid grid-cols-3 gap-2">
-          {currencies.map((currency) => (
-            <button
-              key={currency.value}
-              type="button"
-              onClick={() => handleInputChange("currency", currency.value)}
-              className={`p-3 rounded-lg border text-sm font-medium transition-all duration-200 ${
-                formData.currency === currency.value
-                  ? "border-primary-8 bg-primary-2 text-primary-12"
-                  : "border-neutral-6 bg-neutral-4 text-neutral-11 hover:border-neutral-5"
-              }`}
-              disabled={isSubmitting}
-            >
-              {currency.label}
-            </button>
-          ))}
+      {/* Currency Info */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+        <div className="flex items-center gap-2 text-blue-800 dark:text-blue-200 text-sm">
+          <CheckCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <span>
+            {type === "deposit"
+              ? "Deposits are made in SOL and converted to USD automatically"
+              : "Withdrawals are requested in USD and paid in SOL automatically"
+            }
+          </span>
         </div>
       </div>
 
@@ -204,13 +197,15 @@ export function TransactionForm({
         </div>
       )}
 
-      {/* Minimum Amount Info */}
+      {/* Amount Limits Info */}
       <div className="bg-neutral-4 rounded-lg p-3">
         <div className="flex items-center gap-2 text-neutral-11 text-sm">
           <CheckCircle className="w-4 h-4 text-primary-10" />
           <span>
-            Minimum {type} amount: {selectedCurrency?.minAmount}{" "}
-            {formData.currency}
+            {type === "deposit"
+              ? "Deposit limits: 0.01 - 10 SOL (max 4 decimal places)"
+              : "Withdrawal limits: 0.01 - 5000 USD (max 2 decimal places)"
+            }
           </span>
         </div>
       </div>

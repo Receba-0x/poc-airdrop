@@ -74,6 +74,7 @@ import { AdminUploadService } from "./admin/AdminUploadService";
 import { ItemService } from "./item/ItemService";
 import { PurchaseService } from "./purchases/PurchaseService";
 import { LeaderboardService } from "./leaderboard/LeaderboardService";
+import { SolanaTransactionService } from "./solana/SolanaTransactionService";
 export type { Leaderboard } from "./leaderboard/LeaderboardService";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
@@ -89,3 +90,4 @@ export const adminLootboxService = new AdminLootboxService(apiClient);
 export const adminUserService = new AdminUserService(apiClient);
 export const adminUploadService = new AdminUploadService(apiClient);
 export const leaderboardService = new LeaderboardService(apiClient);
+export const solanaTransactionService = new SolanaTransactionService(apiClient);
