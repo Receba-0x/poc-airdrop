@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 // Tipos base para respostas de API
 export interface ApiResponse<T = any> {
   success: boolean;
-  data?: T;
+  data?: T | any;
   error?: string;
   message?: string;
   timestamp?: string;
@@ -82,7 +82,8 @@ export class ApiClient {
             }
 
             const response = await this.refreshToken(refreshToken);
-            const { access_token } = response.data;
+            console.log("response", response);
+            const { access_token } = response as any;
 
             this.setAccessToken(access_token);
             this.processQueue(null, access_token);

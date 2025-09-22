@@ -1,9 +1,14 @@
+"use client";
+
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { TopLeaders } from "@/components/TopLeaders";
 import { LeaderboardTable } from "@/components/LeaderboardTable";
 import { TrophyIcon } from "@/components/Icons/TrophyIcon";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Leaderboard() {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-neutral-2 space-y-10 mt-10">
       <TopLeaders />
@@ -11,7 +16,7 @@ export default function Leaderboard() {
       <ScrollAnimation type="fade" direction="up" delay={0.4} duration={0.7}>
         <div className="max-w-screen-2xl mx-auto px-6 md:px-0">
           <h2 className="flex items-center gap-2 text-xl font-bold text-neutral-12 mb-6">
-            <TrophyIcon className="h-6 w-6" /> Full Leaderboard
+            <TrophyIcon className="h-6 w-6" /> {t("leaderboard.fullLeaderboard")}
           </h2>
           <LeaderboardTable />
         </div>

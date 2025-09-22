@@ -5,6 +5,18 @@ import { AdminUser, UsersFilters } from "@/services";
 import { Button } from "@/components/Button";
 import { BaseModal } from "@/components/TransactionModals";
 import { Checkbox } from "@/components/CheckBox";
+import toast from "react-hot-toast";
+import {
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  UserPlus,
+  UserMinus,
+  Shield,
+  ShieldOff,
+  Trash2,
+  Key
+} from "lucide-react";
 import {
   useAdminUsersWithSearch,
   useAdminUsersStats,
@@ -34,6 +46,13 @@ export default function AdminUsers() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [filters, setFilters] = useState<UsersFilters>({});
+  const [confirmAction, setConfirmAction] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    action: () => void;
+    type: 'danger' | 'warning' | 'info';
+  } | null>(null);
   const [formData, setFormData] = useState<UserFormData>({
     username: "",
     email: "",
@@ -82,8 +101,17 @@ export default function AdminUsers() {
       });
       setIsCreateModalOpen(false);
       resetForm();
-    } catch (error) {
+      refetch();
+      toast.success("Usuário criado com sucesso!", {
+        icon: <CheckCircle className="w-5 h-5" />,
+        duration: 4000,
+      });
+    } catch (error: any) {
       console.error("Error creating user:", error);
+      toast.error(`Erro ao criar usuário: ${error.message || "Tente novamente"}`, {
+        icon: <XCircle className="w-5 h-5" />,
+        duration: 5000,
+      });
     }
   };
 
@@ -105,8 +133,17 @@ export default function AdminUsers() {
       setEditingUser(null);
       setIsCreateModalOpen(false);
       resetForm();
-    } catch (error) {
+      refetch();
+      toast.success("Usuário atualizado com sucesso!", {
+        icon: <CheckCircle className="w-5 h-5" />,
+        duration: 4000,
+      });
+    } catch (error: any) {
       console.error("Error updating user:", error);
+      toast.error(`Erro ao atualizar usuário: ${error.message || "Tente novamente"}`, {
+        icon: <XCircle className="w-5 h-5" />,
+        duration: 5000,
+      });
     }
   };
 
@@ -125,51 +162,109 @@ export default function AdminUsers() {
     setIsCreateModalOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Tem certeza que deseja deletar este usuário?")) {
-      try {
-        await deleteUser(id);
-      } catch (error) {
-        console.error("Error deleting user:", error);
-      }
-    }
+  const handleDelete = (id: string) => {
+    setConfirmAction({
+      isOpen: true,
+      title: "Deletar Usuário",
+      message: "Esta ação não pode ser desfeita. Todos os dados do usuário serão permanentemente removidos.",
+      action: async () => {
+        try {
+          await deleteUser(id);
+          refetch();
+          toast.success("Usuário deletado com sucesso!", {
+            icon: <Trash2 className="w-5 h-5" />,
+            duration: 4000,
+          });
+          setConfirmAction(null);
+        } catch (error: any) {
+          console.error("Error deleting user:", error);
+          toast.error(`Erro ao deletar usuário: ${error.message || "Tente novamente"}`, {
+            icon: <XCircle className="w-5 h-5" />,
+            duration: 5000,
+          });
+        }
+      },
+      type: 'danger'
+    });
   };
 
   const handleBan = async (id: string) => {
     try {
       await banUser(id);
-    } catch (error) {
+      refetch();
+      toast.success("Usuário banido com sucesso!", {
+        icon: <UserMinus className="w-5 h-5" />,
+        duration: 4000,
+      });
+    } catch (error: any) {
       console.error("Error banning user:", error);
+      toast.error(`Erro ao banir usuário: ${error.message || "Tente novamente"}`, {
+        icon: <XCircle className="w-5 h-5" />,
+        duration: 5000,
+      });
     }
   };
 
   const handleUnban = async (id: string) => {
     try {
       await unbanUser(id);
-    } catch (error) {
+      refetch();
+      toast.success("Usuário desbanido com sucesso!", {
+        icon: <UserPlus className="w-5 h-5" />,
+        duration: 4000,
+      });
+    } catch (error: any) {
       console.error("Error unbanning user:", error);
+      toast.error(`Erro ao desbanir usuário: ${error.message || "Tente novamente"}`, {
+        icon: <XCircle className="w-5 h-5" />,
+        duration: 5000,
+      });
     }
   };
 
   const handleVerifyEmail = async (id: string) => {
     try {
       await verifyEmail(id);
-    } catch (error) {
+      refetch();
+      toast.success("Email verificado com sucesso!", {
+        icon: <CheckCircle className="w-5 h-5" />,
+        duration: 4000,
+      });
+    } catch (error: any) {
       console.error("Error verifying email:", error);
+      toast.error(`Erro ao verificar email: ${error.message || "Tente novamente"}`, {
+        icon: <XCircle className="w-5 h-5" />,
+        duration: 5000,
+      });
     }
   };
 
-  const handleResetPassword = async (userId: string) => {
-    const password = prompt("Digite a nova senha:");
-    if (password) {
-      try {
-        await resetPassword({ userId, password });
-        alert("Senha resetada com sucesso!");
-      } catch (error) {
-        console.error("Error resetting password:", error);
-        alert("Erro ao resetar senha.");
-      }
-    }
+  const handleResetPassword = (userId: string) => {
+    setConfirmAction({
+      isOpen: true,
+      title: "Resetar Senha",
+      message: "Digite a nova senha para o usuário. Esta ação enviará um email para o usuário com a nova senha.",
+      action: async () => {
+        const password = prompt("Digite a nova senha:");
+        if (password) {
+          try {
+            await resetPassword({ userId, password });
+            toast.success("Senha resetada com sucesso! Email enviado para o usuário.", {
+              icon: <Key className="w-5 h-5" />,
+              duration: 5000,
+            });
+            setConfirmAction(null);
+          } catch (error: any) {
+            console.error("Error resetting password:", error);
+            toast.error(`Erro ao resetar senha: ${error.message || "Tente novamente"}`, {
+              icon: <XCircle className="w-5 h-5" />,
+              duration: 5000,
+            });
+          }
+        }
+      },
+      type: 'warning'
+    });
   };
 
   if (isLoading) {
@@ -685,6 +780,40 @@ export default function AdminUsers() {
                   : editingUser
                   ? "Atualizar"
                   : "Criar"}
+              </Button>
+            </div>
+          </div>
+        </BaseModal>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmAction && (
+        <BaseModal
+          isOpen={confirmAction.isOpen}
+          onClose={() => setConfirmAction(null)}
+          title={confirmAction.title}
+        >
+          <div className="space-y-4">
+            <div className="flex items-start gap-3">
+              {confirmAction.type === 'danger' && <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />}
+              {confirmAction.type === 'warning' && <AlertTriangle className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />}
+              {confirmAction.type === 'info' && <AlertTriangle className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />}
+              <p className="text-neutral-12">{confirmAction.message}</p>
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setConfirmAction(null)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant={confirmAction.type === 'danger' ? 'destructive' : 'default'}
+                onClick={confirmAction.action}
+              >
+                {confirmAction.type === 'danger' ? 'Deletar' :
+                 confirmAction.type === 'warning' ? 'Continuar' : 'Confirmar'}
               </Button>
             </div>
           </div>

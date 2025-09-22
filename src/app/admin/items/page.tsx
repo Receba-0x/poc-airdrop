@@ -15,6 +15,16 @@ import { Button } from "@/components/Button";
 import Image from "next/image";
 import { useCreateItem, useItems } from "@/hooks/useItem";
 import { BaseModal } from "@/components/TransactionModals";
+import toast from "react-hot-toast";
+import {
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Trash2,
+  Plus,
+  Edit,
+  Box
+} from "lucide-react";
 import { Checkbox } from "@/components/CheckBox";
 
 interface ItemFormData {
@@ -55,6 +65,13 @@ export default function AdminItems() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    action: () => void;
+    type: 'danger' | 'warning' | 'info';
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { items, isLoading, refetch } = useItems(filters);
   const { createItem, isLoading: isCreateLoading } = useCreateItem();
@@ -65,7 +82,18 @@ export default function AdminItems() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-items"] });
       setEditingItem(null);
+      setIsCreateModalOpen(false);
       resetForm();
+      toast.success("Item atualizado com sucesso!", {
+        icon: <CheckCircle className="w-5 h-5" />,
+        duration: 4000,
+      });
+    },
+    onError: (error: any) => {
+      toast.error(`Erro ao atualizar item: ${error.message || "Tente novamente"}`, {
+        icon: <XCircle className="w-5 h-5" />,
+        duration: 5000,
+      });
     },
   });
 
@@ -74,6 +102,16 @@ export default function AdminItems() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-items"] });
       refetch();
+      toast.success("Item deletado com sucesso!", {
+        icon: <Trash2 className="w-5 h-5" />,
+        duration: 4000,
+      });
+    },
+    onError: (error: any) => {
+      toast.error(`Erro ao deletar item: ${error.message || "Tente novamente"}`, {
+        icon: <XCircle className="w-5 h-5" />,
+        duration: 5000,
+      });
     },
   });
 
@@ -204,9 +242,16 @@ export default function AdminItems() {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Tem certeza que deseja deletar este item?")) {
-      deleteItemMutation.mutate(id);
-    }
+    setConfirmAction({
+      isOpen: true,
+      title: "Deletar Item",
+      message: "Esta ação não pode ser desfeita. O item será permanentemente removido do sistema.",
+      action: () => {
+        deleteItemMutation.mutate(id);
+        setConfirmAction(null);
+      },
+      type: 'danger'
+    });
   };
 
   const handleMetadataChange = (value: string) => {
@@ -373,7 +418,7 @@ export default function AdminItems() {
               </tr>
             </thead>
             <tbody className="bg-neutral-3 divide-y divide-neutral-6">
-              {items.map((item) => (
+              {items.map((item: AdminItem) => (
                 <tr key={item.id} className="hover:bg-neutral-4">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -397,7 +442,7 @@ export default function AdminItems() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        rarityColors[item.rarity]
+                        rarityColors[item.rarity as keyof typeof rarityColors]
                       }`}
                     >
                       {item.rarity.toLowerCase()}
@@ -788,6 +833,40 @@ export default function AdminItems() {
                   {selectedImage ? "Confirmar Upload" : "Selecione uma imagem"}
                 </Button>
               </div>
+            </div>
+          </div>
+        </BaseModal>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmAction && (
+        <BaseModal
+          isOpen={confirmAction.isOpen}
+          onClose={() => setConfirmAction(null)}
+          title={confirmAction.title}
+        >
+          <div className="space-y-4">
+            <div className="flex items-start gap-3">
+              {confirmAction.type === 'danger' && <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />}
+              {confirmAction.type === 'warning' && <AlertTriangle className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />}
+              {confirmAction.type === 'info' && <AlertTriangle className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />}
+              <p className="text-neutral-12">{confirmAction.message}</p>
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setConfirmAction(null)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant={confirmAction.type === 'danger' ? 'destructive' : 'default'}
+                onClick={confirmAction.action}
+              >
+                {confirmAction.type === 'danger' ? 'Deletar' :
+                 confirmAction.type === 'warning' ? 'Continuar' : 'Confirmar'}
+              </Button>
             </div>
           </div>
         </BaseModal>

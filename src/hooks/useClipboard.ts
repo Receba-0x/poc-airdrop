@@ -37,7 +37,7 @@ export function useClipboard(): UseClipboardResult {
         }
       }
       setIsCopied(true);
-      window.alert("Copied to clipboard!");
+      toast.success("Copied to clipboard!", { icon: "✅", duration: 3000 });
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
       const errorMessage = "Failed to copy address";

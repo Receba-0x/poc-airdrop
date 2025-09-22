@@ -15,6 +15,16 @@ import { Input } from "@/components/Input";
 import { useRouter } from "next/navigation";
 import { useLootboxes } from "@/hooks/useLootbox";
 import { BaseModal } from "@/components/TransactionModals";
+import toast from "react-hot-toast";
+import {
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Trash2,
+  Plus,
+  Edit,
+  Package
+} from "lucide-react";
 
 interface LootboxFormData {
   name: string;
@@ -32,6 +42,13 @@ export default function AdminLootboxes() {
   const [editingLootbox, setEditingLootbox] = useState<AdminLootbox | null>(
     null
   );
+  const [confirmAction, setConfirmAction] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    action: () => void;
+    type: 'danger' | 'warning' | 'info';
+  } | null>(null);
   const [formData, setFormData] = useState<LootboxFormData>({
     name: "",
     description: "",
@@ -56,6 +73,16 @@ export default function AdminLootboxes() {
       queryClient.invalidateQueries({ queryKey: ["admin-lootboxes-stock"] });
       setIsCreateModalOpen(false);
       resetForm();
+      toast.success("Lootbox criada com sucesso!", {
+        icon: <CheckCircle className="w-5 h-5" />,
+        duration: 4000,
+      });
+    },
+    onError: (error: any) => {
+      toast.error(`Erro ao criar lootbox: ${error.message || "Tente novamente"}`, {
+        icon: <XCircle className="w-5 h-5" />,
+        duration: 5000,
+      });
     },
   });
 
@@ -65,7 +92,18 @@ export default function AdminLootboxes() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-lootboxes-stock"] });
       setEditingLootbox(null);
+      setIsCreateModalOpen(false);
       resetForm();
+      toast.success("Lootbox atualizada com sucesso!", {
+        icon: <CheckCircle className="w-5 h-5" />,
+        duration: 4000,
+      });
+    },
+    onError: (error: any) => {
+      toast.error(`Erro ao atualizar lootbox: ${error.message || "Tente novamente"}`, {
+        icon: <XCircle className="w-5 h-5" />,
+        duration: 5000,
+      });
     },
   });
 
@@ -73,6 +111,16 @@ export default function AdminLootboxes() {
     mutationFn: (id: string) => adminLootboxService.deleteLootbox(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-lootboxes-stock"] });
+      toast.success("Lootbox deletada com sucesso!", {
+        icon: <Trash2 className="w-5 h-5" />,
+        duration: 4000,
+      });
+    },
+    onError: (error: any) => {
+      toast.error(`Erro ao deletar lootbox: ${error.message || "Tente novamente"}`, {
+        icon: <XCircle className="w-5 h-5" />,
+        duration: 5000,
+      });
     },
   });
 
@@ -180,9 +228,16 @@ export default function AdminLootboxes() {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Tem certeza que deseja deletar esta lootbox?")) {
-      deleteLootboxMutation.mutate(id);
-    }
+    setConfirmAction({
+      isOpen: true,
+      title: "Deletar Lootbox",
+      message: "Esta ação não pode ser desfeita. Todos os itens vinculados a esta lootbox serão removidos permanentemente.",
+      action: () => {
+        deleteLootboxMutation.mutate(id);
+        setConfirmAction(null);
+      },
+      type: 'danger'
+    });
   };
 
   if (isLoading) {
@@ -244,7 +299,7 @@ export default function AdminLootboxes() {
               </tr>
             </thead>
             <tbody className="bg-neutral-4 divide-y divide-neutral-6">
-              {lootboxes.map((lootbox) => (
+              {lootboxes.map((lootbox: AdminLootbox) => (
                 <tr key={lootbox.id} className="hover:bg-neutral-5">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-neutral-11">
@@ -594,6 +649,40 @@ export default function AdminLootboxes() {
                   {selectedImage ? "Confirmar Upload" : "Selecione uma imagem"}
                 </Button>
               </div>
+            </div>
+          </div>
+        </BaseModal>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmAction && (
+        <BaseModal
+          isOpen={confirmAction.isOpen}
+          onClose={() => setConfirmAction(null)}
+          title={confirmAction.title}
+        >
+          <div className="space-y-4">
+            <div className="flex items-start gap-3">
+              {confirmAction.type === 'danger' && <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />}
+              {confirmAction.type === 'warning' && <AlertTriangle className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />}
+              {confirmAction.type === 'info' && <AlertTriangle className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />}
+              <p className="text-neutral-12">{confirmAction.message}</p>
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setConfirmAction(null)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant={confirmAction.type === 'danger' ? 'destructive' : 'default'}
+                onClick={confirmAction.action}
+              >
+                {confirmAction.type === 'danger' ? 'Deletar' :
+                 confirmAction.type === 'warning' ? 'Continuar' : 'Confirmar'}
+              </Button>
             </div>
           </div>
         </BaseModal>

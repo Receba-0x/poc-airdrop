@@ -4,6 +4,15 @@ import React, { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { Button } from "@/components/Button";
 import { BaseModal, useClipboard } from "@/components/TransactionModals";
+import toast from "react-hot-toast";
+import {
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Trash2,
+  Upload,
+  Image as ImageIcon
+} from "lucide-react";
 import {
   useAdminUploadedFiles,
   useUploadImage,
@@ -32,6 +41,13 @@ export default function AdminImages() {
     sortOrder: "desc",
   });
   const [searchTerm, setSearchTerm] = useState("");
+  const [confirmAction, setConfirmAction] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    action: () => void;
+    type: 'danger' | 'warning' | 'info';
+  } | null>(null);
   const { copyToClipboard } = useClipboard();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { files, pagination, isLoading, refetch } =
@@ -100,14 +116,29 @@ export default function AdminImages() {
   };
 
   const handleDelete = async (filename: string) => {
-    if (window.confirm("Tem certeza que deseja deletar esta imagem?")) {
-      try {
-        await deleteFile(filename);
-        refetch();
-      } catch (error) {
-        console.error("Delete error:", error);
-      }
-    }
+    setConfirmAction({
+      isOpen: true,
+      title: "Deletar Imagem",
+      message: "Esta ação não pode ser desfeita. A imagem será permanentemente removida do sistema.",
+      action: async () => {
+        try {
+          await deleteFile(filename);
+          refetch();
+          toast.success("Imagem deletada com sucesso!", {
+            icon: <Trash2 className="w-5 h-5" />,
+            duration: 4000,
+          });
+          setConfirmAction(null);
+        } catch (error: any) {
+          console.error("Delete error:", error);
+          toast.error(`Erro ao deletar imagem: ${error.message || "Tente novamente"}`, {
+            icon: <XCircle className="w-5 h-5" />,
+            duration: 5000,
+          });
+        }
+      },
+      type: 'danger'
+    });
   };
 
   const handleSearch = () => {
@@ -559,6 +590,40 @@ export default function AdminImages() {
                       }`}
                 </Button>
               </div>
+            </div>
+          </div>
+        </BaseModal>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmAction && (
+        <BaseModal
+          isOpen={confirmAction.isOpen}
+          onClose={() => setConfirmAction(null)}
+          title={confirmAction.title}
+        >
+          <div className="space-y-4">
+            <div className="flex items-start gap-3">
+              {confirmAction.type === 'danger' && <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />}
+              {confirmAction.type === 'warning' && <AlertTriangle className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />}
+              {confirmAction.type === 'info' && <AlertTriangle className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />}
+              <p className="text-neutral-12">{confirmAction.message}</p>
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setConfirmAction(null)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant={confirmAction.type === 'danger' ? 'destructive' : 'default'}
+                onClick={confirmAction.action}
+              >
+                {confirmAction.type === 'danger' ? 'Deletar' :
+                 confirmAction.type === 'warning' ? 'Continuar' : 'Confirmar'}
+              </Button>
             </div>
           </div>
         </BaseModal>

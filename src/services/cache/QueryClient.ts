@@ -16,8 +16,8 @@ const defaultQueryOptions: DefaultOptions = {
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Máximo 10s
     refetchOnWindowFocus: false,
     refetchOnMount: false, // Desabilitado para reduzir fetches desnecessários
-    refetchOnReconnect: 'always',
-    networkMode: 'online', // Só fazer requests quando online
+    refetchOnReconnect: "always",
+    networkMode: "online", // Só fazer requests quando online
   },
   mutations: {
     retry: false, // Mutations geralmente não devem ser retry automaticamente
@@ -70,6 +70,28 @@ export const queryKeys = {
       [...queryKeys.lootbox.all, "purchases", wallet] as const,
   },
 
+  // Deposit
+  deposit: {
+    all: ["deposit"] as const,
+    lists: () => [...queryKeys.deposit.all, "list"] as const,
+    list: (filters: any) => [...queryKeys.deposit.lists(), filters] as const,
+    detail: (id: string) => [...queryKeys.deposit.all, "detail", id] as const,
+    requests: () => [...queryKeys.deposit.all, "requests"] as const,
+    init: () => [...queryKeys.deposit.all, "init"] as const,
+    cancel: (id: string) => [...queryKeys.deposit.all, "cancel", id] as const,
+  },
+
+  // Withdraw
+  withdraw: {
+    all: ["withdraw"] as const,
+    lists: () => [...queryKeys.withdraw.all, "list"] as const,
+    list: (filters: any) => [...queryKeys.withdraw.lists(), filters] as const,
+    detail: (id: string) => [...queryKeys.withdraw.all, "detail", id] as const,
+    requests: () => [...queryKeys.withdraw.all, "requests"] as const,
+    init: () => [...queryKeys.withdraw.all, "init"] as const,
+    cancel: (id: string) => [...queryKeys.withdraw.all, "cancel", id] as const,
+  },
+
   // Items
   items: {
     all: ["items"] as const,
@@ -108,7 +130,8 @@ export const queryKeys = {
   adminUploads: {
     all: ["admin-uploads"] as const,
     lists: () => [...queryKeys.adminUploads.all, "list"] as const,
-    list: (filters: any) => [...queryKeys.adminUploads.lists(), filters] as const,
+    list: (filters: any) =>
+      [...queryKeys.adminUploads.lists(), filters] as const,
   },
 };
 

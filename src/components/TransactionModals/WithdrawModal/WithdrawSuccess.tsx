@@ -1,0 +1,45 @@
+import React from "react";
+import { motion } from "framer-motion";
+import { CheckCircle } from "lucide-react";
+import { Button } from "@/components/Button";
+
+interface WithdrawSuccessProps {
+  onCloseModal: () => void;
+  onInitWithdraw: () => void;
+}
+
+export function WithdrawSuccess({
+  onCloseModal,
+  onInitWithdraw,
+}: WithdrawSuccessProps) {
+  return (
+    <div className="flex flex-col items-center justify-center mt-4">
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", damping: 10, stiffness: 300 }}
+        className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-4"
+      >
+        <CheckCircle className="w-8 h-8 text-white" />
+      </motion.div>
+      <h3 className="text-xl font-semibold text-green-11">
+        Saque Realizado com Sucesso!
+      </h3>
+      <p className="text-neutral-11 text-center">
+        Seu saque foi processado e os SOL foram enviados para sua carteira.
+      </p>
+      <div className="flex gap-2 w-full mt-4 pt-4">
+        <Button
+          className="flex-1"
+          variant="outline"
+          onClick={onCloseModal}
+        >
+          Fechar
+        </Button>
+        <Button className="flex-1" onClick={onInitWithdraw}>
+          Fazer Novo Saque
+        </Button>
+      </div>
+    </div>
+  );
+}

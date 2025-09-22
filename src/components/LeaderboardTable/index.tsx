@@ -1,8 +1,8 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
-import type { Leaderboard } from "@/services/leaderboard/LeaderboardService";
 import { formatDate } from "@/utils/dateFormat";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const colours = {
   1: {
@@ -32,6 +32,7 @@ const colours = {
 };
 
 export function LeaderboardTable() {
+  const { t } = useLanguage();
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 20;
 
@@ -60,11 +61,11 @@ export function LeaderboardTable() {
         {/* Header */}
         <div className="bg-neutral-4 border-b border-neutral-6">
           <div className="grid grid-cols-12 gap-4 p-4 text-sm font-medium text-neutral-11 px-10">
-            <div className="col-span-1 flex justify-center">Place</div>
-            <div className="col-span-4">Player name</div>
-            <div className="col-span-2">Value</div>
-            <div className="col-span-3">Items obtained</div>
-            <div className="col-span-2">Last activity</div>
+            <div className="col-span-1 flex justify-center">{t("leaderboard.place")}</div>
+            <div className="col-span-4">{t("leaderboard.playerName")}</div>
+            <div className="col-span-2">{t("leaderboard.value")}</div>
+            <div className="col-span-3">{t("leaderboard.itemsObtained")}</div>
+            <div className="col-span-2">{t("leaderboard.lastActivity")}</div>
           </div>
         </div>
 
@@ -88,10 +89,10 @@ export function LeaderboardTable() {
             ))
           ) : leaderboard.length === 0 ? (
             <div className="p-8 text-center text-neutral-11">
-              Nenhum jogador encontrado
+              {t("leaderboard.noPlayersFound")}
             </div>
           ) : (
-            leaderboard.map((leader) => {
+            leaderboard.map((leader: any) => {
               const userColor = getColours(leader.rank);
 
               return (
@@ -162,9 +163,10 @@ export function LeaderboardTable() {
       {/* Pagination Info and Controls */}
       <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
         <div className="text-neutral-10 text-sm">
-          Mostrando {(currentPage - 1) * ITEMS_PER_PAGE + 1} a{" "}
-          {Math.min(currentPage * ITEMS_PER_PAGE, totalCount || 0)} de{" "}
-          {totalCount.toLocaleString()} jogadores
+          {t("leaderboard.showing")
+            .replace("{start}", ((currentPage - 1) * ITEMS_PER_PAGE + 1).toString())
+            .replace("{end}", Math.min(currentPage * ITEMS_PER_PAGE, totalCount || 0).toString())
+            .replace("{total}", totalCount.toLocaleString())}
         </div>
 
         {totalPages && totalPages > 1 && (
@@ -175,7 +177,7 @@ export function LeaderboardTable() {
               disabled={!hasPrevPage}
               className="px-3 py-2 rounded-lg border border-neutral-6 bg-neutral-3 hover:bg-neutral-4 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
             >
-              Anterior
+              {t("leaderboard.previous")}
             </button>
 
             {/* Page Numbers */}
@@ -214,7 +216,7 @@ export function LeaderboardTable() {
               disabled={!hasNextPage}
               className="px-3 py-2 rounded-lg border border-neutral-6 bg-neutral-3 hover:bg-neutral-4 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
             >
-              Próximo
+              {t("leaderboard.next")}
             </button>
           </div>
         )}

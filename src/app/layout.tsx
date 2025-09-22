@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Nunito_Sans, Sora, Be_Vietnam_Pro } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { Toaster } from "react-hot-toast";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -67,6 +68,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <link rel="icon" href="/images/logo_token.png" />
       </head>
       <body>
+        <Toaster />
         <Providers>{children}</Providers>
         <Analytics />
       </body>

@@ -1,5 +1,5 @@
 "use client";
-import { SettingsIcon, UserIcon } from "lucide-react";
+import { Handshake, LogOutIcon, SettingsIcon, UserIcon, WalletIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +9,7 @@ import {
 } from "../DropDown";
 import { HistoricIcon } from "../Icons/HistoricIcon";
 import Image from "next/image";
+import { useModalStore } from "../TransactionModals";
 
 type Props = {
   user: any;
@@ -27,6 +28,7 @@ export function HeaderAvatar({
   setMobileMenuOpen,
   logout,
 }: Props) {
+  const { openModal } = useModalStore();
   return (
     <DropdownMenu
       modal={false}
@@ -86,24 +88,33 @@ export function HeaderAvatar({
           </div>
         </div>
 
-        {/* Menu items */}
         <DropdownMenuItem
           className="px-4 py-3 hover:bg-neutral-3 cursor-pointer transition-colors"
           onClick={() => push("/profile")}
         >
           <div className="flex items-center gap-3 w-full">
             <UserIcon />
-            <span className="text-sm text-neutral-12">Meu Perfil</span>
+            <span className="text-sm text-neutral-12">My Profile</span>
           </div>
         </DropdownMenuItem>
 
         <DropdownMenuItem
           className="px-4 py-3 hover:bg-neutral-3 cursor-pointer transition-colors"
-          onClick={() => push("/profile#settings")}
+          onClick={() => openModal("deposit")}
         >
           <div className="flex items-center gap-3 w-full">
-            <SettingsIcon />
-            <span className="text-sm text-neutral-12">Configurações</span>
+            <WalletIcon />
+            <span className="text-sm text-neutral-12">Deposit</span>
+          </div>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          className="px-4 py-3 hover:bg-neutral-3 cursor-pointer transition-colors"
+          onClick={() => openModal("withdraw")}
+        >
+          <div className="flex items-center gap-3 w-full">
+            <Handshake />
+            <span className="text-sm text-neutral-12">Withdraw</span>
           </div>
         </DropdownMenuItem>
 
@@ -113,7 +124,17 @@ export function HeaderAvatar({
         >
           <div className="flex items-center gap-3 w-full">
             <HistoricIcon />
-            <span className="text-sm text-neutral-12">Transações</span>
+            <span className="text-sm text-neutral-12">Transactions</span>
+          </div>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          className="px-4 py-3 hover:bg-neutral-3 cursor-pointer transition-colors"
+          onClick={() => push("/profile#settings")}
+        >
+          <div className="flex items-center gap-3 w-full">
+            <SettingsIcon />
+            <span className="text-sm text-neutral-12">Settings</span>
           </div>
         </DropdownMenuItem>
 
@@ -125,21 +146,9 @@ export function HeaderAvatar({
         >
           <div className="flex items-center gap-3 w-full">
             <div className="w-5 h-5 flex items-center justify-center">
-              <svg
-                className="w-4 h-4 text-red-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
+              <LogOutIcon />
             </div>
-            <span className="text-sm text-red-600 font-medium">Sair</span>
+            <span className="text-sm text-red-600 font-medium">Logout</span>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>

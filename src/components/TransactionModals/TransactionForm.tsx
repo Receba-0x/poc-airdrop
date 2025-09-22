@@ -5,6 +5,7 @@ import {
   TransactionFormData,
   CurrencyType,
 } from "@/stores/transactionStore";
+import { useTransactionValidation } from "@/hooks/useTransactionValidation";
 import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { motion } from "framer-motion";
@@ -14,31 +15,25 @@ interface TransactionFormProps {
   type: "deposit" | "withdraw";
   onSubmit: () => void;
   onCancel: () => void;
+  isSubmitting?: boolean;
 }
 
 const currencies: { value: CurrencyType; label: string; minAmount: number }[] =
   [
     { value: "SOL", label: "SOL", minAmount: 0.001 },
-    { value: "USDC", label: "USDC", minAmount: 1 },
-    { value: "BUSD", label: "BUSD", minAmount: 1 },
+    { value: "USD", label: "USD", minAmount: 0.01 },
   ];
 
 export function TransactionForm({
   type,
   onSubmit,
   onCancel,
+  isSubmitting = false,
 }: TransactionFormProps) {
-  const {
-    depositForm,
-    withdrawForm,
-    updateDepositForm,
-    updateWithdrawForm,
-    validateAmount,
-    validateAddress,
-    isSubmitting,
-    setValidating,
-    isValidating,
-  } = useTransactionStore();
+  const { depositForm, withdrawForm, updateDepositForm, updateWithdrawForm } =
+    useTransactionStore();
+  const { validateAmount, validateAddress } = useTransactionValidation();
+  const [isValidating, setValidating] = useState(false);
 
   const formData = type === "deposit" ? depositForm : withdrawForm;
   const updateForm =
@@ -66,9 +61,11 @@ export function TransactionForm({
           error = "Amount is required";
         } else if (!validateAmount(value, formData.currency, type)) {
           if (type === "deposit") {
-            error = "Amount must be between 0.01 and 10 SOL (max 4 decimal places)";
+            error =
+              "Amount must be between 0.01 and 10000 SOL (max 2 decimal places)";
           } else {
-            error = "Amount must be between 0.01 and 5000 USD (max 2 decimal places)";
+            error =
+              "Amount must be between 0.01 and 5000 USD (max 2 decimal places)";
           }
         }
         break;
@@ -103,9 +100,11 @@ export function TransactionForm({
 
     if (!validateAmount(formData.amount, formData.currency, type)) {
       if (type === "deposit") {
-        newErrors.amount = "Amount must be between 0.01 and 10 SOL (max 4 decimal places)";
+        newErrors.amount =
+          "Amount must be between 0.01 and 10000 SOL (max 2 decimal places)";
       } else {
-        newErrors.amount = "Amount must be between 0.01 and 5000 USD (max 2 decimal places)";
+        newErrors.amount =
+          "Amount must be between 0.01 and 5000 USD (max 2 decimal places)";
       }
     }
 
@@ -123,7 +122,7 @@ export function TransactionForm({
   const selectedCurrency = currencies.find(
     (c) => c.value === formData.currency
   );
-  
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Amount Input */}
@@ -136,7 +135,9 @@ export function TransactionForm({
             type="number"
             value={formData.amount}
             onChange={(e) => handleInputChange("amount", e.target.value)}
-            placeholder={`Enter amount in ${type === "deposit" ? "SOL" : "USD"}`}
+            placeholder={`Enter amount in ${
+              type === "deposit" ? "SOL" : "USD"
+            }`}
             className="pr-20"
             step={type === "deposit" ? "0.0001" : "0.01"}
             min={type === "deposit" ? "0.01" : "0.01"}
@@ -166,8 +167,7 @@ export function TransactionForm({
           <span>
             {type === "deposit"
               ? "Deposits are made in SOL and converted to USD automatically"
-              : "Withdrawals are requested in USD and paid in SOL automatically"
-            }
+              : "Withdrawals are requested in USD and paid in SOL automatically"}
           </span>
         </div>
       </div>
@@ -204,8 +204,7 @@ export function TransactionForm({
           <span>
             {type === "deposit"
               ? "Deposit limits: 0.01 - 10 SOL (max 4 decimal places)"
-              : "Withdrawal limits: 0.01 - 5000 USD (max 2 decimal places)"
-            }
+              : "Withdrawal limits: 0.01 - 5000 USD (max 2 decimal places)"}
           </span>
         </div>
       </div>

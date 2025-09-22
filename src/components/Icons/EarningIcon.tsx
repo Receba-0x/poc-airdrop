@@ -24,22 +24,22 @@ export function EarningIcon({ className }: { className?: string }) {
       />
       <path
         opacity="0.4"
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M15 0.375C15.6213 0.375 16.125 0.87868 16.125 1.5V3C16.125 3.62132 15.6213 4.125 15 4.125C14.3787 4.125 13.875 3.62132 13.875 3V1.5C13.875 0.87868 14.3787 0.375 15 0.375Z"
         fill="currentColor"
       />
       <path
         opacity="0.4"
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M24.7955 2.2045C25.2348 2.64384 25.2348 3.35616 24.7955 3.7955L23.2955 5.2955C22.8562 5.73483 22.1438 5.73483 21.7045 5.2955C21.2652 4.85616 21.2652 4.14384 21.7045 3.7045L23.2045 2.2045C23.6438 1.76517 24.3562 1.76517 24.7955 2.2045Z"
         fill="currentColor"
       />
       <path
         opacity="0.4"
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M5.2045 2.2045C5.64384 1.76517 6.35616 1.76517 6.7955 2.2045L8.2955 3.7045C8.73483 4.14384 8.73483 4.85616 8.2955 5.2955C7.85616 5.73483 7.14384 5.73483 6.7045 5.2955L5.2045 3.7955C4.76517 3.35616 4.76517 2.64384 5.2045 2.2045Z"
         fill="currentColor"
       />

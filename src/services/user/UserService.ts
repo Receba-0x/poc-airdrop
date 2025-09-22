@@ -35,10 +35,41 @@ export interface RegisterResponse {
   };
 }
 
+export interface BalanceTransaction {
+  id: string;
+  userId: string;
+  type: string;
+  amount: number;
+  description: string;
+  status: string;
+  createdAt: string;
+}
+
 export interface AuthError {
   message: string;
   code?: string;
   field?: string;
+}
+
+export interface UserItem {
+  id: string;
+  quantity: number;
+  source: string;
+  acquiredAt: string;
+  item: {
+    id: string;
+    name: string;
+    description: string;
+    imageUrl: string;
+    type: string;
+    rarity: string;
+    value: 0.5;
+    metadata: {
+      size: string;
+      color: string;
+    };
+    isActive: boolean;
+  };
 }
 
 export class UserService {
@@ -98,10 +129,67 @@ export class UserService {
     }
   }
 
+  async getBalanceTransactions(filters: {
+    limit: number;
+    offset: number;
+    type: string;
+    status: string;
+  }): Promise<any> {
+    try {
+      const params = new URLSearchParams();
+      if (filters?.limit !== undefined)
+        params.append("limit", filters.limit.toString());
+      if (filters?.offset !== undefined)
+        params.append("offset", filters.offset.toString());
+      if (filters?.type !== undefined)
+        params.append("type", filters.type.toString());
+      if (filters?.status !== undefined)
+        params.append("status", filters.status.toString());
+
+      const query = params.toString() ? `?${params.toString()}` : "";
+      const url = `/api/v1/balance/transactions${query}`;
+      const response = await this.apiClient.get(url);
+      return response as any;
+    } catch (error: any) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getUserItems(): Promise<any> {
+    try {
+      const response = await this.apiClient.get(`/api/v1/user/items/me`);
+      return response;
+    } catch (error: any) {
+      throw this.handleError(error);
+    }
+  }
+
   async updateUser(id: string, data: any): Promise<any> {
     try {
       const response = await this.apiClient.patch(`/api/v1/user/${id}`, data);
       return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
+    }
+  }
+
+  async updateUserConfig(data: {
+    username?: string;
+    walletAddress?: string;
+    email?: string;
+  }): Promise<any> {
+    try {
+      return await this.apiClient.post(`/api/v1/user/config/me`, data);
+    } catch (error: any) {
+      throw this.handleError(error);
+    }
+  }
+
+  async updateUserImage(avatar: string): Promise<any> {
+    try {
+      return await this.apiClient.patch(`/api/v1/user/config/image`, {
+        avatar,
+      });
     } catch (error: any) {
       throw this.handleError(error);
     }

@@ -51,6 +51,7 @@ export const adminTranslations = {
     "admin.dashboard.viewReports": "View Reports",
     "admin.dashboard.settings": "Settings",
     "admin.dashboard.noData": "No data available",
+    "admin.dashboard.capitalize": "capitalize",
   },
   pt: {
     // Admin Panel
@@ -106,5 +107,6 @@ export const adminTranslations = {
     "admin.dashboard.viewReports": "Ver Relatórios",
     "admin.dashboard.settings": "Configurações",
     "admin.dashboard.noData": "Nenhum dado disponível",
+    "admin.dashboard.capitalize": "capitalize",
   },
 };

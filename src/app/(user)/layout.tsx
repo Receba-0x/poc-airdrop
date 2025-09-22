@@ -1,4 +1,3 @@
-import { FloatingTransactionButton } from "@/components/FloatingTransactionButton";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { OnLive } from "@/components/OnLive";
@@ -17,7 +16,6 @@ export default function UserLayout({
         <OnLive />
         {children}
       </div>
-      <FloatingTransactionButton />
       <Footer />
     </div>
   );

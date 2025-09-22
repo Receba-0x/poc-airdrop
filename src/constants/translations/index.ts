@@ -8,6 +8,7 @@ import { errorsTranslations } from "./errors";
 import { legalTranslations } from "./legal";
 import { itemsTranslations } from "./items";
 import { adminTranslations } from "./admin";
+import { profileTranslations } from "./profile";
 
 // Combine all translations into a single object
 export const translations = {
@@ -22,6 +23,7 @@ export const translations = {
     ...legalTranslations.en,
     ...itemsTranslations.en,
     ...adminTranslations.en,
+    ...profileTranslations.en,
   },
   pt: {
     ...navigationTranslations.pt,
@@ -34,6 +36,7 @@ export const translations = {
     ...legalTranslations.pt,
     ...itemsTranslations.pt,
     ...adminTranslations.pt,
+    ...profileTranslations.pt,
   },
 };
 
@@ -49,4 +52,5 @@ export {
   legalTranslations,
   itemsTranslations,
   adminTranslations,
+  profileTranslations,
 };

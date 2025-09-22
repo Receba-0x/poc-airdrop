@@ -199,14 +199,6 @@ export function Header() {
               <h1 className="text-neutral-12 rounded-lg border border-neutral-6 bg-neutral-3 hover:bg-neutral-4 h-full px-2 flex items-center gap-1">
                 <MoneyIcon /> {user?.balance?.toLocaleString("en-US") || 0.0}
               </h1>
-              {/*  <div className="flex items-center gap-2">
-                <Button variant="default" onClick={() => openModal("deposit")}>
-                  Deposit
-                </Button>
-                <Button variant="outline" onClick={() => openModal("withdraw")}>
-                  Withdraw
-                </Button>
-              </div> */}
               {isAuthenticated && user ? (
                 <HeaderAvatar
                   user={user}

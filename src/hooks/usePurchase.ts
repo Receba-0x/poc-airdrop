@@ -1,10 +1,13 @@
 import {
   purchaseService,
   queryKeys,
+  userService,
   type ItemsFilters,
   type Purchase,
 } from "@/services";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 
 export function usePurchase(id: string) {
   const query = useQuery({
@@ -58,19 +61,43 @@ export function usePurchasesStats() {
 }
 
 export function useRecentPurchases() {
-  const query = useQuery({
-    queryKey: ["recent-purchases"],
-    queryFn: async () => {
-      const response = await purchaseService.getRecentPurchases();
-      return response as any;
-    },
-    refetchInterval: 5000,
-  });
+  const [isConnected, setIsConnected] = useState(false);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
+
+  useEffect(() => {
+    const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
+    const socket = io(`${baseURL}/purchases`, {
+      path: "/socket.io",
+      transports: ["websocket"],
+      timeout: 20000,
+    });
+
+    socket.on("connected", () => {
+      setIsConnected(true);
+      socket.emit("subscribe-recent-purchases", { limit: 20 });
+    });
+
+    socket.on("recent-purchases", (data: { purchases: Purchase[] }) => {
+      setPurchases(data.purchases);
+    });
+
+    socket.on("recent-purchases-update", (data: { purchases: Purchase[] }) => {
+      setPurchases(data.purchases);
+    });
+
+    socket.on("new-purchase", (data: { purchase: Purchase }) => {
+      setPurchases((prev) => [data.purchase, ...prev.slice(0, 19)]);
+    });
+
+    return () => {
+      socket.emit("unsubscribe-recent-purchases");
+      socket.disconnect();
+    };
+  }, []);
+
   return {
-    recentPurchases: query.data?.data?.purchases as Purchase[],
-    isLoading: query.isLoading,
-    isError: query.isError,
-    error: query.error,
+    purchases,
+    isConnected,
   };
 }
 

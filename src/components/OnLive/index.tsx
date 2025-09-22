@@ -9,9 +9,9 @@ export function OnLive() {
   const pathname = usePathname();
   if (pathname === "/profile") return null;
 
-  const { recentPurchases, isLoading, isError } = useRecentPurchases();
+  const { purchases, isConnected } = useRecentPurchases();
 
-  if (isLoading) {
+  if (!isConnected) {
     return (
       <div className="flex items-center h-[106px] overflow-hidden ml-4">
         {itensMock.map((_, i) => (
@@ -27,7 +27,7 @@ export function OnLive() {
     <div className="flex items-center max-w-screen-2xl mx-auto">
       <Image src="/images/on_live.png" alt="on_live" width={42} height={37} />
       <div className="flex items-center h-[106px] overflow-hidden ml-4">
-        {recentPurchases.map((item) => (
+        {purchases.map((item) => (
           <div key={item.id} className="flex-shrink-0 h-full">
             <ItemCard2 item={item} />
           </div>

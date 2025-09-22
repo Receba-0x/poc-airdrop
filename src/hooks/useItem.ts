@@ -1,4 +1,9 @@
-import { itemService, queryKeys, type ItemsFilters } from "@/services";
+import {
+  itemService,
+  queryKeys,
+  userService,
+  type ItemsFilters,
+} from "@/services";
 import type { CreateItemBatchPayload } from "@/services/item/ItemService";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -67,5 +72,26 @@ export function useCreateItemsBatch() {
     isError: mutation.isError,
     error: mutation.error,
     isSuccess: mutation.isSuccess,
+  };
+}
+
+export function useUserItems() {
+  const query = useQuery({
+    queryKey: ["user-items"],
+    queryFn: async () => {
+      const response = await userService.getUserItems();
+      return response;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return {
+    items: query.data?.data?.items || [],
+    total: query.data?.data?.totalQuantity || 0,
+    totalPage: query.data?.data?.total || 0,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
   };
 }
