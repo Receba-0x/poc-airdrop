@@ -19,7 +19,7 @@ export default function BoxesPage() {
   const filteredBoxes = useMemo(() => {
     if (!search.trim()) return lootboxes;
 
-    return lootboxes.filter((box) =>
+    return lootboxes.filter((box: any) =>
       box.name.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, isLoading]);
@@ -84,7 +84,7 @@ export default function BoxesPage() {
               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-4"
               variants={containerVariants}
             >
-              {currentBoxes.map((box, index) => (
+              {currentBoxes.map((box: any, index: number) => (
                 <motion.div
                   key={box.id}
                   variants={{

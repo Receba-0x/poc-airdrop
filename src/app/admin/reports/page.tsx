@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { adminItemsService, adminPurchasesService } from "@/services";
 import { usePurchasesStats } from "@/hooks/usePurchase";
 
 export default function AdminReports() {
@@ -93,11 +91,11 @@ export default function AdminReports() {
                     {status.toLowerCase()}
                   </div>
                   <div className="text-2xl font-bold text-neutral-12">
-                    {count}
+                    {count as number}
                   </div>
                   <div className="text-xs text-neutral-11">
                     {purchasesData.total
-                      ? Math.round((count / purchasesData.total) * 100)
+                      ? Math.round((count as number / purchasesData.total) * 100)
                       : 0}
                     % do total
                   </div>

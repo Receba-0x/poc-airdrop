@@ -32,7 +32,7 @@ export function BoxSection({ id }: { id: string }) {
   const { generateSeed } = useClientSeed();
   const { t } = useLanguage();
   const itens = useMemo(
-    () => lootbox?.items?.map((item) => item.item) || [],
+    () => lootbox?.items?.map((item: any) => item.item) || [],
     [lootbox]
   );
 
@@ -85,7 +85,7 @@ export function BoxSection({ id }: { id: string }) {
     if (shouldSpin && wonPrize && carouselRef.current && !isSpinning) {
       setTimeout(() => {
         setIsSpinning(true);
-        const prizeIndex = itens.findIndex((item) => item.id === wonPrize.id);
+        const prizeIndex = itens.findIndex((item: any) => item.id === wonPrize.id);
         const targetIndex =
           prizeIndex >= 0
             ? prizeIndex
@@ -224,7 +224,7 @@ export function BoxSection({ id }: { id: string }) {
             duration={0.7}
           >
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-10">
-              {itens.map((box, index) => (
+              {itens.map((box: any, index: number) => (
                 <motion.div
                   key={index}
                   whileHover={{ scale: 1.05 }}

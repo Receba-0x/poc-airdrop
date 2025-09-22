@@ -461,7 +461,7 @@ export default function LootboxDetailPage() {
             <p className="text-2xl font-bold text-neutral-12">
               {(
                 linkedItems.reduce(
-                  (sum: number, item) => sum + item.probability,
+                  (sum: number, item: any) => sum + item.probability,
                   0
                 ) * 100
               ).toFixed(2)}
@@ -473,7 +473,7 @@ export default function LootboxDetailPage() {
             <p
               className={`text-lg font-bold ${
                 linkedItems.reduce(
-                  (sum: number, item) => sum + item.probability,
+                  (sum: number, item: any) => sum + item.probability,
                   0
                 ) <= 1
                   ? "text-green-600"
@@ -481,7 +481,7 @@ export default function LootboxDetailPage() {
               }`}
             >
               {linkedItems.reduce(
-                (sum: number, item) => sum + item.probability,
+                (sum: number, item: any) => sum + item.probability,
                 0
               ) <= 1
                 ? "Válido"
@@ -508,14 +508,14 @@ export default function LootboxDetailPage() {
                     value={selectedItem?.id || ""}
                     onChange={(e) => {
                       const item = availableItems.find(
-                        (i) => i.id === e.target.value
+                        (i: any) => i.id === e.target.value
                       );
                       setSelectedItem(item || null);
                     }}
                     className="w-full px-3 py-2 border border-neutral-6 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
                     <option value="">Selecione um item</option>
-                    {availableItems.map((item) => (
+                    {availableItems.map((item: any) => (
                       <option key={item.id} value={item.id}>
                         {item.item.name} ({item.item.type} - {item.item.rarity})
                       </option>

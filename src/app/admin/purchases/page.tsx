@@ -135,7 +135,7 @@ export default function AdminPurchases() {
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {stats?.byStatus &&
-            Object.entries(stats.byStatus).map(([status, count]) => (
+            Object.entries(stats.byStatus).map(([status, count]: any) => (
               <div key={status} className="text-center">
                 <div
                   className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
@@ -242,7 +242,7 @@ export default function AdminPurchases() {
               </tr>
             </thead>
             <tbody className="bg-neutral-4 divide-y divide-neutral-6">
-              {purchases.map((purchase) => (
+              {purchases.map((purchase: any) => (
                 <tr key={purchase.id} className="hover:bg-neutral-5">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div
