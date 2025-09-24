@@ -72,9 +72,10 @@ export default function ItemCard({ item }: ItemCardProps) {
         <Image
           src={item.imageUrl || ""}
           alt={item.name}
-          width={130}
-          height={130}
-          className="object-cover z-10 group-hover:-rotate-6 transition-all duration-300 ease-in-out"
+          width={1000000000}
+          height={1000000000}
+          draggable={false}
+          className="z-10 w-[50%] h-[50%] object-contain group-hover:-rotate-6 transition-all duration-300 ease-in-out absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
         />
 
         <div
@@ -82,7 +83,7 @@ export default function ItemCard({ item }: ItemCardProps) {
         />
       </div>
 
-      <span className={`${itemColor.text} font-semibold`}>{item.name}</span>
+      <span className={`${itemColor.text} font-semibold z-10 drop-shadow-md shadow-black text-xs`}>{item.name}</span>
     </motion.div>
   );
 }

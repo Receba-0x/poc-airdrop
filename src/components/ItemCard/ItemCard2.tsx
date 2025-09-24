@@ -52,12 +52,12 @@ export function ItemCard2({ item }: Props) {
         <Image
           src={item.rewards[0]?.item?.imageUrl}
           alt={item.rewards[0]?.item?.name}
-          width={64}
-          height={64}
-          className="object-cover z-10 group-hover:-rotate-6 group-hover:scale-110 transition-all duration-200 ease-in-out mb-5"
+          width={100000}
+          height={100000}
+          className="object-contain z-10 w-[60%] h-[60%] group-hover:-rotate-6 group-hover:scale-110 transition-all duration-200 ease-in-out mb-5"
           draggable={false}
         />
-        <div className="text-neutral-12 text-xs font-medium absolute bottom-2 mx-auto w-full text-center">
+        <div className="text-neutral-12 text-[10px] px-2 font-medium absolute bottom-2 mx-auto w-full text-center truncate">
           {item.rewards[0]?.item?.name}
         </div>
       </div>
