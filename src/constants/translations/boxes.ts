@@ -77,6 +77,23 @@ export const boxesTranslations = {
     "purchase.errorTitle": "Transaction Failed",
     "purchase.cancel": "Cancel",
     "purchase.tryAgain": "Try Again",
+
+    // Won Item Modal
+    "wonItem.title": "Item Won!",
+    "wonItem.congratulations": "Congratulations on your win!",
+    "wonItem.whatToDo": "What would you like to do with your item?",
+    "wonItem.keep": "Keep in Account",
+    "wonItem.sell": "Sell",
+    "wonItem.selling": "Selling...",
+
+    // Purchase Confirmation Modal
+    "purchase.confirmTitle": "Confirm Your Purchase",
+    "purchase.confirmDescription": "Are you ready to open this mystery box?",
+    "purchase.confirm": "Confirm",
+    "purchase.processing": "Processing...",
+    "purchase.confirmWarning": "Important Notice",
+    "purchase.confirmWarningText":
+      "Once purchased, this action cannot be undone. The box will be opened immediately.",
   },
   pt: {
     // Boxes
@@ -156,5 +173,23 @@ export const boxesTranslations = {
     "purchase.errorTitle": "Transação Falhou",
     "purchase.cancel": "Cancelar",
     "purchase.tryAgain": "Tentar Novamente",
+
+    // Won Item Modal
+    "wonItem.title": "Item Ganho!",
+    "wonItem.congratulations": "Parabéns pela sua vitória!",
+    "wonItem.whatToDo": "O que você gostaria de fazer com seu item?",
+    "wonItem.keep": "Manter na Conta",
+    "wonItem.sell": "Vender",
+    "wonItem.selling": "Vendendo...",
+
+    // Purchase Confirmation Modal
+    "purchase.confirmTitle": "Confirmar sua compra",
+    "purchase.confirmDescription":
+      "Está pronto para abrir esta caixa misteriosa?",
+    "purchase.confirm": "Confirmar",
+    "purchase.processing": "Processando...",
+    "purchase.confirmWarning": "Aviso Importante",
+    "purchase.confirmWarningText":
+      "Uma vez comprada, esta ação não pode ser desfeita. A caixa será aberta imediatamente.",
   },
 };

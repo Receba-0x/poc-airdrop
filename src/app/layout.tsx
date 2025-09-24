@@ -18,8 +18,6 @@ const beVietnamPro = Be_Vietnam_Pro({
   display: "swap",
 });
 
-const nunito = Nunito_Sans({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
   title: "Loot4Fun",
   description:
@@ -68,7 +66,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <link rel="icon" href="/images/logo_token.png" />
       </head>
       <body>
-        <Toaster />
+        <Toaster position="bottom-right" />
         <Providers>{children}</Providers>
         <Analytics />
       </body>

@@ -18,6 +18,11 @@ import {
 } from "@/hooks/useLootbox";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { WonItemModal } from "../WonItemModal";
+import { useSellItem } from "@/hooks/useSellItem";
+import { LootboxPurchaseModal } from "../LootboxPurchaseModal";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export function BoxSection({ id }: { id: string }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -26,10 +31,14 @@ export function BoxSection({ id }: { id: string }) {
   const carouselRef = useRef<HorizontalSpinCarouselRef>(null);
   const [wonPrize, setWonPrize] = useState<any>(null);
   const [shouldSpin, setShouldSpin] = useState(false);
+  const [showWonItemModal, setShowWonItemModal] = useState(false);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const { lootbox, isLoading } = useLootbox(id);
-  const { refetchUser } = useAuth();
-  const { purchase } = usePurchaseLootbox();
+  const { refetchUser, isAuthenticated } = useAuth();
+  const { push } = useRouter();
+  const { purchase, isLoading: isPurchasing } = usePurchaseLootbox();
   const { generateSeed } = useClientSeed();
+  const { sellItem, isLoading: isSelling } = useSellItem();
   const { t } = useLanguage();
   const itens = useMemo(
     () => lootbox?.items?.map((item: any) => item.item) || [],
@@ -45,7 +54,15 @@ export function BoxSection({ id }: { id: string }) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const handlePurchase = async () => {
+  const handlePurchase = () => {
+    if (!isAuthenticated) {
+      push("/login");
+      return;
+    }
+    setShowPurchaseModal(true);
+  };
+
+  const handleConfirmPurchase = async () => {
     try {
       const seed = generateSeed();
       const purchaseResult = await purchase({
@@ -57,8 +74,10 @@ export function BoxSection({ id }: { id: string }) {
         setWonPrize(purchaseResult.data.wonPrize);
         setShouldSpin(true);
       }
+      setShowPurchaseModal(false);
     } catch (error: any) {
       console.error("Erro ao processar compra:", error);
+      setShowPurchaseModal(false);
     }
   };
 
@@ -68,9 +87,40 @@ export function BoxSection({ id }: { id: string }) {
 
   const handleSpinComplete = () => {
     setIsSpinning(false);
-    setWonPrize(null);
     setShouldSpin(false);
+
+    if (wonPrize) {
+      setTimeout(() => {
+        setShowWonItemModal(true);
+      }, 2000);
+    }
+
     refetchUser();
+  };
+
+  const handleKeepItem = () => {
+    setWonPrize(null);
+    setShowWonItemModal(false);
+  };
+
+  const handleSellItem = async () => {
+    if (wonPrize?.id) {
+      try {
+        await sellItem(wonPrize.id);
+        setWonPrize(null);
+        setShowWonItemModal(false);
+        refetchUser();
+      } catch (error) {
+        console.error("Erro ao vender item:", error);
+      }
+    }
+  };
+
+  const handleCloseWonItemModal = () => {
+    setShowWonItemModal(false);
+    if (!wonPrize) {
+      setWonPrize(null);
+    }
   };
 
   const handleTestSpin = () => {
@@ -85,7 +135,9 @@ export function BoxSection({ id }: { id: string }) {
     if (shouldSpin && wonPrize && carouselRef.current && !isSpinning) {
       setTimeout(() => {
         setIsSpinning(true);
-        const prizeIndex = itens.findIndex((item: any) => item.id === wonPrize.id);
+        const prizeIndex = itens.findIndex(
+          (item: any) => item.id === wonPrize.id
+        );
         const targetIndex =
           prizeIndex >= 0
             ? prizeIndex
@@ -238,27 +290,22 @@ export function BoxSection({ id }: { id: string }) {
         </div>
       </section>
 
-      {/* <TransactionPurchaseModal
-        isOpen={modalOpen}
-        onClose={closeModal}
-        status={modalStatus}
-        amount={boxPriceInToken.toString()}
-        boxType={t("box.superPrizes")}
-        errorMessage={purchaseErrorMessage}
-        transactionHash={transactionHash}
-        prize={currentPrize}
-        onBuyAgain={handlePurchase}
+      <LootboxPurchaseModal
+        isOpen={showPurchaseModal}
+        onClose={() => setShowPurchaseModal(false)}
+        onConfirm={handleConfirmPurchase}
+        lootbox={lootbox}
+        isLoading={isPurchasing}
       />
 
-      <TransactionPurchaseModal
-        isOpen={simulationModalOpen}
-        onClose={closeSimulationModal}
-        status={simulationStatus}
-        amount={boxPriceInToken.toString()}
-        boxType={t("box.superPrizes")}
-        prize={simulationPrize}
-        onBuyAgain={handleSimulation}
-      /> */}
+      <WonItemModal
+        isOpen={showWonItemModal}
+        onClose={handleCloseWonItemModal}
+        item={wonPrize}
+        onKeep={handleKeepItem}
+        onSell={handleSellItem}
+        isSelling={isSelling}
+      />
     </>
   );
 }

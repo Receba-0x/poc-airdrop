@@ -157,6 +157,7 @@ export async function middleware(request: NextRequest) {
     "https://rpc.helius.xyz",
     "https://api.solana.fm",
     "https://api.loot4.fun",
+    "https://prod.spline.design",
   ];
 
   if (isDev) trustedDomains.push("http://localhost:*", "https://localhost:*");

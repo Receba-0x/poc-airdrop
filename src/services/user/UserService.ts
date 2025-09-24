@@ -164,6 +164,16 @@ export class UserService {
     }
   }
 
+  async sellItem(itemId: string): Promise<any> {
+    try {
+      const url = `/api/v1/user/items/${itemId}/sell`;
+      const response = await this.apiClient.post(url);
+      return response;
+    } catch (error: any) {
+      throw this.handleError(error);
+    }
+  }
+
   async updateUser(id: string, data: any): Promise<any> {
     try {
       const response = await this.apiClient.patch(`/api/v1/user/${id}`, data);

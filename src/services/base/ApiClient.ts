@@ -160,7 +160,7 @@ export class ApiClient {
     Cookies.set("access_token", token, {
       expires: 60 / (24 * 60),
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: "strict",
     });
   }
 
@@ -168,7 +168,7 @@ export class ApiClient {
     Cookies.set("refresh_token", token, {
       expires: 7, // 7 days
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: "strict",
     });
   }
 
