@@ -197,7 +197,7 @@ export class UserService {
 
   async updateUserImage(avatar: string): Promise<any> {
     try {
-      return await this.apiClient.patch(`/api/v1/user/config/image`, {
+      return await this.apiClient.post(`/api/v1/user/config/image`, {
         avatar,
       });
     } catch (error: any) {

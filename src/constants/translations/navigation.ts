@@ -69,10 +69,20 @@ export const navigationTranslations = {
 
     // Footer Sections
     "footer.platform": "Plataforma",
+    "footer.home": "Início",
+    "footer.boxes": "Caixas",
+    "footer.leaderboard": "Leaderboard",
     "footer.affiliates": "Afiliados",
     "footer.resources": "Recursos",
+    "footer.privacy": "Política de Privacidade",
+    "footer.terms": "Termos e serviços",
+    "footer.refund": "Reembolso",
+    "footer.cookies": "Cookies",
     "footer.company": "Empresa",
     "footer.aboutUs": "Sobre nós",
+    "footer.tokenomics": "Tokenomics",
+    "footer.whitepaper": "Whitepaper",
+    "footer.gitbook": "Gitbook",
 
     // Footer Description
     "footer.description": "Loot4Fun é uma plataforma Web3 de caixas surpresa que combina colecionáveis digitais e físicos, com transparência on-chain e foco em comunidade.",

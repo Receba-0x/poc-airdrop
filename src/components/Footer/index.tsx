@@ -37,7 +37,7 @@ const FooterSection = ({ title, links }: FooterSectionProps) => (
     <h3 className="text-neutral-12 font-medium text-sm sm:text-base mb-1 sm:mb-2">
       {title}
     </h3>
-    <div className="flex flex-col space-y-1 sm:space-y-2">
+    <div className="flex flex-col items-center space-y-1 sm:space-y-2">
       {links.map((link) => (
         <FooterLink key={link.href} href={link.href} external={link.external}>
           <span className="text-xs sm:text-sm">{link.label}</span>
@@ -112,7 +112,7 @@ export function Footer() {
           {/* Brand Section */}
           <div className="flex flex-col items-start justify-between h-full w-full sm:w-1/2">
             <Image
-              src="/images/logo_loot.png"
+              src="/images/logo_footer.png"
               alt="Loot4Fun Logo"
               width={164}
               height={44}
