@@ -7,6 +7,8 @@ export type {
   BatchCreateItemsWithLootboxRequest,
   ItemsStats,
   ItemsFilters,
+  PaginationInfo,
+  ItemsResponse,
   UpdateItemRequest
 } from './AdminItemsService';
 
@@ -46,5 +48,6 @@ export type {
   UploadImageResponse,
   UploadedFile,
   UploadListResponse,
-  UploadFilters
+  UploadFilters,
+  BatchUploadResponse
 } from './AdminUploadService';

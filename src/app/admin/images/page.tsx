@@ -11,7 +11,7 @@ import {
   XCircle,
   Trash2,
   Upload,
-  Image as ImageIcon
+  Image as ImageIcon,
 } from "lucide-react";
 import {
   useAdminUploadedFiles,
@@ -46,7 +46,7 @@ export default function AdminImages() {
     title: string;
     message: string;
     action: () => void;
-    type: 'danger' | 'warning' | 'info';
+    type: "danger" | "warning" | "info";
   } | null>(null);
   const { copyToClipboard } = useClipboard();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -104,14 +104,45 @@ export default function AdminImages() {
     try {
       if (selectedFiles.length === 1) {
         await uploadImage(selectedFiles[0]);
+        toast.success("Imagem enviada com sucesso!", {
+          icon: <CheckCircle className="w-5 h-5" />,
+          duration: 4000,
+        });
       } else {
-        await uploadMultipleImages(selectedFiles);
+        const result = await uploadMultipleImages(selectedFiles);
+
+        if (result.success && result.data) {
+          toast.success(result.data.message, {
+            icon: <CheckCircle className="w-5 h-5" />,
+            duration: 5000,
+          });
+
+          // Mostrar erros específicos se houver
+          if (result.data.errors && result.data.errors.length > 0) {
+            result.data.errors.forEach((error: { filename: string; error: string }) => {
+              toast.error(`Erro no arquivo ${error.filename}: ${error.error}`, {
+                icon: <XCircle className="w-5 h-5" />,
+                duration: 6000,
+              });
+            });
+          }
+        } else {
+          toast.error("Erro no upload em batch", {
+            icon: <XCircle className="w-5 h-5" />,
+            duration: 5000,
+          });
+        }
       }
+
       setSelectedFiles([]);
       setIsUploadModalOpen(false);
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Upload error:", error);
+      toast.error(`Erro no upload: ${error.message || "Tente novamente"}`, {
+        icon: <XCircle className="w-5 h-5" />,
+        duration: 5000,
+      });
     }
   };
 
@@ -119,7 +150,8 @@ export default function AdminImages() {
     setConfirmAction({
       isOpen: true,
       title: "Deletar Imagem",
-      message: "Esta ação não pode ser desfeita. A imagem será permanentemente removida do sistema.",
+      message:
+        "Esta ação não pode ser desfeita. A imagem será permanentemente removida do sistema.",
       action: async () => {
         try {
           await deleteFile(filename);
@@ -131,13 +163,16 @@ export default function AdminImages() {
           setConfirmAction(null);
         } catch (error: any) {
           console.error("Delete error:", error);
-          toast.error(`Erro ao deletar imagem: ${error.message || "Tente novamente"}`, {
-            icon: <XCircle className="w-5 h-5" />,
-            duration: 5000,
-          });
+          toast.error(
+            `Erro ao deletar imagem: ${error.message || "Tente novamente"}`,
+            {
+              icon: <XCircle className="w-5 h-5" />,
+              duration: 5000,
+            }
+          );
         }
       },
-      type: 'danger'
+      type: "danger",
     });
   };
 
@@ -604,25 +639,33 @@ export default function AdminImages() {
         >
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              {confirmAction.type === 'danger' && <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />}
-              {confirmAction.type === 'warning' && <AlertTriangle className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />}
-              {confirmAction.type === 'info' && <AlertTriangle className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />}
+              {confirmAction.type === "danger" && (
+                <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+              )}
+              {confirmAction.type === "warning" && (
+                <AlertTriangle className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />
+              )}
+              {confirmAction.type === "info" && (
+                <AlertTriangle className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+              )}
               <p className="text-neutral-12">{confirmAction.message}</p>
             </div>
 
             <div className="flex gap-3 justify-end pt-4">
-              <Button
-                variant="outline"
-                onClick={() => setConfirmAction(null)}
-              >
+              <Button variant="outline" onClick={() => setConfirmAction(null)}>
                 Cancelar
               </Button>
               <Button
-                variant={confirmAction.type === 'danger' ? 'destructive' : 'default'}
+                variant={
+                  confirmAction.type === "danger" ? "destructive" : "default"
+                }
                 onClick={confirmAction.action}
               >
-                {confirmAction.type === 'danger' ? 'Deletar' :
-                 confirmAction.type === 'warning' ? 'Continuar' : 'Confirmar'}
+                {confirmAction.type === "danger"
+                  ? "Deletar"
+                  : confirmAction.type === "warning"
+                  ? "Continuar"
+                  : "Confirmar"}
               </Button>
             </div>
           </div>

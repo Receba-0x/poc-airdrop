@@ -53,11 +53,29 @@ export interface ItemsStats {
 }
 
 export interface ItemsFilters {
-  skip?: number;
-  take?: number;
+  page?: number;
+  limit?: number;
   type?: "SOL" | "PHYSICAL" | "NFT" | "SPECIAL";
   rarity?: "COMMON" | "UNCOMMON" | "RARE" | "EPIC" | "LEGENDARY" | "MYTHIC";
   isActive?: boolean;
+  lootbox?: string;
+}
+
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  prevPage: number | null;
+  nextPage: number | null;
+  hasPrevPage: boolean;
+  hasNextPage: boolean;
+}
+
+export interface ItemsResponse {
+  items: AdminItem[];
+  totalItems: number;
+  pagination: PaginationInfo;
 }
 
 export interface UpdateItemRequest {
@@ -142,20 +160,21 @@ export class AdminItemsService {
   // LISTAR E BUSCAR ITENS
   // ==========================================
 
-  async getItems(filters?: ItemsFilters): Promise<ApiResponse<AdminItem[]>> {
+  async getItems(filters?: ItemsFilters): Promise<ApiResponse<ItemsResponse>> {
     const params = new URLSearchParams();
-    if (filters?.skip !== undefined)
-      params.append("skip", filters.skip.toString());
-    if (filters?.take !== undefined)
-      params.append("take", filters.take.toString());
+    if (filters?.page !== undefined)
+      params.append("page", filters.page.toString());
+    if (filters?.limit !== undefined)
+      params.append("limit", filters.limit.toString());
     if (filters?.type) params.append("type", filters.type);
     if (filters?.rarity) params.append("rarity", filters.rarity);
     if (filters?.isActive !== undefined)
       params.append("isActive", filters.isActive.toString());
+    if (filters?.lootbox) params.append("lootbox", filters.lootbox);
 
     const query = params.toString() ? `?${params.toString()}` : "";
     console.log(`/api/v1/items${query}`);
-    return this.apiClient.get<AdminItem[]>(`/api/v1/items${query}`);
+    return this.apiClient.get<ItemsResponse>(`/api/v1/items${query}`);
   }
 
   async getItemById(itemId: string): Promise<ApiResponse<AdminItem>> {

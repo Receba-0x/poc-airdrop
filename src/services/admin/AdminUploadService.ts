@@ -34,6 +34,20 @@ export interface UploadFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
+export interface BatchUploadResponse {
+  success: boolean;
+  message: string;
+  total: number;
+  successCount: number;
+  failed: number;
+  urls: string[];
+  errors: Array<{
+    index: number;
+    filename: string;
+    error: string;
+  }>;
+}
+
 export class AdminUploadService {
   constructor(private apiClient: ApiClient) {}
 
@@ -87,6 +101,19 @@ export class AdminUploadService {
   // ==========================================
   // MÚLTIPLO UPLOAD
   // ==========================================
+
+  async uploadBatch(files: File[]): Promise<ApiResponse<BatchUploadResponse>> {
+    const formData = new FormData();
+    files.forEach((file, index) => {
+      formData.append('files', file);
+    });
+
+    return this.apiClient.post<BatchUploadResponse>("/api/v1/upload/batch", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  }
 
   async uploadMultipleImages(files: File[]): Promise<Promise<ApiResponse<UploadImageResponse>>[]> {
     return files.map(file => this.uploadImage(file));

@@ -10,10 +10,12 @@ import {
   ItemsFilters,
   uploadService,
   queryClient,
+  AdminLootbox,
 } from "@/services";
 import { Button } from "@/components/Button";
 import Image from "next/image";
-import { useCreateItem, useItems } from "@/hooks/useItem";
+import { useCreateItem, useAdminItems } from "@/hooks/useItem";
+import { useLootboxes } from "@/hooks/useLootbox";
 import { BaseModal } from "@/components/TransactionModals";
 import toast from "react-hot-toast";
 import {
@@ -47,10 +49,16 @@ const rarityColors = {
   MYTHIC: "bg-error-8 text-error-12",
 };
 
+const itemsPerPage = 50;
+
 export default function AdminItems() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<AdminItem | null>(null);
-  const [filters, setFilters] = useState<ItemsFilters>({});
+  const [filters, setFilters] = useState<ItemsFilters>({
+    page: 1,
+    limit: itemsPerPage,
+  });
+  const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState<ItemFormData>({
     name: "",
     description: "",
@@ -73,8 +81,20 @@ export default function AdminItems() {
     type: 'danger' | 'warning' | 'info';
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { items, isLoading, refetch } = useItems(filters);
+  const { items, pagination, totalItems, isLoading, refetch } = useAdminItems(filters);
   const { createItem, isLoading: isCreateLoading } = useCreateItem();
+  const { lootboxes } = useLootboxes();
+
+  // Atualizar filtros quando a página muda
+  React.useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      page: currentPage,
+      limit: itemsPerPage,
+    }));
+  }, [currentPage, itemsPerPage]);
+
+  // Itens já vêm filtrados do backend
 
   const updateItemMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateItemRequest }) =>
@@ -299,7 +319,7 @@ export default function AdminItems() {
 
       <div className="bg-neutral-3 rounded-xl border border-neutral-6 p-6">
         <h3 className="text-lg font-semibold text-neutral-12 mb-4">Filtros</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div>
             <label className="block text-sm font-medium text-neutral-11 mb-1">
               Tipo
@@ -373,10 +393,37 @@ export default function AdminItems() {
             </select>
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-neutral-11 mb-1">
+              Lootbox
+            </label>
+            <select
+              value={filters.lootbox || ""}
+              onChange={(e) => {
+                setFilters(prev => ({
+                  ...prev,
+                  lootbox: e.target.value || undefined,
+                }));
+                setCurrentPage(1); // Reset para primeira página quando filtro muda
+              }}
+              className="w-full px-3 py-2 border border-neutral-6 rounded-lg bg-neutral-3 text-neutral-12 focus:outline-none focus:ring-2 focus:ring-primary-10"
+            >
+              <option value="">Todas</option>
+              {lootboxes.map((lootbox: AdminLootbox) => (
+                <option key={lootbox.id} value={lootbox.id}>
+                  {lootbox.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex items-end">
             <Button
               variant="outline"
-              onClick={() => setFilters({})}
+              onClick={() => {
+                setFilters({ page: 1, limit: itemsPerPage });
+                setCurrentPage(1);
+              }}
               className="w-full"
             >
               Limpar Filtros
@@ -389,7 +436,7 @@ export default function AdminItems() {
       <div className="bg-neutral-3 rounded-xl border border-neutral-6 overflow-hidden">
         <div className="px-6 py-4 border-b border-neutral-6">
           <h3 className="text-lg font-semibold text-neutral-12">
-            Itens ({items.length})
+            Itens ({totalItems})
           </h3>
         </div>
 
@@ -486,7 +533,7 @@ export default function AdminItems() {
           </table>
         </div>
 
-        {items.length === 0 && (
+        {items.length === 0 && !isLoading && (
           <div className="px-6 py-12 text-center">
             <p className="text-neutral-11">Nenhum item encontrado</p>
             <button
@@ -498,6 +545,67 @@ export default function AdminItems() {
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {!isLoading && items.length > 0 && (
+        <div className="bg-neutral-3 rounded-xl border border-neutral-6 p-4 mt-6">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-neutral-11">
+              Mostrando {pagination ? Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total) : 0} a {pagination ? Math.min(pagination.page * pagination.limit, pagination.total) : 0} de {pagination?.total || 0} itens
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={!pagination?.hasPrevPage}
+              >
+                Anterior
+              </Button>
+
+              <div className="flex items-center space-x-1">
+                {Array.from({ length: pagination?.totalPages || 0 }, (_, i) => i + 1)
+                  .filter(page => {
+                    const totalPages = pagination?.totalPages || 0;
+                    // Mostrar primeiras 3 páginas, últimas 3 páginas, e páginas próximas à atual
+                    return page <= 3 || page > totalPages - 3 || Math.abs(page - (pagination?.page || 1)) <= 1;
+                  })
+                  .map((page, index, array) => {
+                    // Adicionar "..." quando há lacunas
+                    const prevPage = array[index - 1];
+                    const showEllipsis = prevPage && page - prevPage > 1;
+
+                    return (
+                      <React.Fragment key={page}>
+                        {showEllipsis && (
+                          <span className="px-2 text-neutral-11">...</span>
+                        )}
+                        <Button
+                          variant={(pagination?.page || 1) === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(page)}
+                          className="min-w-[40px]"
+                        >
+                          {page}
+                        </Button>
+                      </React.Fragment>
+                    );
+                  })}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => prev + 1)}
+                disabled={!pagination?.hasNextPage}
+              >
+                Próximo
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create/Edit Modal */}
       {isCreateModalOpen && (

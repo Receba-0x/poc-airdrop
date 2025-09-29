@@ -1,6 +1,7 @@
 import {
   invalidateQueries,
   lootboxService,
+  adminLootboxService,
   queryKeys,
   PurchaseRequest,
 } from "@/services";
@@ -29,6 +30,49 @@ export function useLootboxes() {
     queryFn: async () => {
       const result = await lootboxService.getAvailableLootboxes();
       return result;
+    },
+    staleTime: 2 * 60 * 1000,
+  });
+
+  return {
+    lootboxes: query.data?.data || [],
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
+  };
+}
+
+export function useAdminLootboxes() {
+  const query = useQuery({
+    queryKey: ["admin-lootboxes"],
+    queryFn: async () => {
+      // Buscar lootboxes disponíveis primeiro
+      const lootboxesResult = await lootboxService.getAvailableLootboxes();
+      if (!lootboxesResult.success || !lootboxesResult.data) {
+        return { data: [], success: false };
+      }
+
+      // Para cada lootbox, buscar seus itens
+      const lootboxesWithItems = await Promise.all(
+        lootboxesResult.data.map(async (lootbox: any) => {
+          try {
+            const itemsResult = await adminLootboxService.getLootboxWithItems(lootbox.id);
+            return {
+              ...lootbox,
+              items: itemsResult.success && itemsResult.data ? itemsResult.data.items : [],
+            };
+          } catch (error) {
+            console.error(`Erro ao buscar itens da lootbox ${lootbox.id}:`, error);
+            return {
+              ...lootbox,
+              items: [],
+            };
+          }
+        })
+      );
+
+      return { data: lootboxesWithItems, success: true };
     },
     staleTime: 2 * 60 * 1000,
   });

@@ -1,5 +1,6 @@
 import {
   itemService,
+  adminItemsService,
   queryKeys,
   userService,
   type ItemsFilters,
@@ -36,6 +37,27 @@ export function useItems(filters?: ItemsFilters) {
   });
   return {
     items: query.data || [],
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
+  };
+}
+
+export function useAdminItems(filters?: ItemsFilters) {
+  const query = useQuery({
+    queryKey: ["admin-items", filters || {}],
+    queryFn: async () => {
+      const response = await adminItemsService.getItems(filters);
+      console.log("Admin items response:", response);
+      return response.data;
+    },
+    staleTime: 2 * 60 * 1000,
+  });
+  return {
+    items: query.data?.items || [],
+    pagination: query.data?.pagination,
+    totalItems: query.data?.totalItems || 0,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

@@ -67,9 +67,7 @@ export function useDeleteUploadedFile() {
 export function useUploadMultipleImages() {
   const mutation = useMutation({
     mutationFn: async (files: File[]) => {
-      return Promise.all(
-        files.map((file) => adminUploadService.uploadImage(file))
-      );
+      return adminUploadService.uploadBatch(files);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.adminUploads.all });
