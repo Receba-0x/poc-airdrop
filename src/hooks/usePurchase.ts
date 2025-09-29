@@ -2,7 +2,7 @@ import {
   purchaseService,
   queryKeys,
   userService,
-  type ItemsFilters,
+  type PurchasesFilters,
   type Purchase,
 } from "@/services";
 import { useQuery } from "@tanstack/react-query";
@@ -26,7 +26,7 @@ export function usePurchase(id: string) {
   };
 }
 
-export function usePurchases(filters?: ItemsFilters) {
+export function usePurchases(filters?: PurchasesFilters) {
   const query = useQuery({
     queryKey: queryKeys.purchases.list(filters || {}),
     queryFn: async () => {
