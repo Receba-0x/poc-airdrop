@@ -20,21 +20,31 @@ export const metadata: Metadata = {
   title: "Airdrop $RECEBA",
   description:
     "Participe do Airdrop $RECEBA e ganhe tokens! Gire o carousel e ganhe de 2.000 a 10.000 tokens $RECEBA.",
-  keywords: ["airdrop", "receba", "crypto", "solana", "spl token", "tokens", "meme coin"],
+  keywords: [
+    "airdrop",
+    "receba",
+    "crypto",
+    "solana",
+    "spl token",
+    "tokens",
+    "meme coin",
+  ],
   authors: [{ name: "$RECEBA Team" }],
   creator: "$RECEBA",
   publisher: "$RECEBA",
   robots: "index, follow",
   openGraph: {
     title: "Airdrop $RECEBA - Ganhe Tokens",
-    description: "Participe do Airdrop $RECEBA e ganhe tokens! Gire o carousel e ganhe de 2.000 a 10.000 tokens.",
+    description:
+      "Participe do Airdrop $RECEBA e ganhe tokens! Gire o carousel e ganhe de 2.000 a 10.000 tokens.",
     type: "website",
     locale: "pt_BR",
   },
   twitter: {
     card: "summary_large_image",
     title: "Airdrop $RECEBA - Ganhe Tokens",
-    description: "Participe do Airdrop $RECEBA e ganhe tokens! Gire o carousel e ganhe de 2.000 a 10.000 tokens.",
+    description:
+      "Participe do Airdrop $RECEBA e ganhe tokens! Gire o carousel e ganhe de 2.000 a 10.000 tokens.",
   },
   icons: {
     icon: [
