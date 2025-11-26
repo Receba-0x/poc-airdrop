@@ -516,10 +516,10 @@ export default function HomePage() {
               className="text-3xl md:text-4xl font-bold mb-2"
               style={{ color: "#ffffff" }}
             >
-              $RECEBA Airdrop
+              $RECEBA Airdrop Gratuito
             </h1>
             <p className="text-sm md:text-base" style={{ color: "#41aec4" }}>
-              Itens de 2.000 a 10.000 Solana
+              Itens de 2.000 a 10.000 $RECEBA
             </p>
           </div>
 
