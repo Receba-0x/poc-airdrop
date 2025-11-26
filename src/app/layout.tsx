@@ -1,9 +1,7 @@
-import Providers from "@/components/Providers";
 import type { Metadata } from "next";
 import "./globals.css";
-import { Nunito_Sans, Sora, Be_Vietnam_Pro } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
-import { Toaster } from "react-hot-toast";
+
+import { Be_Vietnam_Pro, Sora } from "next/font/google";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -19,24 +17,24 @@ const beVietnamPro = Be_Vietnam_Pro({
 });
 
 export const metadata: Metadata = {
-  title: "Loot4Fun",
+  title: "Airdrop $RECEBA",
   description:
-    "The next big thing in crypto - Loot4Fun is here to rule the meme world!",
-  keywords: ["meme coin", "crypto", "solana", "rat", "rodolfo"],
-  authors: [{ name: "Loot4Fun Team" }],
-  creator: "Loot4Fun",
-  publisher: "Loot4Fun",
+    "Participe do Airdrop $RECEBA e ganhe tokens! Gire o carousel e ganhe de 2.000 a 10.000 tokens $RECEBA.",
+  keywords: ["airdrop", "receba", "crypto", "solana", "spl token", "tokens", "meme coin"],
+  authors: [{ name: "$RECEBA Team" }],
+  creator: "$RECEBA",
+  publisher: "$RECEBA",
   robots: "index, follow",
   openGraph: {
-    title: "Loot4Fun - Boxes",
-    description: "The next big thing in crypto!",
+    title: "Airdrop $RECEBA - Ganhe Tokens",
+    description: "Participe do Airdrop $RECEBA e ganhe tokens! Gire o carousel e ganhe de 2.000 a 10.000 tokens.",
     type: "website",
-    locale: "en_US",
+    locale: "pt_BR",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Loot4Fun - Boxes",
-    description: "The next big thing in crypto!",
+    title: "Airdrop $RECEBA - Ganhe Tokens",
+    description: "Participe do Airdrop $RECEBA e ganhe tokens! Gire o carousel e ganhe de 2.000 a 10.000 tokens.",
   },
   icons: {
     icon: [
@@ -65,11 +63,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/images/logo_token.png" />
       </head>
-      <body>
-        <Toaster position="bottom-right" />
-        <Providers>{children}</Providers>
-        <Analytics />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
+

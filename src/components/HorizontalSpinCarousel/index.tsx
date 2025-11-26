@@ -10,7 +10,7 @@ import React, {
 } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import type { Item } from "@/services";
+import type { Item } from "@/types/item";
 
 interface HorizontalSpinCarouselProps {
   items: Item[];
@@ -698,7 +698,15 @@ const HorizontalSpinCarousel = forwardRef<
                 return (
                   <div
                     key={`${item.id}-${index}`}
-                    className={`shrink-0 relative rounded-lg transition-all duration-300 ease-in-out flex flex-col items-center justify-center`}
+                    className={`shrink-0 relative rounded-lg transition-all duration-300 ease-in-out flex flex-col items-center justify-center ${
+                      isWinner && showResult
+                        ? "scale-110"
+                        : isInCenter
+                        ? "scale-105"
+                        : showResult
+                        ? "scale-95"
+                        : "scale-95"
+                    }`}
                     style={{
                       width: `${itemWidth}px`,
                       height: `${itemHeight}px`,
@@ -710,36 +718,29 @@ const HorizontalSpinCarousel = forwardRef<
                           }),
                     }}
                   >
-                    {item.imageUrl && (
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.name || `Item ${item.id}`}
-                        width={1000}
-                        height={1000}
-                        className={`w-full h-full object-contain transition-all duration-300 ease-in-out ${
-                          isWinner && showResult
-                            ? "scale-90"
-                            : isInCenter
-                            ? "scale-90"
-                            : showResult
-                            ? "scale-75"
-                            : "scale-75"
-                        }`}
-                        draggable={false}
-                      />
-                    )}
+                    <div className="text-center flex flex-col items-center justify-center">
+                      <span className={`text-neutral-12 font-bold transition-all duration-300 ease-in-out ${
+                        isWinner && showResult
+                          ? "text-2xl"
+                          : isInCenter
+                          ? "text-xl"
+                          : "text-lg"
+                      }`}>
+                        {item.value?.toLocaleString("pt-BR")}
+                      </span>
+                      <span className="text-neutral-10 text-xs mt-1">
+                        tokens
+                      </span>
+                    </div>
                     {showResult && isInCenter && (
                       <motion.div
-                        className="text-center flex flex-col items-center space-y-1"
+                        className="text-center flex flex-col items-center space-y-1 mt-2"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
                       >
-                        <span className="text-neutral-12 text-sm font-medium">
-                          {items[winningIndex].name}
-                        </span>
-                        <span className="text-neutral-12 text-sm p-1 px-2 bg-neutral-2 rounded-md">
-                          {items[winningIndex].value?.toLocaleString("en-US")}
+                        <span className="text-neutral-12 text-sm font-semibold p-2 px-4 bg-primary-9 text-primary-12 rounded-md">
+                          {items[winningIndex].value?.toLocaleString("pt-BR")} tokens $RECEBA
                         </span>
                       </motion.div>
                     )}
