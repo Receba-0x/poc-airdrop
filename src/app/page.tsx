@@ -6,6 +6,14 @@ import HorizontalSpinCarousel, {
 import { Button } from "@/components/Button";
 import type { Item } from "@/types/item";
 
+interface FormData {
+  name: string;
+  instagram: string;
+  phone: string;
+  email: string;
+  wallet: string;
+}
+
 const AVAILABLE_ITEMS: Item[] = [
   {
     id: "1",
@@ -105,6 +113,15 @@ export default function HomePage() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [wonItem, setWonItem] = useState<Item | null>(null);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    instagram: "",
+    phone: "",
+    email: "",
+    wallet: "",
+  });
+  const [errors, setErrors] = useState<Partial<FormData>>({});
 
   useEffect(() => {
     const checkMobile = () => {
@@ -136,6 +153,53 @@ export default function HomePage() {
     }
   };
 
+  const validateForm = (): boolean => {
+    const newErrors: Partial<FormData> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Nome é obrigatório";
+    }
+
+    if (!formData.instagram.trim()) {
+      newErrors.instagram = "Instagram é obrigatório";
+    } else if (!formData.instagram.startsWith("@")) {
+      newErrors.instagram = "Instagram deve começar com @";
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Número é obrigatório";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email é obrigatório";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Email inválido";
+    }
+
+    if (!formData.wallet.trim()) {
+      newErrors.wallet = "Carteira Solana é obrigatória";
+    } else if (formData.wallet.length < 32) {
+      newErrors.wallet = "Carteira Solana inválida";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      setFormSubmitted(true);
+    }
+  };
+
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center text-neutral-12 pb-24 w-full bg-neutral-1">
       <div className="container w-full max-w-screen-2xl mx-auto px-6 md:px-0">
@@ -149,62 +213,191 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="w-full bg-neutral-2 flex flex-col items-center justify-center border border-neutral-6 rounded-lg overflow-hidden h-[250px] sm:h-[280px] md:h-[350px] relative">
-            <HorizontalSpinCarousel
-              ref={carouselRef}
-              items={AVAILABLE_ITEMS}
-              itemWidth={isMobile ? 128 : 160}
-              itemHeight={isMobile ? 128 : 160}
-              gap={60}
-              speed={0.1}
-              spinDuration={8000}
-              onSpinComplete={handleSpinComplete}
-              className="relative w-full h-full z-10"
-            />
-          </div>
-
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex gap-4">
-              <Button
-                onClick={handleSpin}
-                disabled={isSpinning}
-                variant="default"
-                className="min-w-[150px]"
-              >
-                {isSpinning ? "Girando..." : "Girar Carousel"}
-              </Button>
-              <Button
-                onClick={handleReset}
-                disabled={isSpinning}
-                variant="outline"
-                className="min-w-[150px]"
-              >
-                Resetar
-              </Button>
-            </div>
-
-            {wonItem && (
-              <div className="mt-4 p-4 bg-neutral-3 border border-neutral-6 rounded-lg text-center">
-                <p className="text-neutral-12 font-semibold text-lg">
-                  Você ganhou: {wonItem.value?.toLocaleString("pt-BR")} $RECEBA
-                </p>
-              </div>
-            )}
-
-            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-full">
-              {AVAILABLE_ITEMS.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-neutral-2 border border-neutral-6 rounded-lg p-4 flex flex-col items-center justify-center gap-1 min-h-[80px]"
+          {!formSubmitted ? (
+            <form
+              onSubmit={handleSubmit}
+              className="w-full max-w-md bg-neutral-2 border border-neutral-6 rounded-lg p-6 md:p-8 space-y-4"
+            >
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-neutral-12 mb-2"
                 >
-                  <p className="text-lg font-bold text-neutral-12">
-                    {item.value?.toLocaleString("pt-BR")}
+                  Nome
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  className={`w-full px-4 py-2 bg-neutral-1 border rounded-lg text-neutral-12 focus:outline-none focus:ring-2 focus:ring-primary-9 ${
+                    errors.name ? "border-destructive" : "border-neutral-6"
+                  }`}
+                  placeholder="Seu nome completo"
+                />
+                {errors.name && (
+                  <p className="mt-1 text-xs text-destructive">{errors.name}</p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="instagram"
+                  className="block text-sm font-medium text-neutral-12 mb-2"
+                >
+                  @ do Instagram
+                </label>
+                <input
+                  id="instagram"
+                  type="text"
+                  value={formData.instagram}
+                  onChange={(e) => handleInputChange("instagram", e.target.value)}
+                  className={`w-full px-4 py-2 bg-neutral-1 border rounded-lg text-neutral-12 focus:outline-none focus:ring-2 focus:ring-primary-9 ${
+                    errors.instagram ? "border-destructive" : "border-neutral-6"
+                  }`}
+                  placeholder="@seuusuario"
+                />
+                {errors.instagram && (
+                  <p className="mt-1 text-xs text-destructive">
+                    {errors.instagram}
                   </p>
-                  <p className="text-xs text-neutral-10">$RECEBA</p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-neutral-12 mb-2"
+                >
+                  Número
+                </label>
+                <input
+                  id="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  className={`w-full px-4 py-2 bg-neutral-1 border rounded-lg text-neutral-12 focus:outline-none focus:ring-2 focus:ring-primary-9 ${
+                    errors.phone ? "border-destructive" : "border-neutral-6"
+                  }`}
+                  placeholder="(00) 00000-0000"
+                />
+                {errors.phone && (
+                  <p className="mt-1 text-xs text-destructive">{errors.phone}</p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-neutral-12 mb-2"
+                >
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  className={`w-full px-4 py-2 bg-neutral-1 border rounded-lg text-neutral-12 focus:outline-none focus:ring-2 focus:ring-primary-9 ${
+                    errors.email ? "border-destructive" : "border-neutral-6"
+                  }`}
+                  placeholder="seu@email.com"
+                />
+                {errors.email && (
+                  <p className="mt-1 text-xs text-destructive">{errors.email}</p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="wallet"
+                  className="block text-sm font-medium text-neutral-12 mb-2"
+                >
+                  Carteira Solana
+                </label>
+                <input
+                  id="wallet"
+                  type="text"
+                  value={formData.wallet}
+                  onChange={(e) => handleInputChange("wallet", e.target.value)}
+                  className={`w-full px-4 py-2 bg-neutral-1 border rounded-lg text-neutral-12 focus:outline-none focus:ring-2 focus:ring-primary-9 font-mono text-sm ${
+                    errors.wallet ? "border-destructive" : "border-neutral-6"
+                  }`}
+                  placeholder="Endereço da sua carteira Solana"
+                />
+                {errors.wallet && (
+                  <p className="mt-1 text-xs text-destructive">{errors.wallet}</p>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                variant="default"
+                className="w-full mt-6"
+              >
+                Participar do Airdrop
+              </Button>
+            </form>
+          ) : (
+            <>
+              <div className="w-full bg-neutral-2 flex flex-col items-center justify-center border border-neutral-6 rounded-lg overflow-hidden h-[250px] sm:h-[280px] md:h-[350px] relative">
+                <HorizontalSpinCarousel
+                  ref={carouselRef}
+                  items={AVAILABLE_ITEMS}
+                  itemWidth={isMobile ? 128 : 160}
+                  itemHeight={isMobile ? 128 : 160}
+                  gap={60}
+                  speed={0.1}
+                  spinDuration={8000}
+                  onSpinComplete={handleSpinComplete}
+                  className="relative w-full h-full z-10"
+                />
+              </div>
+
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex gap-4">
+                  <Button
+                    onClick={handleSpin}
+                    disabled={isSpinning}
+                    variant="default"
+                    className="min-w-[150px]"
+                  >
+                    {isSpinning ? "Girando..." : "Girar Carousel"}
+                  </Button>
+                  <Button
+                    onClick={handleReset}
+                    disabled={isSpinning}
+                    variant="outline"
+                    className="min-w-[150px]"
+                  >
+                    Resetar
+                  </Button>
                 </div>
-              ))}
-            </div>
-          </div>
+
+                {wonItem && (
+                  <div className="mt-4 p-4 bg-neutral-3 border border-neutral-6 rounded-lg text-center">
+                    <p className="text-neutral-12 font-semibold text-lg">
+                      Você ganhou: {wonItem.value?.toLocaleString("pt-BR")} $RECEBA
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-full">
+                  {AVAILABLE_ITEMS.map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-neutral-2 border border-neutral-6 rounded-lg p-4 flex flex-col items-center justify-center gap-1 min-h-[80px]"
+                    >
+                      <p className="text-lg font-bold text-neutral-12">
+                        {item.value?.toLocaleString("pt-BR")}
+                      </p>
+                      <p className="text-xs text-neutral-10">$RECEBA</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
