@@ -10,8 +10,12 @@ import {
   getAssociatedTokenAddress,
   createTransferInstruction,
   getAccount,
+  createAssociatedTokenAccountInstruction,
   getOrCreateAssociatedTokenAccount,
   TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  getMint,
 } from "@solana/spl-token";
 import { supabase } from "@/lib/supabase";
 
@@ -169,6 +173,26 @@ export async function POST(request: NextRequest) {
       // Não bloquear se houver erro na verificação de saldo, apenas logar
     }
 
+    // Detectar qual programa de token o mint está usando (Token-2022 ou padrão)
+    let tokenProgramId = TOKEN_2022_PROGRAM_ID; // Assumir Token-2022 primeiro
+    try {
+      // Tentar obter informações do mint com TOKEN_2022_PROGRAM_ID
+      const mintInfo2022 = await getMint(connection, mintPublicKey, "confirmed", TOKEN_2022_PROGRAM_ID);
+      tokenProgramId = TOKEN_2022_PROGRAM_ID;
+      console.log("✅ Mint usa TOKEN_2022_PROGRAM_ID");
+    } catch (error2022: any) {
+      // Se falhar, tentar com TOKEN_PROGRAM_ID padrão
+      try {
+        const mintInfo = await getMint(connection, mintPublicKey, "confirmed", TOKEN_PROGRAM_ID);
+        tokenProgramId = TOKEN_PROGRAM_ID;
+        console.log("✅ Mint usa TOKEN_PROGRAM_ID padrão");
+      } catch (error: any) {
+        // Se ambos falharem, assumir Token-2022 (conforme informado pelo usuário)
+        tokenProgramId = TOKEN_2022_PROGRAM_ID;
+        console.log("⚠️  Não foi possível detectar o programa, usando TOKEN_2022_PROGRAM_ID (conforme configurado)");
+      }
+    }
+
     // Obter ou criar conta de token do sistema
     console.log("Criando/obtendo conta de token do sistema...");
     let systemTokenAccountInfo;
@@ -179,7 +203,7 @@ export async function POST(request: NextRequest) {
         mintPublicKey,
         systemWalletPublicKey,
         false,
-        TOKEN_PROGRAM_ID
+        tokenProgramId
       );
 
       console.log("Endereço da conta de token do sistema:", systemTokenAccountAddress.toString());
@@ -190,7 +214,7 @@ export async function POST(request: NextRequest) {
           connection,
           systemTokenAccountAddress,
           "confirmed",
-          TOKEN_PROGRAM_ID
+          tokenProgramId
         );
         console.log("Conta de token do sistema encontrada:", {
           address: systemTokenAccountInfo.address.toString(),
@@ -198,17 +222,39 @@ export async function POST(request: NextRequest) {
           amount: systemTokenAccountInfo.amount.toString(),
         });
       } catch (accountError: any) {
-        // Se a conta não existe, criar usando getOrCreateAssociatedTokenAccount
+        // Se a conta não existe, criar manualmente usando uma transação
         console.log("Conta não encontrada, criando...");
-        systemTokenAccountInfo = await getOrCreateAssociatedTokenAccount(
+        
+        // Criar instrução para criar a conta associada
+        const createAccountIx = createAssociatedTokenAccountInstruction(
+          systemWalletPublicKey, // payer
+          systemTokenAccountAddress, // associatedToken
+          systemWalletPublicKey, // owner
+          mintPublicKey, // mint
+          tokenProgramId // usar o programa detectado (Token-2022 ou padrão)
+        );
+
+        // Criar e enviar transação para criar a conta
+        const createAccountTx = new Transaction().add(createAccountIx);
+        const { blockhash } = await connection.getLatestBlockhash("confirmed");
+        createAccountTx.recentBlockhash = blockhash;
+        createAccountTx.feePayer = systemWalletPublicKey;
+
+        console.log("Enviando transação para criar conta de token...");
+        const createAccountSig = await sendAndConfirmTransaction(
           connection,
-          systemKeypair,
-          mintPublicKey,
-          systemWalletPublicKey,
-          false,
-          undefined,
-          undefined,
-          TOKEN_PROGRAM_ID
+          createAccountTx,
+          [systemKeypair],
+          { commitment: "confirmed" }
+        );
+        console.log("Conta de token criada. Signature:", createAccountSig);
+
+        // Agora obter a conta recém-criada
+        systemTokenAccountInfo = await getAccount(
+          connection,
+          systemTokenAccountAddress,
+          "confirmed",
+          tokenProgramId
         );
         console.log("Conta de token do sistema criada:", {
           address: systemTokenAccountInfo.address.toString(),
@@ -270,7 +316,7 @@ export async function POST(request: NextRequest) {
         mintPublicKey,
         recipientPublicKey,
         false,
-        TOKEN_PROGRAM_ID
+        tokenProgramId
       );
 
       console.log("Endereço da conta de token do destinatário:", recipientTokenAccountAddress.toString());
@@ -281,24 +327,46 @@ export async function POST(request: NextRequest) {
           connection,
           recipientTokenAccountAddress,
           "confirmed",
-          TOKEN_PROGRAM_ID
+          tokenProgramId
         );
         console.log("Conta de token do destinatário encontrada:", {
           address: recipientTokenAccountInfo.address.toString(),
           mint: recipientTokenAccountInfo.mint.toString(),
         });
       } catch (accountError: any) {
-        // Se a conta não existe, criar usando getOrCreateAssociatedTokenAccount
+        // Se a conta não existe, criar manualmente usando uma transação
         console.log("Conta do destinatário não encontrada, criando...");
-        recipientTokenAccountInfo = await getOrCreateAssociatedTokenAccount(
+        
+        // Criar instrução para criar a conta associada
+        const createRecipientAccountIx = createAssociatedTokenAccountInstruction(
+          systemWalletPublicKey, // payer (sistema paga as fees)
+          recipientTokenAccountAddress, // associatedToken
+          recipientPublicKey, // owner (destinatário)
+          mintPublicKey, // mint
+          tokenProgramId // usar o programa detectado (Token-2022 ou padrão)
+        );
+
+        // Criar e enviar transação para criar a conta
+        const createRecipientAccountTx = new Transaction().add(createRecipientAccountIx);
+        const { blockhash: recipientBlockhash } = await connection.getLatestBlockhash("confirmed");
+        createRecipientAccountTx.recentBlockhash = recipientBlockhash;
+        createRecipientAccountTx.feePayer = systemWalletPublicKey;
+
+        console.log("Enviando transação para criar conta de token do destinatário...");
+        const createRecipientAccountSig = await sendAndConfirmTransaction(
           connection,
-          systemKeypair, // Usar systemKeypair para pagar as fees de criação
-          mintPublicKey,
-          recipientPublicKey,
-          false,
-          undefined,
-          undefined,
-          TOKEN_PROGRAM_ID
+          createRecipientAccountTx,
+          [systemKeypair],
+          { commitment: "confirmed" }
+        );
+        console.log("Conta de token do destinatário criada. Signature:", createRecipientAccountSig);
+
+        // Agora obter a conta recém-criada
+        recipientTokenAccountInfo = await getAccount(
+          connection,
+          recipientTokenAccountAddress,
+          "confirmed",
+          tokenProgramId
         );
         console.log("Conta de token do destinatário criada:", {
           address: recipientTokenAccountInfo.address.toString(),
@@ -324,7 +392,7 @@ export async function POST(request: NextRequest) {
       systemWalletPublicKey, // Autoridade (quem autoriza a transferência)
       BigInt(amount) * BigInt(10 ** decimals), // Quantidade em unidades menores
       [], // Signers adicionais (nenhum)
-      TOKEN_PROGRAM_ID // Programa de token SPL
+      tokenProgramId // Programa de token detectado
     );
 
     console.log("Instrução criada:", {
@@ -332,7 +400,7 @@ export async function POST(request: NextRequest) {
       to: recipientTokenAccountInfo.address.toString(),
       amount: (BigInt(amount) * BigInt(10 ** decimals)).toString(),
       tokenMint: mintPublicKey.toString(),
-      programId: TOKEN_PROGRAM_ID.toString(),
+      programId: tokenProgramId.toString(),
     });
 
     // Validar que ambas as contas são do mesmo token mint
