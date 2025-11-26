@@ -19,7 +19,12 @@ import { supabase } from "@/lib/supabase";
 const SOLANA_RPC_URL =
   process.env.SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com";
 
-const connection = new Connection(SOLANA_RPC_URL, "confirmed");
+// Criar conexão com timeout e configurações mais robustas
+const connection = new Connection(SOLANA_RPC_URL, {
+  commitment: "confirmed",
+  confirmTransactionInitialTimeout: 60000, // 60 segundos
+  disableRetryOnRateLimit: false,
+});
 
 interface SendTokenRequest {
   recipientWallet: string;
@@ -32,7 +37,7 @@ interface SendTokenRequest {
 export async function POST(request: NextRequest) {
   try {
     const body: SendTokenRequest = await request.json();
-    const { recipientWallet, amount, decimals = 6, userEmail, userName } = body;
+    const { recipientWallet, amount, decimals = 9, userEmail, userName } = body;
 
     // Validar parâmetros
     if (!recipientWallet || !amount || amount <= 0) {
@@ -40,6 +45,45 @@ export async function POST(request: NextRequest) {
         { success: false, error: "Parâmetros inválidos" },
         { status: 400 }
       );
+    }
+
+    // Verificar se já foi enviado token para esta wallet ou email
+    if (recipientWallet || userEmail) {
+      let query = supabase
+        .from("token_transfers")
+        .select("recipient_wallet, user_email");
+
+      if (recipientWallet && userEmail) {
+        query = query.or(`recipient_wallet.eq.${recipientWallet},user_email.eq.${userEmail}`);
+      } else if (recipientWallet) {
+        query = query.eq("recipient_wallet", recipientWallet);
+      } else if (userEmail) {
+        query = query.eq("user_email", userEmail);
+      }
+
+      const { data: existingTransfers, error: checkError } = await query.limit(1);
+
+      if (checkError) {
+        console.error("Erro ao verificar transferências existentes:", checkError);
+        // Não bloquear se houver erro na verificação, apenas logar
+      } else if (existingTransfers && existingTransfers.length > 0) {
+        const transfer = existingTransfers[0];
+        const byWallet = recipientWallet && transfer.recipient_wallet === recipientWallet;
+        const byEmail = userEmail && transfer.user_email === userEmail;
+
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              byWallet && byEmail
+                ? "Esta carteira e email já receberam tokens!"
+                : byWallet
+                ? "Esta carteira já recebeu tokens!"
+                : "Este email já recebeu tokens!",
+          },
+          { status: 400 }
+        );
+      }
     }
 
     // Obter configurações do servidor
@@ -104,25 +148,84 @@ export async function POST(request: NextRequest) {
 
     const systemWalletPublicKey = systemKeypair.publicKey;
 
+    // Verificar se a wallet do sistema tem SOL suficiente para fees
+    try {
+      const balance = await connection.getBalance(systemWalletPublicKey);
+      const minBalance = 0.001 * 1e9; // Mínimo de 0.001 SOL (em lamports)
+      
+      if (balance < minBalance) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Wallet do sistema sem SOL suficiente para pagar fees. Saldo: ${balance / 1e9} SOL, Mínimo necessário: ${minBalance / 1e9} SOL`,
+          },
+          { status: 400 }
+        );
+      }
+      
+      console.log(`Saldo da wallet do sistema: ${balance / 1e9} SOL`);
+    } catch (balanceError: any) {
+      console.warn("Erro ao verificar saldo SOL da wallet do sistema:", balanceError);
+      // Não bloquear se houver erro na verificação de saldo, apenas logar
+    }
+
     // Obter ou criar conta de token do sistema
     console.log("Criando/obtendo conta de token do sistema...");
-    const systemTokenAccountInfo = await getOrCreateAssociatedTokenAccount(
-      connection,
-      systemKeypair,
-      mintPublicKey,
-      systemWalletPublicKey,
-      false,
-      undefined,
-      undefined,
-      TOKEN_PROGRAM_ID
-    );
+    let systemTokenAccountInfo;
+    
+    try {
+      // Primeiro, tentar obter o endereço da conta associada
+      const systemTokenAccountAddress = await getAssociatedTokenAddress(
+        mintPublicKey,
+        systemWalletPublicKey,
+        false,
+        TOKEN_PROGRAM_ID
+      );
 
-    console.log("Conta de token do sistema:", {
-      address: systemTokenAccountInfo.address.toString(),
-      mint: systemTokenAccountInfo.mint.toString(),
-      amount: systemTokenAccountInfo.amount.toString(),
-      decimals: systemTokenAccountInfo.mint.toString() === mintPublicKey.toString(),
-    });
+      console.log("Endereço da conta de token do sistema:", systemTokenAccountAddress.toString());
+
+      // Tentar obter a conta (pode não existir ainda)
+      try {
+        systemTokenAccountInfo = await getAccount(
+          connection,
+          systemTokenAccountAddress,
+          "confirmed",
+          TOKEN_PROGRAM_ID
+        );
+        console.log("Conta de token do sistema encontrada:", {
+          address: systemTokenAccountInfo.address.toString(),
+          mint: systemTokenAccountInfo.mint.toString(),
+          amount: systemTokenAccountInfo.amount.toString(),
+        });
+      } catch (accountError: any) {
+        // Se a conta não existe, criar usando getOrCreateAssociatedTokenAccount
+        console.log("Conta não encontrada, criando...");
+        systemTokenAccountInfo = await getOrCreateAssociatedTokenAccount(
+          connection,
+          systemKeypair,
+          mintPublicKey,
+          systemWalletPublicKey,
+          false,
+          undefined,
+          undefined,
+          TOKEN_PROGRAM_ID
+        );
+        console.log("Conta de token do sistema criada:", {
+          address: systemTokenAccountInfo.address.toString(),
+          mint: systemTokenAccountInfo.mint.toString(),
+          amount: systemTokenAccountInfo.amount.toString(),
+        });
+      }
+    } catch (error: any) {
+      console.error("Erro ao obter/criar conta de token do sistema:", error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Erro ao acessar conta de token do sistema: ${error.message || "Erro desconhecido"}. Verifique a conexão RPC e se a conta existe.`,
+        },
+        { status: 500 }
+      );
+    }
 
     // Verificar se o mint da conta corresponde ao token correto
     if (systemTokenAccountInfo.mint.toString() !== mintPublicKey.toString()) {
@@ -159,21 +262,59 @@ export async function POST(request: NextRequest) {
     // Obter ou criar conta de token do destinatário
     // Se não existir, será criada automaticamente (requer SOL para fees)
     console.log("Criando/obtendo conta de token do destinatário...");
-    const recipientTokenAccountInfo = await getOrCreateAssociatedTokenAccount(
-      connection,
-      systemKeypair, // Usar systemKeypair para pagar as fees de criação
-      mintPublicKey,
-      recipientPublicKey,
-      false,
-      undefined,
-      undefined,
-      TOKEN_PROGRAM_ID
-    );
+    let recipientTokenAccountInfo;
+    
+    try {
+      // Primeiro, tentar obter o endereço da conta associada
+      const recipientTokenAccountAddress = await getAssociatedTokenAddress(
+        mintPublicKey,
+        recipientPublicKey,
+        false,
+        TOKEN_PROGRAM_ID
+      );
 
-    console.log("Conta de token do destinatário:", {
-      address: recipientTokenAccountInfo.address.toString(),
-      mint: recipientTokenAccountInfo.mint.toString(),
-    });
+      console.log("Endereço da conta de token do destinatário:", recipientTokenAccountAddress.toString());
+
+      // Tentar obter a conta (pode não existir ainda)
+      try {
+        recipientTokenAccountInfo = await getAccount(
+          connection,
+          recipientTokenAccountAddress,
+          "confirmed",
+          TOKEN_PROGRAM_ID
+        );
+        console.log("Conta de token do destinatário encontrada:", {
+          address: recipientTokenAccountInfo.address.toString(),
+          mint: recipientTokenAccountInfo.mint.toString(),
+        });
+      } catch (accountError: any) {
+        // Se a conta não existe, criar usando getOrCreateAssociatedTokenAccount
+        console.log("Conta do destinatário não encontrada, criando...");
+        recipientTokenAccountInfo = await getOrCreateAssociatedTokenAccount(
+          connection,
+          systemKeypair, // Usar systemKeypair para pagar as fees de criação
+          mintPublicKey,
+          recipientPublicKey,
+          false,
+          undefined,
+          undefined,
+          TOKEN_PROGRAM_ID
+        );
+        console.log("Conta de token do destinatário criada:", {
+          address: recipientTokenAccountInfo.address.toString(),
+          mint: recipientTokenAccountInfo.mint.toString(),
+        });
+      }
+    } catch (error: any) {
+      console.error("Erro ao obter/criar conta de token do destinatário:", error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Erro ao criar conta de token do destinatário: ${error.message || "Erro desconhecido"}. Verifique a conexão RPC e se a wallet do destinatário é válida.`,
+        },
+        { status: 500 }
+      );
+    }
 
     // Criar instrução de transferência de TOKEN SPL (não SOL)
     console.log("Criando instrução de transferência de token SPL...");
