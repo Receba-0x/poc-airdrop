@@ -5,6 +5,8 @@ import {
   PublicKey,
   Transaction,
   sendAndConfirmTransaction,
+  SystemProgram,
+  LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
 import {
   getAssociatedTokenAddress,
@@ -152,16 +154,18 @@ export async function POST(request: NextRequest) {
 
     const systemWalletPublicKey = systemKeypair.publicKey;
 
-    // Verificar se a wallet do sistema tem SOL suficiente para fees
+    // Verificar se a wallet do sistema tem SOL suficiente para fees e transferência
     try {
       const balance = await connection.getBalance(systemWalletPublicKey);
-      const minBalance = 0.001 * 1e9; // Mínimo de 0.001 SOL (em lamports)
+      const solToSend = 0.0009; // SOL a enviar ao destinatário
+      const estimatedFees = 0.0005; // Estimativa de fees (pode variar)
+      const minBalance = (solToSend + estimatedFees) * 1e9; // Mínimo necessário (em lamports)
       
       if (balance < minBalance) {
         return NextResponse.json(
           {
             success: false,
-            error: `Wallet do sistema sem SOL suficiente para pagar fees. Saldo: ${balance / 1e9} SOL, Mínimo necessário: ${minBalance / 1e9} SOL`,
+            error: `Wallet do sistema sem SOL suficiente. Saldo: ${balance / 1e9} SOL, Mínimo necessário: ${(minBalance / 1e9).toFixed(6)} SOL (${solToSend} SOL para envio + ~${estimatedFees} SOL para fees)`,
           },
           { status: 400 }
         );
@@ -417,10 +421,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Criar e enviar transação
-    const transaction = new Transaction().add(transferInstruction);
+    // Criar instrução de transferência de SOL (0.0009 SOL)
+    const solAmount = 0.0009; // Quantidade de SOL a enviar
+    const solAmountLamports = BigInt(Math.floor(solAmount * LAMPORTS_PER_SOL));
     
-    console.log("Enviando transação de token SPL (não SOL)...");
+    console.log("Criando instrução de transferência de SOL...", {
+      amount: solAmount,
+      lamports: solAmountLamports.toString(),
+    });
+
+    const solTransferInstruction = SystemProgram.transfer({
+      fromPubkey: systemWalletPublicKey,
+      toPubkey: recipientPublicKey,
+      lamports: Number(solAmountLamports),
+    });
+
+    // Criar e enviar transação (com transferência de token E SOL)
+    const transaction = new Transaction()
+      .add(transferInstruction)
+      .add(solTransferInstruction);
+    
+    console.log("Enviando transação de token SPL e SOL...", {
+      tokenAmount: amount,
+      solAmount: solAmount,
+    });
 
     // Obter o último blockhash
     const { blockhash } = await connection.getLatestBlockhash("confirmed");
@@ -428,7 +452,7 @@ export async function POST(request: NextRequest) {
     transaction.feePayer = systemWalletPublicKey;
 
     // Assinar e enviar transação
-    console.log("Enviando transação de token SPL (não SOL)...");
+    console.log("Enviando transação de token SPL e SOL...");
     const signature = await sendAndConfirmTransaction(
       connection,
       transaction,
@@ -483,6 +507,7 @@ export async function POST(request: NextRequest) {
       signature,
       tokenMint: mintPublicKey.toString(),
       amount: amount,
+      solAmount: solAmount,
       recipientWallet: recipientWallet,
     });
   } catch (error: any) {
