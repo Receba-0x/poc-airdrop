@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 import { Be_Vietnam_Pro, Sora } from "next/font/google";
 
@@ -48,13 +49,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/images/logo_token.png", sizes: "64x64", type: "image/png" },
-      { url: "/images/logo_token.png", sizes: "192x192", type: "image/png" },
-      { url: "/images/logo_token.png", sizes: "512x512", type: "image/png" },
+      { url: "/images/logo.PNG", sizes: "64x64", type: "image/png" },
+      { url: "/images/logo.PNG", sizes: "192x192", type: "image/png" },
+      { url: "/images/logo.PNG", sizes: "512x512", type: "image/png" },
     ],
-    apple: [
-      { url: "/images/logo_token.png", sizes: "180x180", type: "image/png" },
-    ],
+    apple: [{ url: "/images/logo.PNG", sizes: "180x180", type: "image/png" }],
   },
 };
 
@@ -71,9 +70,34 @@ export default function RootLayout({ children }: RootLayoutProps) {
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/images/logo_token.png" />
+        <link rel="icon" href="/images/logo.PNG" />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: "#1d224b",
+              color: "#ffffff",
+              border: "1px solid rgba(65, 174, 196, 0.3)",
+            },
+            success: {
+              iconTheme: {
+                primary: "#41aec4",
+                secondary: "#ffffff",
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: "#e5484d",
+                secondary: "#ffffff",
+              },
+            },
+          }}
+        />
+      </body>
     </html>
   );
 }

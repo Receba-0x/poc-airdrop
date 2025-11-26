@@ -5,6 +5,8 @@ import HorizontalSpinCarousel, {
 } from "@/components/HorizontalSpinCarousel";
 import { Button } from "@/components/Button";
 import type { Item } from "@/types/item";
+import { saveAirdropSubmission } from "@/lib/supabase";
+import toast from "react-hot-toast";
 
 interface FormData {
   name: string;
@@ -114,6 +116,7 @@ export default function HomePage() {
   const [isMobile, setIsMobile] = useState(false);
   const [wonItem, setWonItem] = useState<Item | null>(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isSendingTokens, setIsSendingTokens] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     name: "",
     instagram: "",
@@ -132,6 +135,31 @@ export default function HomePage() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Verificar se já existe uma submissão salva no localStorage
+  useEffect(() => {
+    const savedSubmission = localStorage.getItem("airdrop_submission");
+    if (savedSubmission) {
+      try {
+        const parsed = JSON.parse(savedSubmission);
+        // Se já existe uma submissão com dados válidos, pular o formulário
+        if (parsed.submittedAt && parsed.name && parsed.email && parsed.wallet) {
+          // Pré-preencher os dados do formulário (caso precise acessar depois)
+          setFormData({
+            name: parsed.name || "",
+            instagram: parsed.instagram || "",
+            phone: parsed.phone || "",
+            email: parsed.email || "",
+            wallet: parsed.wallet || "",
+          });
+          // Pular direto para o carousel
+          setFormSubmitted(true);
+        }
+      } catch (error) {
+        console.error("Erro ao ler dados do localStorage:", error);
+      }
+    }
+  }, []);
+
   const handleSpin = () => {
     if (carouselRef.current && !isSpinning) {
       setIsSpinning(true);
@@ -141,9 +169,69 @@ export default function HomePage() {
     }
   };
 
-  const handleSpinComplete = (item: Item) => {
+  const handleSpinComplete = async (item: Item) => {
     setIsSpinning(false);
     setWonItem(item);
+
+    // Enviar tokens após o usuário ganhar
+    await sendTokensToUser(item);
+  };
+
+  const sendTokensToUser = async (item: Item) => {
+    // Obter dados do formulário do localStorage
+    const savedSubmission = localStorage.getItem("airdrop_submission");
+    if (!savedSubmission) {
+      toast.error("Dados do formulário não encontrados");
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(savedSubmission);
+      const recipientWallet = parsed.wallet;
+      const tokenAmount = item.value || 0;
+
+      if (!recipientWallet) {
+        toast.error("Wallet do destinatário não encontrada");
+        return;
+      }
+
+      setIsSendingTokens(true);
+      toast.loading("Enviando tokens...", { id: "sending-tokens" });
+
+      // Chamar API do servidor para enviar tokens
+      const response = await fetch("/api/send-tokens", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          recipientWallet: recipientWallet,
+          amount: tokenAmount,
+          decimals: 6, // Ajuste conforme necessário
+          userEmail: parsed.email || null,
+          userName: parsed.name || null,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.signature) {
+        toast.success(
+          `Tokens enviados com sucesso! Signature: ${result.signature.slice(0, 8)}...`,
+          { id: "sending-tokens", duration: 5000 }
+        );
+      } else {
+        toast.error(
+          result.error || "Erro ao enviar tokens",
+          { id: "sending-tokens" }
+        );
+      }
+    } catch (error: any) {
+      console.error("Erro ao enviar tokens:", error);
+      toast.error("Erro ao processar envio de tokens", { id: "sending-tokens" });
+    } finally {
+      setIsSendingTokens(false);
+    }
   };
 
   const handleReset = () => {
@@ -186,9 +274,58 @@ export default function HomePage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      // Salvar no localStorage
+      const submissionData = {
+        name: formData.name,
+        instagram: formData.instagram,
+        phone: formData.phone,
+        email: formData.email,
+        wallet: formData.wallet,
+        submittedAt: new Date().toISOString(),
+      };
+
+      localStorage.setItem("airdrop_submission", JSON.stringify(submissionData));
+
+      // Salvar no Supabase
+      const result = await saveAirdropSubmission({
+        name: formData.name,
+        instagram: formData.instagram,
+        phone: formData.phone,
+        email: formData.email,
+        wallet: formData.wallet,
+      });
+
+      if (result.success) {
+        toast.success("Formulário enviado com sucesso!");
+        setFormSubmitted(true);
+      } else {
+        // Mesmo com erro no Supabase, permite continuar se salvou no localStorage
+        console.warn("Erro ao salvar no Supabase, mas dados salvos localmente:", result.error);
+        toast.error("Erro ao salvar no servidor, mas dados foram salvos localmente");
+        setFormSubmitted(true);
+      }
+    } catch (error: any) {
+      console.error("Erro ao processar formulário:", error);
+      // Mesmo com erro, salva no localStorage e permite continuar
+      localStorage.setItem(
+        "airdrop_submission",
+        JSON.stringify({
+          name: formData.name,
+          instagram: formData.instagram,
+          phone: formData.phone,
+          email: formData.email,
+          wallet: formData.wallet,
+          submittedAt: new Date().toISOString(),
+        })
+      );
+      toast.error("Erro ao processar, mas dados foram salvos localmente");
       setFormSubmitted(true);
     }
   };
@@ -202,10 +339,47 @@ export default function HomePage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center pb-24 w-full"
-      style={{ backgroundColor: "#1d224b" }}
+      className="min-h-screen flex flex-col items-center justify-center pb-24 w-full animated-background relative"
     >
-      <div className="container w-full max-w-screen-2xl mx-auto px-6 md:px-0">
+      {/* Floating orbs for visual effect */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div
+          className="absolute rounded-full blur-3xl opacity-20"
+          style={{
+            width: "600px",
+            height: "600px",
+            background: "radial-gradient(circle, rgba(65, 174, 196, 0.4) 0%, transparent 70%)",
+            top: "-300px",
+            left: "-300px",
+            animation: "float 20s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute rounded-full blur-3xl opacity-15"
+          style={{
+            width: "500px",
+            height: "500px",
+            background: "radial-gradient(circle, rgba(65, 174, 196, 0.3) 0%, transparent 70%)",
+            bottom: "-250px",
+            right: "-250px",
+            animation: "float 25s ease-in-out infinite reverse",
+          }}
+        />
+        <div
+          className="absolute rounded-full blur-3xl opacity-10"
+          style={{
+            width: "400px",
+            height: "400px",
+            background: "radial-gradient(circle, rgba(29, 34, 75, 0.5) 0%, transparent 70%)",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            animation: "pulse-glow 10s ease-in-out infinite",
+          }}
+        />
+      </div>
+      
+      <div className="container w-full max-w-screen-2xl mx-auto px-6 md:px-0 relative z-10">
         <div className="flex flex-col items-center gap-8 mt-10">
           <div className="text-center">
             <h1
@@ -553,12 +727,17 @@ export default function HomePage() {
                     }}
                   >
                     <p
-                      className="font-bold text-xl"
+                      className="font-bold text-xl mb-2"
                       style={{ color: "#41aec4" }}
                     >
                       Você ganhou: {wonItem.value?.toLocaleString("pt-BR")}{" "}
                       $RECEBA
                     </p>
+                    {isSendingTokens && (
+                      <p className="text-sm" style={{ color: "#ffffff" }}>
+                        Enviando tokens para sua carteira...
+                      </p>
+                    )}
                   </div>
                 )}
 

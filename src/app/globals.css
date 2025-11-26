@@ -6,6 +6,79 @@
   font-family: var(--font-sora);
 }
 
+/* Animated Background */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animated-background {
+  background: linear-gradient(
+    135deg,
+    #000000 0%,
+    #1d224b 25%,
+    #0f1229 50%,
+    #1d224b 75%,
+    #000000 100%
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.animated-background::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(65, 174, 196, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(65, 174, 196, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(29, 34, 75, 0.3) 0%, transparent 50%);
+  animation: pulse-glow 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.animated-background::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(65, 174, 196, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(65, 174, 196, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 :root {
   /* Brand Colors */
   --brand-blue: #41aec4;

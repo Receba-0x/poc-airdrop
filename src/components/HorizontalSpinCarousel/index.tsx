@@ -697,27 +697,13 @@ const HorizontalSpinCarousel = forwardRef<
                     }}
                   >
                     <div className="text-center flex flex-col items-center justify-center">
-                      <span
-                        className={`font-bold transition-all duration-300 ease-in-out ${
-                          isWinner && showResult
-                            ? "text-2xl"
-                            : isInCenter
-                            ? "text-xl"
-                            : "text-lg"
-                        }`}
-                        style={{ 
-                          color: isInCenter || isWinner ? "#41aec4" : "rgba(65, 174, 196, 0.7)",
-                          textShadow: isInCenter || isWinner ? "0 0 10px rgba(65, 174, 196, 0.5)" : "none"
-                        }}
-                      >
-                        {item.value?.toLocaleString("pt-BR")}
-                      </span>
-                      <span
-                        className="text-xs mt-1"
-                        style={{ color: isInCenter || isWinner ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.5)" }}
-                      >
-                        tokens
-                      </span>
+                      <Image
+                        src="/images/logo.PNG"
+                        alt="logo"
+                        width={20}
+                        height={20}
+                        className="size-14 mb-1"
+                      />
                     </div>
                     {showResult && isInCenter && (
                       <motion.div
@@ -748,7 +734,10 @@ const HorizontalSpinCarousel = forwardRef<
               <motion.div
                 className="transition-all duration-300 ease-in-out w-[20rem] sm:w-[30rem] md:w-[40rem] h-[20rem] sm:h-[30rem] md:h-[40rem] rounded-full blur-[80px] md:blur-[140px]"
                 style={{
-                  backgroundColor: isSpinning || showResult ? "#41aec4" : "rgba(65, 174, 196, 0.2)",
+                  backgroundColor:
+                    isSpinning || showResult
+                      ? "#41aec4"
+                      : "rgba(65, 174, 196, 0.2)",
                   opacity: isSpinning || showResult ? 0.4 : 0.2,
                 }}
                 animate={{
@@ -761,7 +750,10 @@ const HorizontalSpinCarousel = forwardRef<
               <motion.div
                 className="w-[20rem] sm:w-[30rem] md:w-[40rem] h-[20rem] sm:h-[30rem] md:h-[40rem] rounded-full transition-all duration-300 ease-in-out border-[1px] md:border-[2px]"
                 style={{
-                  borderColor: isSpinning || showResult ? "rgba(65, 174, 196, 0.6)" : "rgba(65, 174, 196, 0.3)",
+                  borderColor:
+                    isSpinning || showResult
+                      ? "rgba(65, 174, 196, 0.6)"
+                      : "rgba(65, 174, 196, 0.3)",
                 }}
                 animate={{ scale: isSpinning || showResult ? 1.05 : 1 }}
               />
