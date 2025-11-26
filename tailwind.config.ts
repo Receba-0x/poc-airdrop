@@ -13,6 +13,11 @@ export default {
       colors: {
         background: "var(--neutral-2)",
         foreground: "var(--neutral-11)",
+        brand: {
+          blue: "#41aec4",
+          purple: "#1d224b",
+          black: "#000000",
+        },
         primary: {
           DEFAULT: "var(--primary-9)",
           foreground: "var(--primary-foreground)",

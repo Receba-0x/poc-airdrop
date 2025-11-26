@@ -632,21 +632,10 @@ const HorizontalSpinCarousel = forwardRef<
                 className="w-6 h-6 rotate-180 animate-bounce"
               />
               <div
-                className={`w-40 h-0.5 rounded-full animate-pulse ${
-                  !isSpinning || showResult
-                    ? itemColor.light === "neutral-9"
-                      ? "bg-neutral-9"
-                      : itemColor.light === "green-9"
-                      ? "bg-green-9"
-                      : itemColor.light === "link-9"
-                      ? "bg-link-9"
-                      : itemColor.light === "purple-9"
-                      ? "bg-purple-9"
-                      : itemColor.light === "warning-9"
-                      ? "bg-warning-9"
-                      : "bg-neutral-9"
-                    : `bg-neutral-10`
-                } mx-auto mt-1 md:mt-4`}
+                className="w-40 h-0.5 rounded-full animate-pulse mx-auto mt-1 md:mt-4"
+                style={{
+                  backgroundColor: "rgba(65, 174, 196, 0.8)",
+                }}
               />
             </div>
 
@@ -659,21 +648,10 @@ const HorizontalSpinCarousel = forwardRef<
                 className="w-6 h-6 animate-bounce"
               />
               <div
-                className={`w-40 h-0.5 animate-pulse ${
-                  !isSpinning || showResult
-                    ? itemColor.light === "neutral-9"
-                      ? "bg-neutral-9"
-                      : itemColor.light === "green-9"
-                      ? "bg-green-9"
-                      : itemColor.light === "link-9"
-                      ? "bg-link-9"
-                      : itemColor.light === "purple-9"
-                      ? "bg-purple-9"
-                      : itemColor.light === "warning-9"
-                      ? "bg-warning-9"
-                      : "bg-neutral-9"
-                    : `bg-neutral-10`
-                } mx-auto mt-1 md:mt-4`}
+                className="w-40 h-0.5 animate-pulse mx-auto mt-1 md:mt-4"
+                style={{
+                  backgroundColor: "rgba(65, 174, 196, 0.8)",
+                }}
               />
             </div>
             <div
@@ -719,16 +697,25 @@ const HorizontalSpinCarousel = forwardRef<
                     }}
                   >
                     <div className="text-center flex flex-col items-center justify-center">
-                      <span className={`text-neutral-12 font-bold transition-all duration-300 ease-in-out ${
-                        isWinner && showResult
-                          ? "text-2xl"
-                          : isInCenter
-                          ? "text-xl"
-                          : "text-lg"
-                      }`}>
+                      <span
+                        className={`font-bold transition-all duration-300 ease-in-out ${
+                          isWinner && showResult
+                            ? "text-2xl"
+                            : isInCenter
+                            ? "text-xl"
+                            : "text-lg"
+                        }`}
+                        style={{ 
+                          color: isInCenter || isWinner ? "#41aec4" : "rgba(65, 174, 196, 0.7)",
+                          textShadow: isInCenter || isWinner ? "0 0 10px rgba(65, 174, 196, 0.5)" : "none"
+                        }}
+                      >
                         {item.value?.toLocaleString("pt-BR")}
                       </span>
-                      <span className="text-neutral-10 text-xs mt-1">
+                      <span
+                        className="text-xs mt-1"
+                        style={{ color: isInCenter || isWinner ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.5)" }}
+                      >
                         tokens
                       </span>
                     </div>
@@ -739,8 +726,16 @@ const HorizontalSpinCarousel = forwardRef<
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
                       >
-                        <span className="text-neutral-12 text-sm font-semibold p-2 px-4 bg-primary-9 text-primary-12 rounded-md">
-                          {items[winningIndex].value?.toLocaleString("pt-BR")} tokens $RECEBA
+                        <span
+                          className="text-sm font-semibold p-3 px-5 rounded-lg shadow-lg"
+                          style={{
+                            backgroundColor: "#41aec4",
+                            color: "#000000",
+                            border: "1px solid rgba(65, 174, 196, 0.5)",
+                          }}
+                        >
+                          {items[winningIndex].value?.toLocaleString("pt-BR")}{" "}
+                          tokens $RECEBA
                         </span>
                       </motion.div>
                     )}
@@ -751,45 +746,23 @@ const HorizontalSpinCarousel = forwardRef<
 
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center z-0">
               <motion.div
-                className={` ${
-                  !isSpinning && showResult
-                    ? itemColor.light === "neutral-9"
-                      ? "bg-neutral-9"
-                      : itemColor.light === "green-9"
-                      ? "bg-green-9"
-                      : itemColor.light === "link-9"
-                      ? "bg-link-9"
-                      : itemColor.light === "purple-9"
-                      ? "bg-purple-9"
-                      : itemColor.light === "warning-9"
-                      ? "bg-warning-9"
-                      : "bg-neutral-9"
-                    : "bg-neutral-10"
-                } transition-all duration-300 ease-in-out w-[20rem] sm:w-[30rem] md:w-[40rem] h-[20rem] sm:h-[30rem] md:h-[40rem] rounded-full blur-[80px] md:blur-[140px]`}
+                className="transition-all duration-300 ease-in-out w-[20rem] sm:w-[30rem] md:w-[40rem] h-[20rem] sm:h-[30rem] md:h-[40rem] rounded-full blur-[80px] md:blur-[140px]"
+                style={{
+                  backgroundColor: isSpinning || showResult ? "#41aec4" : "rgba(65, 174, 196, 0.2)",
+                  opacity: isSpinning || showResult ? 0.4 : 0.2,
+                }}
                 animate={{
                   scale: isSpinning || showResult ? 1.1 : 1,
-                  opacity: isSpinning || showResult ? 0.7 : 0.5,
                 }}
               />
             </div>
 
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center z-0">
               <motion.div
-                className={`w-[20rem] sm:w-[30rem] md:w-[40rem] h-[20rem] sm:h-[30rem] md:h-[40rem] rounded-full transition-all duration-300 ease-in-out border-[2px] md:border-[3px] ${
-                  !isSpinning && showResult
-                    ? itemColor.light === "neutral-9"
-                      ? "border-neutral-9"
-                      : itemColor.light === "green-9"
-                      ? "border-green-9"
-                      : itemColor.light === "link-9"
-                      ? "border-link-9"
-                      : itemColor.light === "purple-9"
-                      ? "border-purple-9"
-                      : itemColor.light === "warning-9"
-                      ? "border-warning-9"
-                      : "border-neutral-9"
-                    : "border-neutral-4"
-                }`}
+                className="w-[20rem] sm:w-[30rem] md:w-[40rem] h-[20rem] sm:h-[30rem] md:h-[40rem] rounded-full transition-all duration-300 ease-in-out border-[1px] md:border-[2px]"
+                style={{
+                  borderColor: isSpinning || showResult ? "rgba(65, 174, 196, 0.6)" : "rgba(65, 174, 196, 0.3)",
+                }}
                 animate={{ scale: isSpinning || showResult ? 1.05 : 1 }}
               />
             </div>
@@ -802,7 +775,10 @@ const HorizontalSpinCarousel = forwardRef<
               } pointer-events-none`}
             >
               <div
-                className={`absolute inset-0 bg-gradient-to-r h-full from-neutral-1 via-neutral-1/80 to-transparent`}
+                className="absolute inset-0 bg-gradient-to-r h-full to-transparent"
+                style={{
+                  background: `linear-gradient(to right, #000000, rgba(0, 0, 0, 0.8), transparent)`,
+                }}
               ></div>
             </div>
             <div
@@ -813,7 +789,10 @@ const HorizontalSpinCarousel = forwardRef<
               } pointer-events-none`}
             >
               <div
-                className={`absolute inset-0 bg-gradient-to-l h-full from-neutral-1 via-neutral-1/80 to-transparent`}
+                className="absolute inset-0 bg-gradient-to-l h-full to-transparent"
+                style={{
+                  background: `linear-gradient(to left, #000000, rgba(0, 0, 0, 0.8), transparent)`,
+                }}
               ></div>
             </div>
           </div>
@@ -826,3 +805,4 @@ const HorizontalSpinCarousel = forwardRef<
 HorizontalSpinCarousel.displayName = "HorizontalSpinCarousel";
 
 export default HorizontalSpinCarousel;
+

@@ -7,6 +7,11 @@
 }
 
 :root {
+  /* Brand Colors */
+  --brand-blue: #41aec4;
+  --brand-purple: #1d224b;
+  --brand-black: #000000;
+
   /* Primary Color Palette */
   --primary-1: #f9fefc;
   --primary-2: #f2fbf7;

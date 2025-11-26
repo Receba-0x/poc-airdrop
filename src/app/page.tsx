@@ -201,14 +201,20 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-neutral-12 pb-24 w-full bg-neutral-1">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center pb-24 w-full"
+      style={{ backgroundColor: "#1d224b" }}
+    >
       <div className="container w-full max-w-screen-2xl mx-auto px-6 md:px-0">
         <div className="flex flex-col items-center gap-8 mt-10">
           <div className="text-center">
-            <h1 className="text-3xl md:text-4xl font-bold text-neutral-12 mb-2">
-              Airdrop $RECEBA
+            <h1
+              className="text-3xl md:text-4xl font-bold mb-2"
+              style={{ color: "#ffffff" }}
+            >
+              $RECEBA Airdrop
             </h1>
-            <p className="text-neutral-10 text-sm md:text-base">
+            <p className="text-sm md:text-base" style={{ color: "#41aec4" }}>
               Itens de 2.000 a 10.000 SPL Solana
             </p>
           </div>
@@ -216,12 +222,18 @@ export default function HomePage() {
           {!formSubmitted ? (
             <form
               onSubmit={handleSubmit}
-              className="w-full max-w-md bg-neutral-2 border border-neutral-6 rounded-lg p-6 md:p-8 space-y-4"
+              className="w-full max-w-md rounded-xl p-6 md:p-8 space-y-5 shadow-2xl"
+              style={{
+                backgroundColor: "rgba(0, 0, 0, 0.4)",
+                border: "1px solid rgba(65, 174, 196, 0.3)",
+                backdropFilter: "blur(10px)",
+              }}
             >
               <div>
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium text-neutral-12 mb-2"
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#ffffff" }}
                 >
                   Nome
                 </label>
@@ -230,9 +242,27 @@ export default function HomePage() {
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
-                  className={`w-full px-4 py-2 bg-neutral-1 border rounded-lg text-neutral-12 focus:outline-none focus:ring-2 focus:ring-primary-9 ${
-                    errors.name ? "border-destructive" : "border-neutral-6"
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none transition-all ${
+                    errors.name ? "border-destructive" : ""
                   }`}
+                  style={{
+                    backgroundColor: "rgba(29, 34, 75, 0.6)",
+                    color: "#ffffff",
+                    borderColor: errors.name
+                      ? "#e5484d"
+                      : "rgba(65, 174, 196, 0.4)",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#41aec4";
+                    e.target.style.boxShadow =
+                      "0 0 0 3px rgba(65, 174, 196, 0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.boxShadow = "none";
+                    if (!errors.name) {
+                      e.target.style.borderColor = "rgba(65, 174, 196, 0.4)";
+                    }
+                  }}
                   placeholder="Seu nome completo"
                 />
                 {errors.name && (
@@ -243,7 +273,8 @@ export default function HomePage() {
               <div>
                 <label
                   htmlFor="instagram"
-                  className="block text-sm font-medium text-neutral-12 mb-2"
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#ffffff" }}
                 >
                   @ do Instagram
                 </label>
@@ -251,10 +282,30 @@ export default function HomePage() {
                   id="instagram"
                   type="text"
                   value={formData.instagram}
-                  onChange={(e) => handleInputChange("instagram", e.target.value)}
-                  className={`w-full px-4 py-2 bg-neutral-1 border rounded-lg text-neutral-12 focus:outline-none focus:ring-2 focus:ring-primary-9 ${
-                    errors.instagram ? "border-destructive" : "border-neutral-6"
+                  onChange={(e) =>
+                    handleInputChange("instagram", e.target.value)
+                  }
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none transition-all ${
+                    errors.instagram ? "border-destructive" : ""
                   }`}
+                  style={{
+                    backgroundColor: "rgba(29, 34, 75, 0.6)",
+                    color: "#ffffff",
+                    borderColor: errors.instagram
+                      ? "#e5484d"
+                      : "rgba(65, 174, 196, 0.4)",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#41aec4";
+                    e.target.style.boxShadow =
+                      "0 0 0 3px rgba(65, 174, 196, 0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.boxShadow = "none";
+                    if (!errors.instagram) {
+                      e.target.style.borderColor = "rgba(65, 174, 196, 0.4)";
+                    }
+                  }}
                   placeholder="@seuusuario"
                 />
                 {errors.instagram && (
@@ -267,7 +318,8 @@ export default function HomePage() {
               <div>
                 <label
                   htmlFor="phone"
-                  className="block text-sm font-medium text-neutral-12 mb-2"
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#ffffff" }}
                 >
                   Número
                 </label>
@@ -276,20 +328,41 @@ export default function HomePage() {
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => handleInputChange("phone", e.target.value)}
-                  className={`w-full px-4 py-2 bg-neutral-1 border rounded-lg text-neutral-12 focus:outline-none focus:ring-2 focus:ring-primary-9 ${
-                    errors.phone ? "border-destructive" : "border-neutral-6"
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none transition-all ${
+                    errors.phone ? "border-destructive" : ""
                   }`}
+                  style={{
+                    backgroundColor: "rgba(29, 34, 75, 0.6)",
+                    color: "#ffffff",
+                    borderColor: errors.phone
+                      ? "#e5484d"
+                      : "rgba(65, 174, 196, 0.4)",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#41aec4";
+                    e.target.style.boxShadow =
+                      "0 0 0 3px rgba(65, 174, 196, 0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.boxShadow = "none";
+                    if (!errors.phone) {
+                      e.target.style.borderColor = "rgba(65, 174, 196, 0.4)";
+                    }
+                  }}
                   placeholder="(00) 00000-0000"
                 />
                 {errors.phone && (
-                  <p className="mt-1 text-xs text-destructive">{errors.phone}</p>
+                  <p className="mt-1 text-xs text-destructive">
+                    {errors.phone}
+                  </p>
                 )}
               </div>
 
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-neutral-12 mb-2"
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#ffffff" }}
                 >
                   Email
                 </label>
@@ -298,20 +371,41 @@ export default function HomePage() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
-                  className={`w-full px-4 py-2 bg-neutral-1 border rounded-lg text-neutral-12 focus:outline-none focus:ring-2 focus:ring-primary-9 ${
-                    errors.email ? "border-destructive" : "border-neutral-6"
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none transition-all ${
+                    errors.email ? "border-destructive" : ""
                   }`}
+                  style={{
+                    backgroundColor: "rgba(29, 34, 75, 0.6)",
+                    color: "#ffffff",
+                    borderColor: errors.email
+                      ? "#e5484d"
+                      : "rgba(65, 174, 196, 0.4)",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#41aec4";
+                    e.target.style.boxShadow =
+                      "0 0 0 3px rgba(65, 174, 196, 0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.boxShadow = "none";
+                    if (!errors.email) {
+                      e.target.style.borderColor = "rgba(65, 174, 196, 0.4)";
+                    }
+                  }}
                   placeholder="seu@email.com"
                 />
                 {errors.email && (
-                  <p className="mt-1 text-xs text-destructive">{errors.email}</p>
+                  <p className="mt-1 text-xs text-destructive">
+                    {errors.email}
+                  </p>
                 )}
               </div>
 
               <div>
                 <label
                   htmlFor="wallet"
-                  className="block text-sm font-medium text-neutral-12 mb-2"
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#ffffff" }}
                 >
                   Carteira Solana
                 </label>
@@ -320,27 +414,66 @@ export default function HomePage() {
                   type="text"
                   value={formData.wallet}
                   onChange={(e) => handleInputChange("wallet", e.target.value)}
-                  className={`w-full px-4 py-2 bg-neutral-1 border rounded-lg text-neutral-12 focus:outline-none focus:ring-2 focus:ring-primary-9 font-mono text-sm ${
-                    errors.wallet ? "border-destructive" : "border-neutral-6"
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none transition-all font-mono text-sm ${
+                    errors.wallet ? "border-destructive" : ""
                   }`}
+                  style={{
+                    backgroundColor: "rgba(29, 34, 75, 0.6)",
+                    color: "#ffffff",
+                    borderColor: errors.wallet
+                      ? "#e5484d"
+                      : "rgba(65, 174, 196, 0.4)",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#41aec4";
+                    e.target.style.boxShadow =
+                      "0 0 0 3px rgba(65, 174, 196, 0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.boxShadow = "none";
+                    if (!errors.wallet) {
+                      e.target.style.borderColor = "rgba(65, 174, 196, 0.4)";
+                    }
+                  }}
                   placeholder="Endereço da sua carteira Solana"
                 />
                 {errors.wallet && (
-                  <p className="mt-1 text-xs text-destructive">{errors.wallet}</p>
+                  <p className="mt-1 text-xs text-destructive">
+                    {errors.wallet}
+                  </p>
                 )}
               </div>
 
               <Button
                 type="submit"
                 variant="default"
-                className="w-full mt-6"
+                className="w-full mt-6 py-3 font-semibold text-base rounded-lg transition-all"
+                style={{
+                  backgroundColor: "#41aec4",
+                  color: "#000000",
+                  border: "none",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#3a9db0";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "#41aec4";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
               >
                 Participar do Airdrop
               </Button>
             </form>
           ) : (
             <>
-              <div className="w-full bg-neutral-2 flex flex-col items-center justify-center border border-neutral-6 rounded-lg overflow-hidden h-[250px] sm:h-[280px] md:h-[350px] relative">
+              <div
+                className="w-full flex flex-col items-center justify-center rounded-xl overflow-hidden h-[250px] sm:h-[280px] md:h-[350px] relative shadow-2xl"
+                style={{
+                  backgroundColor: "#000000",
+                  border: "1px solid rgba(65, 174, 196, 0.3)",
+                }}
+              >
                 <HorizontalSpinCarousel
                   ref={carouselRef}
                   items={AVAILABLE_ITEMS}
@@ -354,13 +487,30 @@ export default function HomePage() {
                 />
               </div>
 
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex flex-col items-center gap-6">
                 <div className="flex gap-4">
                   <Button
                     onClick={handleSpin}
                     disabled={isSpinning}
                     variant="default"
-                    className="min-w-[150px]"
+                    className="min-w-[150px] py-3 font-semibold rounded-lg transition-all"
+                    style={{
+                      backgroundColor: isSpinning ? "#3a9db0" : "#41aec4",
+                      color: "#000000",
+                      border: "none",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSpinning) {
+                        e.currentTarget.style.backgroundColor = "#3a9db0";
+                        e.currentTarget.style.transform = "translateY(-1px)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSpinning) {
+                        e.currentTarget.style.backgroundColor = "#41aec4";
+                        e.currentTarget.style.transform = "translateY(0)";
+                      }
+                    }}
                   >
                     {isSpinning ? "Girando..." : "Girar Carousel"}
                   </Button>
@@ -368,16 +518,46 @@ export default function HomePage() {
                     onClick={handleReset}
                     disabled={isSpinning}
                     variant="outline"
-                    className="min-w-[150px]"
+                    className="min-w-[150px] py-3 font-semibold rounded-lg transition-all"
+                    style={{
+                      backgroundColor: "transparent",
+                      color: "#41aec4",
+                      border: "1px solid rgba(65, 174, 196, 0.5)",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSpinning) {
+                        e.currentTarget.style.backgroundColor =
+                          "rgba(65, 174, 196, 0.1)";
+                        e.currentTarget.style.borderColor = "#41aec4";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSpinning) {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                        e.currentTarget.style.borderColor =
+                          "rgba(65, 174, 196, 0.5)";
+                      }
+                    }}
                   >
                     Resetar
                   </Button>
                 </div>
 
                 {wonItem && (
-                  <div className="mt-4 p-4 bg-neutral-3 border border-neutral-6 rounded-lg text-center">
-                    <p className="text-neutral-12 font-semibold text-lg">
-                      Você ganhou: {wonItem.value?.toLocaleString("pt-BR")} $RECEBA
+                  <div
+                    className="mt-4 p-6 rounded-xl text-center shadow-xl"
+                    style={{
+                      backgroundColor: "rgba(0, 0, 0, 0.4)",
+                      border: "1px solid rgba(65, 174, 196, 0.3)",
+                      backdropFilter: "blur(10px)",
+                    }}
+                  >
+                    <p
+                      className="font-bold text-xl"
+                      style={{ color: "#41aec4" }}
+                    >
+                      Você ganhou: {wonItem.value?.toLocaleString("pt-BR")}{" "}
+                      $RECEBA
                     </p>
                   </div>
                 )}
@@ -386,12 +566,37 @@ export default function HomePage() {
                   {AVAILABLE_ITEMS.map((item) => (
                     <div
                       key={item.id}
-                      className="bg-neutral-2 border border-neutral-6 rounded-lg p-4 flex flex-col items-center justify-center gap-1 min-h-[80px]"
+                      className="rounded-lg p-4 flex flex-col items-center justify-center gap-1 min-h-[90px] transition-all hover:scale-105"
+                      style={{
+                        backgroundColor: "rgba(0, 0, 0, 0.3)",
+                        border: "1px solid rgba(65, 174, 196, 0.2)",
+                        backdropFilter: "blur(5px)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor =
+                          "rgba(65, 174, 196, 0.5)";
+                        e.currentTarget.style.backgroundColor =
+                          "rgba(0, 0, 0, 0.5)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor =
+                          "rgba(65, 174, 196, 0.2)";
+                        e.currentTarget.style.backgroundColor =
+                          "rgba(0, 0, 0, 0.3)";
+                      }}
                     >
-                      <p className="text-lg font-bold text-neutral-12">
+                      <p
+                        className="text-lg font-bold"
+                        style={{ color: "#41aec4" }}
+                      >
                         {item.value?.toLocaleString("pt-BR")}
                       </p>
-                      <p className="text-xs text-neutral-10">$RECEBA</p>
+                      <p
+                        className="text-xs"
+                        style={{ color: "rgba(255, 255, 255, 0.7)" }}
+                      >
+                        $RECEBA
+                      </p>
                     </div>
                   ))}
                 </div>
